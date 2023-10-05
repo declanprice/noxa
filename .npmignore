@@ -1,0 +1,13 @@
+# source
+lib
+tests
+index.ts
+package-lock.json
+tslint.json
+tsconfig.json
+dist/src
+.prettierrc
+
+
+# misc
+docker-compose.yml
