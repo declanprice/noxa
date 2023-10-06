@@ -18,7 +18,7 @@ let AppController = class AppController {
         this.commandBus = commandBus;
     }
     async get() {
-        await this.commandBus.sendCommand(new register_customer_handler_1.RegisterCustomer('1', 'declan'));
+        await this.commandBus.send(new register_customer_handler_1.RegisterCustomer('1', 'declan'));
     }
 };
 exports.AppController = AppController;

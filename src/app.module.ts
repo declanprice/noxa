@@ -1,11 +1,26 @@
 import { Module } from '@nestjs/common';
+import { LoggerModule } from 'nestjs-pino';
+
 import { AppController } from './app.controller';
 import { NoxaModule, RabbitmqBus } from '../lib';
-import { LoggerModule } from 'nestjs-pino';
 import { RegisterCustomerHandler } from './register-customer.handler';
 
 @Module({
+  controllers: [AppController],
+  providers: [RegisterCustomerHandler],
   imports: [
+    NoxaModule.forRoot({
+      context: 'customerService',
+      postgres: {
+        connectionUrl: '',
+      },
+      bus: new RabbitmqBus({
+        connectionUrl: 'amqp://localhost:5672',
+      }),
+      asyncDaemon: {
+        enabled: true,
+      },
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {
@@ -18,17 +33,6 @@ import { RegisterCustomerHandler } from './register-customer.handler';
         },
       },
     }),
-    NoxaModule.forRoot({
-      context: 'customer',
-      postgresConnectionUrl: '',
-      bus: new RabbitmqBus(''),
-      autoCreateResources: true,
-      asyncDaemon: {
-        enabled: true,
-      },
-    }),
   ],
-  controllers: [AppController],
-  providers: [RegisterCustomerHandler],
 })
 export class ApplicationModule {}

@@ -1,13 +1,15 @@
-import { Inject, Injectable, Logger, Type } from '@nestjs/common';
+import { Injectable, Logger, Type } from '@nestjs/common';
 import { Command, HandleCommand } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
 import {
   COMMAND_HANDLER_METADATA,
   COMMAND_METADATA,
 } from '../../handlers/constants';
-
 import { CommandMetadata } from '../../handlers/command/command-metadata.type';
 import { BusImplementation } from '../bus-implementation.type';
+import { InjectNoxaBus, InjectNoxaConfig } from '../../tokens';
+import { NoxaConfig } from '../../noxa.module';
+import { Outbox } from './outbox.service';
 
 @Injectable({})
 export class CommandBus {
@@ -16,11 +18,15 @@ export class CommandBus {
   logger = new Logger(CommandBus.name);
 
   constructor(
-    @Inject('NOXA_BUS_IMPL') private readonly busImpl: BusImplementation,
+    @InjectNoxaBus()
+    private readonly busImpl: BusImplementation,
+    @InjectNoxaConfig()
+    private readonly config: NoxaConfig,
+    private readonly outbox: Outbox,
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  execute(command: Command) {
+  invoke(command: Command) {
     const commandId = this.getCommandId(command);
 
     const handler = this.handlers.get(commandId);
@@ -33,19 +39,45 @@ export class CommandBus {
     return handler.handle(command);
   }
 
-  async sendCommand(command: Command): Promise<void> {
-    return await this.busImpl.sendCommand(command);
+  async publish(
+    command: Command,
+    options: { toContext?: string; tenantId?: string; publishAt?: Date },
+  ): Promise<void> {
+    const { toContext, tenantId, publishAt } = options;
+
+    await this.outbox.publish({
+      bus: 'command',
+      type: this.getCommandName(command),
+      fromContext: toContext ? toContext : this.config.context,
+      tenantId: tenantId ? tenantId : 'DEFAULT',
+      timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
+      data: command,
+    });
   }
 
-  async registerCommandHandlers(
-    handlers: HandleCommand<Command>[],
-  ): Promise<void> {}
+  async send(
+    command: Command,
+    options?: { toContext?: string; tenantId?: string; publishAt?: Date },
+  ): Promise<void> {
+    const { toContext, tenantId, publishAt } = options || {};
 
-  register(handlers: Type<HandleCommand>[] = []) {
-    handlers.forEach((handler) => this.registerHandler(handler));
+    await this.busImpl.sendCommand({
+      bus: 'command',
+      type: this.getCommandName(command),
+      fromContext: toContext ? toContext : this.config.context,
+      tenantId: tenantId ? tenantId : 'DEFAULT',
+      timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
+      data: command,
+    });
   }
 
-  protected registerHandler(handler: Type<HandleCommand>) {
+  async register(handlers: Type<HandleCommand>[] = []) {
+    for (const handler of handlers) {
+      await this.registerHandler(handler);
+    }
+  }
+
+  protected async registerHandler(handler: Type<HandleCommand>) {
     const instance = this.moduleRef.get(handler, { strict: false });
 
     if (!instance) {
@@ -59,6 +91,8 @@ export class CommandBus {
     }
 
     this.handlers.set(target, instance);
+
+    await this.busImpl.registerCommandHandler(instance);
   }
 
   private getCommandName(command: Command): string {

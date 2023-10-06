@@ -20,7 +20,9 @@ let HandlerExplorer = class HandlerExplorer {
     explore() {
         const modules = [...this.modulesContainer.values()];
         const commandHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.COMMAND_HANDLER_METADATA));
-        return { commandHandlers };
+        const queryHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.QUERY_HANDLER_METADATA));
+        const eventHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.EVENT_HANDLER_METADATA));
+        return { commandHandlers, queryHandlers, eventHandlers };
     }
     flatMap(modules, callback) {
         const items = modules

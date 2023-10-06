@@ -1,10 +1,8 @@
-import { Type } from '@nestjs/common';
-import { Command, HandleCommand, HandleEvent, Process, Saga } from '../handlers';
+import { Command, HandleCommand, HandleEvent } from '../handlers';
+import { BusMessage } from './bus-message.type';
 export type BusImplementation = {
-    sendCommand(command: Command): Promise<void>;
-    registerCommandHandlers(handlers: HandleCommand<Command>[]): Promise<void>;
-    sendEvent(command: Command): Promise<void>;
-    registerEventHandlers(handlers: HandleEvent<Event>[]): Promise<void>;
-    registerSagas(sagas: Type<Saga>[]): Promise<void>;
-    registerProcesses(processes: Type<Process>[]): Promise<void>;
+    sendCommand(command: BusMessage): Promise<void>;
+    registerCommandHandler(handler: HandleCommand<Command>): Promise<void>;
+    sendEvent(event: BusMessage): Promise<void>;
+    registerEventHandler(handler: HandleEvent<Event>): Promise<void>;
 };

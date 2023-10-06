@@ -14,34 +14,51 @@ exports.NoxaModule = void 0;
 const common_1 = require("@nestjs/common");
 const handlers_1 = require("./handlers");
 const bus_1 = require("./bus");
+const tokens_1 = require("./tokens/");
+const outbox_service_1 = require("./bus/services/outbox.service");
+const event_bus_service_1 = require("./bus/services/event-bus.service");
+const query_bus_service_1 = require("./bus/services/query-bus.service");
 let NoxaModule = NoxaModule_1 = class NoxaModule {
-    constructor(handlerExplorer, commandBus) {
+    constructor(handlerExplorer, commandBus, queryBus, eventBus) {
         this.handlerExplorer = handlerExplorer;
         this.commandBus = commandBus;
+        this.queryBus = queryBus;
+        this.eventBus = eventBus;
     }
     static forRoot(options) {
         return {
             module: NoxaModule_1,
             providers: [
                 {
-                    provide: 'NOXA_BUS_IMPL',
+                    provide: tokens_1.NOXA_BUS_TOKEN,
                     useValue: options.bus,
+                },
+                {
+                    provide: tokens_1.NOXA_CONFIG_TOKEN,
+                    useValue: {
+                        context: options.context,
+                        asyncDaemon: options.asyncDaemon,
+                    },
                 },
             ],
             global: true,
         };
     }
-    onApplicationBootstrap() {
-        const { commandHandlers } = this.handlerExplorer.explore();
-        this.commandBus.register(commandHandlers);
+    async onApplicationBootstrap() {
+        const { commandHandlers, queryHandlers, eventHandlers } = this.handlerExplorer.explore();
+        await this.commandBus.register(commandHandlers);
+        await this.queryBus.register(queryHandlers);
+        await this.eventBus.register(eventHandlers);
     }
 };
 exports.NoxaModule = NoxaModule;
 exports.NoxaModule = NoxaModule = NoxaModule_1 = __decorate([
     (0, common_1.Module)({
-        exports: [bus_1.CommandBus],
-        providers: [bus_1.CommandBus, handlers_1.HandlerExplorer],
+        exports: [bus_1.CommandBus, query_bus_service_1.QueryBus, event_bus_service_1.EventBus, outbox_service_1.Outbox],
+        providers: [bus_1.CommandBus, query_bus_service_1.QueryBus, event_bus_service_1.EventBus, outbox_service_1.Outbox, handlers_1.HandlerExplorer],
     }),
     __metadata("design:paramtypes", [handlers_1.HandlerExplorer,
-        bus_1.CommandBus])
+        bus_1.CommandBus,
+        query_bus_service_1.QueryBus,
+        event_bus_service_1.EventBus])
 ], NoxaModule);

@@ -8,16 +8,30 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicationModule = void 0;
 const common_1 = require("@nestjs/common");
+const nestjs_pino_1 = require("nestjs-pino");
 const app_controller_1 = require("./app.controller");
 const lib_1 = require("../lib");
-const nestjs_pino_1 = require("nestjs-pino");
 const register_customer_handler_1 = require("./register-customer.handler");
 let ApplicationModule = class ApplicationModule {
 };
 exports.ApplicationModule = ApplicationModule;
 exports.ApplicationModule = ApplicationModule = __decorate([
     (0, common_1.Module)({
+        controllers: [app_controller_1.AppController],
+        providers: [register_customer_handler_1.RegisterCustomerHandler],
         imports: [
+            lib_1.NoxaModule.forRoot({
+                context: 'customerService',
+                postgres: {
+                    connectionUrl: '',
+                },
+                bus: new lib_1.RabbitmqBus({
+                    connectionUrl: 'amqp://localhost:5672',
+                }),
+                asyncDaemon: {
+                    enabled: true,
+                },
+            }),
             nestjs_pino_1.LoggerModule.forRoot({
                 pinoHttp: {
                     transport: {
@@ -30,17 +44,6 @@ exports.ApplicationModule = ApplicationModule = __decorate([
                     },
                 },
             }),
-            lib_1.NoxaModule.forRoot({
-                context: 'customer',
-                postgresConnectionUrl: '',
-                bus: new lib_1.RabbitmqBus(''),
-                autoCreateResources: true,
-                asyncDaemon: {
-                    enabled: true,
-                },
-            }),
         ],
-        controllers: [app_controller_1.AppController],
-        providers: [register_customer_handler_1.RegisterCustomerHandler],
     })
 ], ApplicationModule);

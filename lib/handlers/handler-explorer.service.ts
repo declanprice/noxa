@@ -4,10 +4,18 @@ import { Module } from '@nestjs/core/injector/module';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { HandleCommand } from './command/handle-command.type';
-import { COMMAND_HANDLER_METADATA } from './constants';
+import {
+  COMMAND_HANDLER_METADATA,
+  EVENT_HANDLER_METADATA,
+  QUERY_HANDLER_METADATA,
+} from './constants';
+import { HandleEvent } from './event/handle-event.type';
+import { HandleQuery } from './query/handle-query.type';
 
 export type HandlerOptions = {
   commandHandlers?: Type<HandleCommand>[];
+  queryHandlers?: Type<HandleQuery>[];
+  eventHandlers?: Type<HandleEvent>[];
 };
 
 @Injectable()
@@ -21,7 +29,15 @@ export class HandlerExplorer {
       this.filterProvider(instance, COMMAND_HANDLER_METADATA),
     );
 
-    return { commandHandlers };
+    const queryHandlers = this.flatMap<HandleQuery>(modules, (instance) =>
+      this.filterProvider(instance, QUERY_HANDLER_METADATA),
+    );
+
+    const eventHandlers = this.flatMap<HandleEvent>(modules, (instance) =>
+      this.filterProvider(instance, EVENT_HANDLER_METADATA),
+    );
+
+    return { commandHandlers, queryHandlers, eventHandlers };
   }
 
   flatMap<T>(

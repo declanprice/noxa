@@ -1,13 +1,18 @@
-import { Type } from '@nestjs/common';
 import { BusImplementation } from '../bus-implementation.type';
-import { Command, HandleCommand, HandleEvent, Process, Saga } from '../../handlers';
+import { Command, HandleCommand, HandleEvent } from '../../handlers';
+import { BusMessage } from '../bus-message.type';
+export type RabbitmqBusOptions = {
+    connectionUrl: string;
+    autoCreateResources?: boolean;
+};
 export declare class RabbitmqBus implements BusImplementation {
+    private readonly options;
     private logger;
-    constructor(connectionUrl: string);
-    sendCommand(command: Command): Promise<void>;
-    registerCommandHandlers(handlers: HandleCommand<Command>[]): Promise<void>;
-    sendEvent(event: Event): Promise<void>;
-    registerEventHandlers(handlers: HandleEvent<Event>[]): Promise<void>;
-    registerSagas(sagas: Type<Saga>[]): Promise<void>;
-    registerProcesses(processes: Type<Process>[]): Promise<void>;
+    private channel?;
+    constructor(options: RabbitmqBusOptions);
+    connect(connectionUrl: string): Promise<void>;
+    sendCommand(message: BusMessage): Promise<void>;
+    registerCommandHandler(handler: HandleCommand<Command>): Promise<void>;
+    sendEvent(event: BusMessage): Promise<void>;
+    registerEventHandler(handler: HandleEvent<Event>): Promise<void>;
 }

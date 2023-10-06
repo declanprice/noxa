@@ -17,14 +17,18 @@ exports.CommandBus = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const constants_1 = require("../../handlers/constants");
+const tokens_1 = require("../../tokens");
+const outbox_service_1 = require("./outbox.service");
 let CommandBus = CommandBus_1 = class CommandBus {
-    constructor(busImpl, moduleRef) {
+    constructor(busImpl, config, outbox, moduleRef) {
         this.busImpl = busImpl;
+        this.config = config;
+        this.outbox = outbox;
         this.moduleRef = moduleRef;
         this.handlers = new Map();
         this.logger = new common_1.Logger(CommandBus_1.name);
     }
-    execute(command) {
+    invoke(command) {
         const commandId = this.getCommandId(command);
         const handler = this.handlers.get(commandId);
         if (!handler) {
@@ -33,14 +37,34 @@ let CommandBus = CommandBus_1 = class CommandBus {
         }
         return handler.handle(command);
     }
-    async sendCommand(command) {
-        return await this.busImpl.sendCommand(command);
+    async publish(command, options) {
+        const { toContext, tenantId, publishAt } = options;
+        await this.outbox.publish({
+            bus: 'command',
+            type: this.getCommandName(command),
+            fromContext: toContext ? toContext : this.config.context,
+            tenantId: tenantId ? tenantId : 'DEFAULT',
+            timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
+            data: command,
+        });
     }
-    async registerCommandHandlers(handlers) { }
-    register(handlers = []) {
-        handlers.forEach((handler) => this.registerHandler(handler));
+    async send(command, options) {
+        const { toContext, tenantId, publishAt } = options || {};
+        await this.busImpl.sendCommand({
+            bus: 'command',
+            type: this.getCommandName(command),
+            fromContext: toContext ? toContext : this.config.context,
+            tenantId: tenantId ? tenantId : 'DEFAULT',
+            timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
+            data: command,
+        });
     }
-    registerHandler(handler) {
+    async register(handlers = []) {
+        for (const handler of handlers) {
+            await this.registerHandler(handler);
+        }
+    }
+    async registerHandler(handler) {
         const instance = this.moduleRef.get(handler, { strict: false });
         if (!instance) {
             return;
@@ -50,6 +74,7 @@ let CommandBus = CommandBus_1 = class CommandBus {
             throw new Error('invalid command handler');
         }
         this.handlers.set(target, instance);
+        await this.busImpl.registerCommandHandler(instance);
     }
     getCommandName(command) {
         const { constructor } = Object.getPrototypeOf(command);
@@ -72,6 +97,8 @@ let CommandBus = CommandBus_1 = class CommandBus {
 exports.CommandBus = CommandBus;
 exports.CommandBus = CommandBus = CommandBus_1 = __decorate([
     (0, common_1.Injectable)({}),
-    __param(0, (0, common_1.Inject)('NOXA_BUS_IMPL')),
-    __metadata("design:paramtypes", [Object, core_1.ModuleRef])
+    __param(0, (0, tokens_1.InjectNoxaBus)()),
+    __param(1, (0, tokens_1.InjectNoxaConfig)()),
+    __metadata("design:paramtypes", [Object, Object, outbox_service_1.Outbox,
+        core_1.ModuleRef])
 ], CommandBus);

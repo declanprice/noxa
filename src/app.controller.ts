@@ -8,6 +8,6 @@ export class AppController {
 
   @Get('/')
   async get() {
-    await this.commandBus.sendCommand(new RegisterCustomer('1', 'declan'));
+    await this.commandBus.send(new RegisterCustomer('1', 'declan'));
   }
 }
