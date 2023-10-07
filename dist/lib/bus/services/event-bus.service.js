@@ -17,11 +17,12 @@ exports.EventBus = void 0;
 const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const constants_1 = require("../../handlers/constants");
-const tokens_1 = require("../../tokens");
+const bus_relay_type_1 = require("../bus-relay.type");
 const outbox_service_1 = require("./outbox.service");
+const config_1 = require("../../config");
 let EventBus = EventBus_1 = class EventBus {
-    constructor(busImpl, config, outbox, moduleRef) {
-        this.busImpl = busImpl;
+    constructor(busRelay, config, outbox, moduleRef) {
+        this.busRelay = busRelay;
         this.config = config;
         this.outbox = outbox;
         this.moduleRef = moduleRef;
@@ -39,10 +40,11 @@ let EventBus = EventBus_1 = class EventBus {
     }
     async sendEvent(event, options) {
         const { toContext, tenantId, publishAt } = options;
-        await this.busImpl.sendCommand({
+        await this.busRelay.sendCommand({
             bus: 'event',
             type: this.getEventName(event),
-            fromContext: toContext ? toContext : this.config.context,
+            fromContext: this.config.context,
+            targetContext: toContext ? toContext : this.config.context,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: event,
@@ -53,7 +55,8 @@ let EventBus = EventBus_1 = class EventBus {
         await this.outbox.publish({
             bus: 'event',
             type: this.getEventName(event),
-            fromContext: toContext ? toContext : this.config.context,
+            fromContext: this.config.context,
+            targetContext: toContext ? toContext : this.config.context,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: event,
@@ -69,12 +72,14 @@ let EventBus = EventBus_1 = class EventBus {
         if (!instance) {
             return;
         }
-        const target = this.reflectEventId(handler);
-        if (!target) {
+        const { id, type } = this.reflectEventHandler(handler);
+        if (!id) {
             throw new Error('invalid event handler');
         }
-        this.handlers.set(target, instance);
-        await this.busImpl.registerEventHandler(instance);
+        this.handlers.set(id, instance);
+        await this.busRelay.registerEventHandler(instance, {
+            type,
+        });
     }
     getEventName(event) {
         const { constructor } = Object.getPrototypeOf(event);
@@ -88,17 +93,23 @@ let EventBus = EventBus_1 = class EventBus {
         }
         return eventMetadata.id;
     }
-    reflectEventId(handler) {
+    reflectEventHandler(handler) {
         const event = Reflect.getMetadata(constants_1.EVENT_HANDLER_METADATA, handler);
         const eventMetadata = Reflect.getMetadata(constants_1.EVENT_METADATA, event);
-        return eventMetadata.id;
+        if (!event || !eventMetadata) {
+            throw new Error(`reflect data not found for handler ${handler.constructor.name}`);
+        }
+        return {
+            id: eventMetadata.id,
+            type: eventMetadata.type,
+        };
     }
 };
 exports.EventBus = EventBus;
 exports.EventBus = EventBus = EventBus_1 = __decorate([
     (0, common_1.Injectable)({}),
-    __param(0, (0, tokens_1.InjectNoxaBus)()),
-    __param(1, (0, tokens_1.InjectNoxaConfig)()),
+    __param(0, (0, bus_relay_type_1.InjectBusRelay)()),
+    __param(1, (0, config_1.InjectConfig)()),
     __metadata("design:paramtypes", [Object, Object, outbox_service_1.Outbox,
         core_1.ModuleRef])
 ], EventBus);

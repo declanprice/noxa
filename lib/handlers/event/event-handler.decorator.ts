@@ -18,7 +18,11 @@ export const EventHandler = (
 ): ClassDecorator => {
   return (target: object) => {
     if (!Reflect.hasOwnMetadata(EVENT_METADATA, event)) {
-      Reflect.defineMetadata(EVENT_METADATA, { id: v4() }, event);
+      Reflect.defineMetadata(
+        EVENT_METADATA,
+        { id: v4(), type: (event as any).name },
+        event,
+      );
     }
 
     Reflect.defineMetadata(EVENT_HANDLER_OPTIONS_METADATA, options, target);

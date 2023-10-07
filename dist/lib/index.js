@@ -19,3 +19,4 @@ var noxa_module_1 = require("./noxa.module");
 Object.defineProperty(exports, "NoxaModule", { enumerable: true, get: function () { return noxa_module_1.NoxaModule; } });
 __exportStar(require("./handlers"), exports);
 __exportStar(require("./bus"), exports);
+__exportStar(require("./config"), exports);

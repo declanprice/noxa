@@ -7,7 +7,11 @@ export const CommandHandler = (
 ): ClassDecorator => {
   return (target: object) => {
     if (!Reflect.hasOwnMetadata(COMMAND_METADATA, command)) {
-      Reflect.defineMetadata(COMMAND_METADATA, { id: v4() }, command);
+      Reflect.defineMetadata(
+        COMMAND_METADATA,
+        { id: v4(), type: (command as any).name },
+        command,
+      );
     }
     Reflect.defineMetadata(COMMAND_HANDLER_METADATA, command, target);
   };

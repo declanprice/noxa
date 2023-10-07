@@ -1,25 +1,23 @@
 import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
 
 import { HandlerExplorer } from './handlers';
-import { BusImplementation, CommandBus } from './bus';
-import { NOXA_BUS_TOKEN, NOXA_CONFIG_TOKEN } from './tokens/';
-import { Outbox } from './bus/services/outbox.service';
-import { EventBus } from './bus/services/event-bus.service';
-import { QueryBus } from './bus/services/query-bus.service';
+import {
+  BUS_RELAY_TOKEN,
+  BusRelay,
+  CommandBus,
+  QueryBus,
+  EventBus,
+  Outbox,
+  InjectBusRelay,
+} from './bus';
+import { Config, CONFIG_TOKEN, InjectConfig } from './config';
 
 export type NoxaModuleOptions = {
   postgres: {
     connectionUrl: string;
   };
-  bus: BusImplementation;
-} & NoxaConfig;
-
-export type NoxaConfig = {
-  context: string;
-  asyncDaemon: {
-    enabled: boolean;
-  };
-};
+  bus: BusRelay;
+} & Config;
 
 @Module({
   exports: [CommandBus, QueryBus, EventBus, Outbox],
@@ -31,6 +29,8 @@ export class NoxaModule implements OnApplicationBootstrap {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly eventBus: EventBus,
+    @InjectBusRelay() private readonly busRelay: BusRelay,
+    @InjectConfig() private readonly config: Config,
   ) {}
 
   public static forRoot(options: NoxaModuleOptions): DynamicModule {
@@ -38,15 +38,15 @@ export class NoxaModule implements OnApplicationBootstrap {
       module: NoxaModule,
       providers: [
         {
-          provide: NOXA_BUS_TOKEN,
+          provide: BUS_RELAY_TOKEN,
           useValue: options.bus,
         },
         {
-          provide: NOXA_CONFIG_TOKEN,
+          provide: CONFIG_TOKEN,
           useValue: {
             context: options.context,
             asyncDaemon: options.asyncDaemon,
-          } as NoxaConfig,
+          } as Config,
         },
       ],
       global: true,
@@ -56,6 +56,8 @@ export class NoxaModule implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     const { commandHandlers, queryHandlers, eventHandlers } =
       this.handlerExplorer.explore();
+
+    await this.busRelay.init(this.config);
 
     await this.commandBus.register(commandHandlers);
     await this.queryBus.register(queryHandlers);

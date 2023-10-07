@@ -1,17 +1,17 @@
 import { Logger, Type } from '@nestjs/common';
 import { Command, HandleCommand } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
-import { BusImplementation } from '../bus-implementation.type';
-import { NoxaConfig } from '../../noxa.module';
+import { BusRelay } from '../bus-relay.type';
 import { Outbox } from './outbox.service';
+import { Config } from '../../config';
 export declare class CommandBus {
-    private readonly busImpl;
+    private readonly busRelay;
     private readonly config;
     private readonly outbox;
     private readonly moduleRef;
     private handlers;
     logger: Logger;
-    constructor(busImpl: BusImplementation, config: NoxaConfig, outbox: Outbox, moduleRef: ModuleRef);
+    constructor(busRelay: BusRelay, config: Config, outbox: Outbox, moduleRef: ModuleRef);
     invoke(command: Command): Promise<any>;
     publish(command: Command, options: {
         toContext?: string;
@@ -27,5 +27,5 @@ export declare class CommandBus {
     protected registerHandler(handler: Type<HandleCommand>): Promise<void>;
     private getCommandName;
     private getCommandId;
-    private reflectCommandId;
+    private reflectCommandHandler;
 }

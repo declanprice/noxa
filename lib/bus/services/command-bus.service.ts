@@ -6,10 +6,9 @@ import {
   COMMAND_METADATA,
 } from '../../handlers/constants';
 import { CommandMetadata } from '../../handlers/command/command-metadata.type';
-import { BusImplementation } from '../bus-implementation.type';
-import { InjectNoxaBus, InjectNoxaConfig } from '../../tokens';
-import { NoxaConfig } from '../../noxa.module';
+import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Outbox } from './outbox.service';
+import { Config, InjectConfig } from '../../config';
 
 @Injectable({})
 export class CommandBus {
@@ -18,10 +17,10 @@ export class CommandBus {
   logger = new Logger(CommandBus.name);
 
   constructor(
-    @InjectNoxaBus()
-    private readonly busImpl: BusImplementation,
-    @InjectNoxaConfig()
-    private readonly config: NoxaConfig,
+    @InjectBusRelay()
+    private readonly busRelay: BusRelay,
+    @InjectConfig()
+    private readonly config: Config,
     private readonly outbox: Outbox,
     private readonly moduleRef: ModuleRef,
   ) {}
@@ -48,7 +47,8 @@ export class CommandBus {
     await this.outbox.publish({
       bus: 'command',
       type: this.getCommandName(command),
-      fromContext: toContext ? toContext : this.config.context,
+      fromContext: this.config.context,
+      targetContext: toContext ? toContext : this.config.context,
       tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: command,
@@ -61,10 +61,11 @@ export class CommandBus {
   ): Promise<void> {
     const { toContext, tenantId, publishAt } = options || {};
 
-    await this.busImpl.sendCommand({
+    await this.busRelay.sendCommand({
       bus: 'command',
       type: this.getCommandName(command),
-      fromContext: toContext ? toContext : this.config.context,
+      fromContext: this.config.context,
+      targetContext: toContext ? toContext : this.config.context,
       tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: command,
@@ -84,15 +85,17 @@ export class CommandBus {
       return;
     }
 
-    const target = this.reflectCommandId(handler);
+    const { id, type } = this.reflectCommandHandler(handler);
 
-    if (!target) {
+    if (!id) {
       throw new Error('invalid command handler');
     }
 
-    this.handlers.set(target, instance);
+    this.handlers.set(id, instance);
 
-    await this.busImpl.registerCommandHandler(instance);
+    await this.busRelay.registerCommandHandler(instance, {
+      type,
+    });
   }
 
   private getCommandName(command: Command): string {
@@ -116,7 +119,10 @@ export class CommandBus {
     return commandMetadata.id;
   }
 
-  private reflectCommandId(handler: Type<HandleCommand>): string | undefined {
+  private reflectCommandHandler(handler: Type<HandleCommand>): {
+    id: string;
+    type: string;
+  } {
     const command: Command = Reflect.getMetadata(
       COMMAND_HANDLER_METADATA,
       handler,
@@ -127,6 +133,15 @@ export class CommandBus {
       command,
     );
 
-    return commandMetadata.id;
+    if (!command || !commandMetadata) {
+      throw new Error(
+        `reflect data not found for handler ${handler.constructor.name}`,
+      );
+    }
+
+    return {
+      id: commandMetadata.id,
+      type: commandMetadata.type,
+    };
   }
 }

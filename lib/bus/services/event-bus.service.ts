@@ -5,11 +5,10 @@ import {
   EVENT_HANDLER_METADATA,
   EVENT_METADATA,
 } from '../../handlers/constants';
-import { BusImplementation } from '../bus-implementation.type';
-import { InjectNoxaBus, InjectNoxaConfig } from '../../tokens';
+import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { EventMetadata } from '../../handlers/event/event-metadata.type';
 import { Outbox } from './outbox.service';
-import { NoxaConfig } from '../../noxa.module';
+import { Config, InjectConfig } from '../../config';
 
 @Injectable({})
 export class EventBus {
@@ -18,10 +17,10 @@ export class EventBus {
   logger = new Logger(EventBus.name);
 
   constructor(
-    @InjectNoxaBus()
-    private readonly busImpl: BusImplementation,
-    @InjectNoxaConfig()
-    private readonly config: NoxaConfig,
+    @InjectBusRelay()
+    private readonly busRelay: BusRelay,
+    @InjectConfig()
+    private readonly config: Config,
     private readonly outbox: Outbox,
     private readonly moduleRef: ModuleRef,
   ) {}
@@ -45,10 +44,11 @@ export class EventBus {
   ): Promise<void> {
     const { toContext, tenantId, publishAt } = options;
 
-    await this.busImpl.sendCommand({
+    await this.busRelay.sendCommand({
       bus: 'event',
       type: this.getEventName(event),
-      fromContext: toContext ? toContext : this.config.context,
+      fromContext: this.config.context,
+      targetContext: toContext ? toContext : this.config.context,
       tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: event,
@@ -64,7 +64,8 @@ export class EventBus {
     await this.outbox.publish({
       bus: 'event',
       type: this.getEventName(event),
-      fromContext: toContext ? toContext : this.config.context,
+      fromContext: this.config.context,
+      targetContext: toContext ? toContext : this.config.context,
       tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: event,
@@ -84,15 +85,17 @@ export class EventBus {
       return;
     }
 
-    const target = this.reflectEventId(handler);
+    const { id, type } = this.reflectEventHandler(handler);
 
-    if (!target) {
+    if (!id) {
       throw new Error('invalid event handler');
     }
 
-    this.handlers.set(target, instance);
+    this.handlers.set(id, instance);
 
-    await this.busImpl.registerEventHandler(instance);
+    await this.busRelay.registerEventHandler(instance, {
+      type,
+    });
   }
 
   private getEventName(event: Event): string {
@@ -116,7 +119,10 @@ export class EventBus {
     return eventMetadata.id;
   }
 
-  private reflectEventId(handler: Type<HandleEvent>): string | undefined {
+  private reflectEventHandler(handler: Type<HandleEvent>): {
+    id: string;
+    type: string;
+  } {
     const event: Event = Reflect.getMetadata(EVENT_HANDLER_METADATA, handler);
 
     const eventMetadata: EventMetadata = Reflect.getMetadata(
@@ -124,6 +130,15 @@ export class EventBus {
       event,
     );
 
-    return eventMetadata.id;
+    if (!event || !eventMetadata) {
+      throw new Error(
+        `reflect data not found for handler ${handler.constructor.name}`,
+      );
+    }
+
+    return {
+      id: eventMetadata.id,
+      type: eventMetadata.type,
+    };
   }
 }

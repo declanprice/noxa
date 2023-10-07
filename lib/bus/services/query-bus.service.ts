@@ -1,15 +1,10 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { Command, HandleCommand, HandleQuery, Query } from '../../handlers';
+import { HandleQuery, Query } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
 import {
-  COMMAND_HANDLER_METADATA,
-  COMMAND_METADATA,
   QUERY_HANDLER_METADATA,
   QUERY_METADATA,
 } from '../../handlers/constants';
-import { CommandMetadata } from '../../handlers/command/command-metadata.type';
-import { BusImplementation } from '../bus-implementation.type';
-import { InjectNoxaBus } from '../../tokens';
 import { QueryMetadata } from '../../handlers/query/query-metadata.type';
 
 @Injectable({})

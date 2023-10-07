@@ -17,11 +17,12 @@ exports.CommandBus = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const constants_1 = require("../../handlers/constants");
-const tokens_1 = require("../../tokens");
+const bus_relay_type_1 = require("../bus-relay.type");
 const outbox_service_1 = require("./outbox.service");
+const config_1 = require("../../config");
 let CommandBus = CommandBus_1 = class CommandBus {
-    constructor(busImpl, config, outbox, moduleRef) {
-        this.busImpl = busImpl;
+    constructor(busRelay, config, outbox, moduleRef) {
+        this.busRelay = busRelay;
         this.config = config;
         this.outbox = outbox;
         this.moduleRef = moduleRef;
@@ -42,7 +43,8 @@ let CommandBus = CommandBus_1 = class CommandBus {
         await this.outbox.publish({
             bus: 'command',
             type: this.getCommandName(command),
-            fromContext: toContext ? toContext : this.config.context,
+            fromContext: this.config.context,
+            targetContext: toContext ? toContext : this.config.context,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: command,
@@ -50,10 +52,11 @@ let CommandBus = CommandBus_1 = class CommandBus {
     }
     async send(command, options) {
         const { toContext, tenantId, publishAt } = options || {};
-        await this.busImpl.sendCommand({
+        await this.busRelay.sendCommand({
             bus: 'command',
             type: this.getCommandName(command),
-            fromContext: toContext ? toContext : this.config.context,
+            fromContext: this.config.context,
+            targetContext: toContext ? toContext : this.config.context,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: command,
@@ -69,12 +72,14 @@ let CommandBus = CommandBus_1 = class CommandBus {
         if (!instance) {
             return;
         }
-        const target = this.reflectCommandId(handler);
-        if (!target) {
+        const { id, type } = this.reflectCommandHandler(handler);
+        if (!id) {
             throw new Error('invalid command handler');
         }
-        this.handlers.set(target, instance);
-        await this.busImpl.registerCommandHandler(instance);
+        this.handlers.set(id, instance);
+        await this.busRelay.registerCommandHandler(instance, {
+            type,
+        });
     }
     getCommandName(command) {
         const { constructor } = Object.getPrototypeOf(command);
@@ -88,17 +93,23 @@ let CommandBus = CommandBus_1 = class CommandBus {
         }
         return commandMetadata.id;
     }
-    reflectCommandId(handler) {
+    reflectCommandHandler(handler) {
         const command = Reflect.getMetadata(constants_1.COMMAND_HANDLER_METADATA, handler);
         const commandMetadata = Reflect.getMetadata(constants_1.COMMAND_METADATA, command);
-        return commandMetadata.id;
+        if (!command || !commandMetadata) {
+            throw new Error(`reflect data not found for handler ${handler.constructor.name}`);
+        }
+        return {
+            id: commandMetadata.id,
+            type: commandMetadata.type,
+        };
     }
 };
 exports.CommandBus = CommandBus;
 exports.CommandBus = CommandBus = CommandBus_1 = __decorate([
     (0, common_1.Injectable)({}),
-    __param(0, (0, tokens_1.InjectNoxaBus)()),
-    __param(1, (0, tokens_1.InjectNoxaConfig)()),
+    __param(0, (0, bus_relay_type_1.InjectBusRelay)()),
+    __param(1, (0, config_1.InjectConfig)()),
     __metadata("design:paramtypes", [Object, Object, outbox_service_1.Outbox,
         core_1.ModuleRef])
 ], CommandBus);

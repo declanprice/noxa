@@ -9,26 +9,59 @@ class RabbitmqBus {
     constructor(options) {
         this.options = options;
         this.logger = new common_1.Logger(RabbitmqBus.name);
-        this.connect(options.connectionUrl).then();
     }
-    async connect(connectionUrl) {
-        const connection = await (0, amqplib_1.connect)(connectionUrl);
+    async init(config) {
+        const connection = await (0, amqplib_1.connect)(this.options.connectionUrl);
         this.channel = await connection.createChannel();
+        this.config = config;
+        await this.channel.assertExchange(COMMAND_BUS_EXCHANGE_NAME, 'topic');
+        await this.channel.assertExchange(EVENT_BUS_EXCHANGE_NAME, 'topic');
     }
-    async sendCommand(message) {
-        this.logger.log(`noxa.${message.fromContext}.commands.${message.type}`);
-        if (this.channel) {
-            this.channel.publish(COMMAND_BUS_EXCHANGE_NAME, `noxa.${message.fromContext}.commands.${message.type}`, Buffer.from(JSON.stringify(message)));
+    async sendCommand(command) {
+        if (!this.channel) {
+            throw new Error(`bus is not connected to rabbitmq, cannot send command`);
         }
-    }
-    async registerCommandHandler(handler) {
-        this.logger.log('register command handler', handler);
+        this.logger.log(`sending command to command bus, ${command}`);
+        this.channel.publish(COMMAND_BUS_EXCHANGE_NAME, `noxa.${command.targetContext}.commands.${command.type}`, Buffer.from(JSON.stringify(command)));
     }
     async sendEvent(event) {
-        this.logger.log('rabbitmq send event', event);
+        if (!this.channel) {
+            throw new Error(`bus is not connected to rabbitmq, cannot send event`);
+        }
+        this.logger.log(`sending event to rabbitmq exchange (${EVENT_BUS_EXCHANGE_NAME}) - ${event}`);
+        this.channel.publish(EVENT_BUS_EXCHANGE_NAME, `noxa.${event.targetContext}.events.${event.type}`, Buffer.from(JSON.stringify(event)));
     }
-    async registerEventHandler(handler) {
-        this.logger.log('register event handler', handler);
+    async registerCommandHandler(handler, options) {
+        if (!this.channel || !this.config) {
+            throw new Error(`bus is not connected to rabbitmq, cannot register command handler`);
+        }
+        const queueName = `noxa.${this.config.context}.commandHandlers.${handler.constructor.name}`;
+        const queueRouteKey = `noxa.${this.config.context}.commands.${options.type}`;
+        await this.channel.assertQueue(queueName);
+        await this.channel.bindQueue(queueName, COMMAND_BUS_EXCHANGE_NAME, queueRouteKey);
+        await this.channel.consume(queueName, async (message) => {
+            if (!this.channel || !message?.content)
+                return;
+            const parsedMessage = JSON.parse(message.content.toString());
+            await handler.handle(parsedMessage);
+            this.channel.ack(message);
+        });
+    }
+    async registerEventHandler(handler, options) {
+        if (!this.channel || !this.config) {
+            throw new Error(`bus is not connected to rabbitmq, cannot register event handler`);
+        }
+        const queueName = `noxa.${this.config.context}.eventHandlers.${handler.constructor.name}`;
+        const queueRouteKey = `noxa.${this.config.context}.events.${options.type}`;
+        await this.channel.assertQueue(queueName);
+        await this.channel.bindQueue(queueName, EVENT_BUS_EXCHANGE_NAME, queueRouteKey);
+        await this.channel.consume(queueName, async (message) => {
+            if (!this.channel || !message?.content)
+                return;
+            const parsedMessage = JSON.parse(message.content.toString());
+            await handler.handle(parsedMessage);
+            this.channel.ack(message);
+        });
     }
 }
 exports.RabbitmqBus = RabbitmqBus;

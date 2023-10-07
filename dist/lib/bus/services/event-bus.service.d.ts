@@ -1,17 +1,17 @@
 import { ModuleRef } from '@nestjs/core';
 import { Logger, Type } from '@nestjs/common';
 import { HandleEvent } from '../../handlers';
-import { BusImplementation } from '../bus-implementation.type';
+import { BusRelay } from '../bus-relay.type';
 import { Outbox } from './outbox.service';
-import { NoxaConfig } from '../../noxa.module';
+import { Config } from '../../config';
 export declare class EventBus {
-    private readonly busImpl;
+    private readonly busRelay;
     private readonly config;
     private readonly outbox;
     private readonly moduleRef;
     private handlers;
     logger: Logger;
-    constructor(busImpl: BusImplementation, config: NoxaConfig, outbox: Outbox, moduleRef: ModuleRef);
+    constructor(busRelay: BusRelay, config: Config, outbox: Outbox, moduleRef: ModuleRef);
     invoke(event: Event): Promise<any>;
     sendEvent(event: Event, options: {
         toContext?: string;
@@ -27,5 +27,5 @@ export declare class EventBus {
     protected registerHandler(handler: Type<HandleEvent>): Promise<void>;
     private getEventName;
     private getEventId;
-    private reflectEventId;
+    private reflectEventHandler;
 }
