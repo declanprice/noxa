@@ -7,7 +7,6 @@ import {
 } from '../../handlers/constants';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { EventMetadata } from '../../handlers/event/event-metadata.type';
-import { Outbox } from './outbox.service';
 import { Config, InjectConfig } from '../../config';
 
 @Injectable({})
@@ -21,7 +20,6 @@ export class EventBus {
     private readonly busRelay: BusRelay,
     @InjectConfig()
     private readonly config: Config,
-    private readonly outbox: Outbox,
     private readonly moduleRef: ModuleRef,
   ) {}
 
@@ -48,24 +46,7 @@ export class EventBus {
       bus: 'event',
       type: this.getEventName(event),
       fromContext: this.config.context,
-      targetContext: toContext ? toContext : this.config.context,
-      tenantId: tenantId ? tenantId : 'DEFAULT',
-      timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
-      data: event,
-    });
-  }
-
-  async publish(
-    event: Event,
-    options: { toContext?: string; tenantId?: string; publishAt?: Date },
-  ): Promise<void> {
-    const { toContext, tenantId, publishAt } = options;
-
-    await this.outbox.publish({
-      bus: 'event',
-      type: this.getEventName(event),
-      fromContext: this.config.context,
-      targetContext: toContext ? toContext : this.config.context,
+      targetContext: null,
       tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: event,

@@ -1,5 +1,4 @@
 import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
-
 import { HandlerExplorer } from './handlers';
 import {
   BUS_RELAY_TOKEN,
@@ -7,10 +6,17 @@ import {
   CommandBus,
   QueryBus,
   EventBus,
-  Outbox,
   InjectBusRelay,
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
+import {
+  DocumentStore,
+  EventStore,
+  OutboxStore,
+  MultiStoreSession,
+  STORE_CONNECTION_POOL,
+} from './store';
+import { Pool } from 'pg';
 
 export type NoxaModuleOptions = {
   postgres: {
@@ -20,8 +26,25 @@ export type NoxaModuleOptions = {
 } & Config;
 
 @Module({
-  exports: [CommandBus, QueryBus, EventBus, Outbox],
-  providers: [CommandBus, QueryBus, EventBus, Outbox, HandlerExplorer],
+  exports: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    DocumentStore,
+    EventStore,
+    OutboxStore,
+    MultiStoreSession,
+  ],
+  providers: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    DocumentStore,
+    EventStore,
+    OutboxStore,
+    MultiStoreSession,
+    HandlerExplorer,
+  ],
 })
 export class NoxaModule implements OnApplicationBootstrap {
   constructor(
@@ -37,6 +60,12 @@ export class NoxaModule implements OnApplicationBootstrap {
     return {
       module: NoxaModule,
       providers: [
+        {
+          provide: STORE_CONNECTION_POOL,
+          useValue: new Pool({
+            connectionString: options.postgres.connectionUrl,
+          }),
+        },
         {
           provide: BUS_RELAY_TOKEN,
           useValue: options.bus,

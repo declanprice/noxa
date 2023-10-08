@@ -1,6 +1,6 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { HandleQuery, Query } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
+import { HandleQuery, Query } from '../../handlers';
 import {
   QUERY_HANDLER_METADATA,
   QUERY_METADATA,

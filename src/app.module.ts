@@ -12,7 +12,7 @@ import { RegisterCustomerHandler } from './register-customer.handler';
     NoxaModule.forRoot({
       context: 'customerService',
       postgres: {
-        connectionUrl: '',
+        connectionUrl: 'postgres://postgres:postgres@localhost:5432',
       },
       bus: new RabbitmqBus({
         connectionUrl: 'amqp://localhost:5672',
@@ -22,16 +22,16 @@ import { RegisterCustomerHandler } from './register-customer.handler';
       },
     }),
     LoggerModule.forRoot({
-      pinoHttp: {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            levelFirst: true,
-            colorize: true,
-            ignore: 'pid,res',
-          },
-        },
-      },
+      // pinoHttp: {
+      //   transport: {
+      //     target: 'pino-pretty',
+      //     options: {
+      //       levelFirst: true,
+      //       colorize: true,
+      //       ignore: 'pid,res',
+      //     },
+      //   },
+      // },
     }),
   ],
 })

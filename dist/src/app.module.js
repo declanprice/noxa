@@ -23,7 +23,7 @@ exports.ApplicationModule = ApplicationModule = __decorate([
             lib_1.NoxaModule.forRoot({
                 context: 'customerService',
                 postgres: {
-                    connectionUrl: '',
+                    connectionUrl: 'postgres://postgres:postgres@localhost:5432',
                 },
                 bus: new lib_1.RabbitmqBus({
                     connectionUrl: 'amqp://localhost:5672',
@@ -33,16 +33,16 @@ exports.ApplicationModule = ApplicationModule = __decorate([
                 },
             }),
             nestjs_pino_1.LoggerModule.forRoot({
-                pinoHttp: {
-                    transport: {
-                        target: 'pino-pretty',
-                        options: {
-                            levelFirst: true,
-                            colorize: true,
-                            ignore: 'pid,res',
-                        },
-                    },
-                },
+            // pinoHttp: {
+            //   transport: {
+            //     target: 'pino-pretty',
+            //     options: {
+            //       levelFirst: true,
+            //       colorize: true,
+            //       ignore: 'pid,res',
+            //     },
+            //   },
+            // },
             }),
         ],
     })

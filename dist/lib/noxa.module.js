@@ -18,6 +18,8 @@ const common_1 = require("@nestjs/common");
 const handlers_1 = require("./handlers");
 const bus_1 = require("./bus");
 const config_1 = require("./config");
+const store_1 = require("./store");
+const pg_1 = require("pg");
 let NoxaModule = NoxaModule_1 = class NoxaModule {
     constructor(handlerExplorer, commandBus, queryBus, eventBus, busRelay, config) {
         this.handlerExplorer = handlerExplorer;
@@ -31,6 +33,12 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
         return {
             module: NoxaModule_1,
             providers: [
+                {
+                    provide: store_1.STORE_CONNECTION_POOL,
+                    useValue: new pg_1.Pool({
+                        connectionString: options.postgres.connectionUrl,
+                    }),
+                },
                 {
                     provide: bus_1.BUS_RELAY_TOKEN,
                     useValue: options.bus,
@@ -57,8 +65,25 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
 exports.NoxaModule = NoxaModule;
 exports.NoxaModule = NoxaModule = NoxaModule_1 = __decorate([
     (0, common_1.Module)({
-        exports: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, bus_1.Outbox],
-        providers: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, bus_1.Outbox, handlers_1.HandlerExplorer],
+        exports: [
+            bus_1.CommandBus,
+            bus_1.QueryBus,
+            bus_1.EventBus,
+            store_1.DocumentStore,
+            store_1.EventStore,
+            store_1.OutboxStore,
+            store_1.StoreSession,
+        ],
+        providers: [
+            bus_1.CommandBus,
+            bus_1.QueryBus,
+            bus_1.EventBus,
+            store_1.DocumentStore,
+            store_1.EventStore,
+            store_1.OutboxStore,
+            store_1.StoreSession,
+            handlers_1.HandlerExplorer,
+        ],
     }),
     __param(4, (0, bus_1.InjectBusRelay)()),
     __param(5, (0, config_1.InjectConfig)()),

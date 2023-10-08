@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Outbox = exports.QueryBus = exports.EventBus = exports.CommandBus = exports.RabbitmqBus = exports.BUS_RELAY_TOKEN = exports.InjectBusRelay = void 0;
+exports.QueryBus = exports.EventBus = exports.CommandBus = exports.RabbitmqBus = exports.BUS_RELAY_TOKEN = exports.InjectBusRelay = void 0;
 var bus_relay_type_1 = require("./bus-relay.type");
 Object.defineProperty(exports, "InjectBusRelay", { enumerable: true, get: function () { return bus_relay_type_1.InjectBusRelay; } });
 Object.defineProperty(exports, "BUS_RELAY_TOKEN", { enumerable: true, get: function () { return bus_relay_type_1.BUS_RELAY_TOKEN; } });
@@ -12,5 +12,3 @@ var event_bus_service_1 = require("./services/event-bus.service");
 Object.defineProperty(exports, "EventBus", { enumerable: true, get: function () { return event_bus_service_1.EventBus; } });
 var query_bus_service_1 = require("./services/query-bus.service");
 Object.defineProperty(exports, "QueryBus", { enumerable: true, get: function () { return query_bus_service_1.QueryBus; } });
-var outbox_service_1 = require("./services/outbox.service");
-Object.defineProperty(exports, "Outbox", { enumerable: true, get: function () { return outbox_service_1.Outbox; } });

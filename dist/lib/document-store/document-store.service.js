@@ -12,5 +12,5 @@ let DocumentStore = class DocumentStore {
 };
 exports.DocumentStore = DocumentStore;
 exports.DocumentStore = DocumentStore = __decorate([
-    (0, common_1.Injectable)({})
+    (0, common_1.Injectable)()
 ], DocumentStore);

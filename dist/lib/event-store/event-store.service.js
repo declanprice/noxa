@@ -12,5 +12,5 @@ let EventStore = class EventStore {
 };
 exports.EventStore = EventStore;
 exports.EventStore = EventStore = __decorate([
-    (0, common_1.Injectable)({})
+    (0, common_1.Injectable)()
 ], EventStore);

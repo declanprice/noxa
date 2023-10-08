@@ -1,13 +1,12 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { Command, HandleCommand } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
+import { Command, HandleCommand } from '../../handlers';
 import {
   COMMAND_HANDLER_METADATA,
   COMMAND_METADATA,
 } from '../../handlers/constants';
 import { CommandMetadata } from '../../handlers/command/command-metadata.type';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
-import { Outbox } from './outbox.service';
 import { Config, InjectConfig } from '../../config';
 
 @Injectable({})
@@ -21,11 +20,10 @@ export class CommandBus {
     private readonly busRelay: BusRelay,
     @InjectConfig()
     private readonly config: Config,
-    private readonly outbox: Outbox,
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  invoke(command: Command) {
+  async invoke(command: Command): Promise<void> {
     const commandId = this.getCommandId(command);
 
     const handler = this.handlers.get(commandId);
@@ -35,27 +33,10 @@ export class CommandBus {
       throw new Error(`command handler not found for ${commandName}`);
     }
 
-    return handler.handle(command);
+    return await handler.handle(command);
   }
 
-  async publish(
-    command: Command,
-    options: { toContext?: string; tenantId?: string; publishAt?: Date },
-  ): Promise<void> {
-    const { toContext, tenantId, publishAt } = options;
-
-    await this.outbox.publish({
-      bus: 'command',
-      type: this.getCommandName(command),
-      fromContext: this.config.context,
-      targetContext: toContext ? toContext : this.config.context,
-      tenantId: tenantId ? tenantId : 'DEFAULT',
-      timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
-      data: command,
-    });
-  }
-
-  async send(
+  async sendCommand(
     command: Command,
     options?: { toContext?: string; tenantId?: string; publishAt?: Date },
   ): Promise<void> {
@@ -79,16 +60,16 @@ export class CommandBus {
   }
 
   protected async registerHandler(handler: Type<HandleCommand>) {
-    const instance = this.moduleRef.get(handler, { strict: false });
-
-    if (!instance) {
-      return;
-    }
-
     const { id, type } = this.reflectCommandHandler(handler);
 
     if (!id) {
       throw new Error('invalid command handler');
+    }
+
+    const instance = this.moduleRef.get(handler, { strict: false });
+
+    if (!instance) {
+      return;
     }
 
     this.handlers.set(id, instance);

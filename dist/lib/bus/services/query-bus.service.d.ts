@@ -1,6 +1,6 @@
 import { Logger, Type } from '@nestjs/common';
-import { HandleQuery, Query } from '../../handlers';
 import { ModuleRef } from '@nestjs/core';
+import { HandleQuery, Query } from '../../handlers';
 export declare class QueryBus {
     private readonly moduleRef;
     private handlers;

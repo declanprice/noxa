@@ -18,13 +18,11 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const constants_1 = require("../../handlers/constants");
 const bus_relay_type_1 = require("../bus-relay.type");
-const outbox_service_1 = require("./outbox.service");
 const config_1 = require("../../config");
 let EventBus = EventBus_1 = class EventBus {
-    constructor(busRelay, config, outbox, moduleRef) {
+    constructor(busRelay, config, moduleRef) {
         this.busRelay = busRelay;
         this.config = config;
-        this.outbox = outbox;
         this.moduleRef = moduleRef;
         this.handlers = new Map();
         this.logger = new common_1.Logger(EventBus_1.name);
@@ -44,19 +42,7 @@ let EventBus = EventBus_1 = class EventBus {
             bus: 'event',
             type: this.getEventName(event),
             fromContext: this.config.context,
-            targetContext: toContext ? toContext : this.config.context,
-            tenantId: tenantId ? tenantId : 'DEFAULT',
-            timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
-            data: event,
-        });
-    }
-    async publish(event, options) {
-        const { toContext, tenantId, publishAt } = options;
-        await this.outbox.publish({
-            bus: 'event',
-            type: this.getEventName(event),
-            fromContext: this.config.context,
-            targetContext: toContext ? toContext : this.config.context,
+            targetContext: null,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: event,
@@ -110,6 +96,5 @@ exports.EventBus = EventBus = EventBus_1 = __decorate([
     (0, common_1.Injectable)({}),
     __param(0, (0, bus_relay_type_1.InjectBusRelay)()),
     __param(1, (0, config_1.InjectConfig)()),
-    __metadata("design:paramtypes", [Object, Object, outbox_service_1.Outbox,
-        core_1.ModuleRef])
+    __metadata("design:paramtypes", [Object, Object, core_1.ModuleRef])
 ], EventBus);

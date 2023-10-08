@@ -1,4 +1,5 @@
 import { Command, CommandHandler, HandleCommand } from '../lib';
+import { MultiStoreSession } from '../lib/store';
 
 export class RegisterCustomer implements Command {
   customerId: string;
@@ -14,7 +15,13 @@ export class RegisterCustomer implements Command {
 export class RegisterCustomerHandler
   implements HandleCommand<RegisterCustomer>
 {
+  constructor(private readonly session: MultiStoreSession) {}
+
   async handle(command: RegisterCustomer) {
-    console.log('command was executed', command);
+    const stores = await this.session.start();
+
+    await stores.document.store();
+
+    await stores.commit();
   }
 }

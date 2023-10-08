@@ -21,15 +21,13 @@ class RabbitmqBus {
         if (!this.channel) {
             throw new Error(`bus is not connected to rabbitmq, cannot send command`);
         }
-        this.logger.log(`sending command to command bus, ${command}`);
         this.channel.publish(COMMAND_BUS_EXCHANGE_NAME, `noxa.${command.targetContext}.commands.${command.type}`, Buffer.from(JSON.stringify(command)));
     }
     async sendEvent(event) {
         if (!this.channel) {
             throw new Error(`bus is not connected to rabbitmq, cannot send event`);
         }
-        this.logger.log(`sending event to rabbitmq exchange (${EVENT_BUS_EXCHANGE_NAME}) - ${event}`);
-        this.channel.publish(EVENT_BUS_EXCHANGE_NAME, `noxa.${event.targetContext}.events.${event.type}`, Buffer.from(JSON.stringify(event)));
+        this.channel.publish(EVENT_BUS_EXCHANGE_NAME, `noxa.${event.fromContext}.events.${event.type}`, Buffer.from(JSON.stringify(event)));
     }
     async registerCommandHandler(handler, options) {
         if (!this.channel || !this.config) {
@@ -43,7 +41,7 @@ class RabbitmqBus {
             if (!this.channel || !message?.content)
                 return;
             const parsedMessage = JSON.parse(message.content.toString());
-            await handler.handle(parsedMessage);
+            await handler.handle(parsedMessage.data, parsedMessage);
             this.channel.ack(message);
         });
     }
@@ -59,7 +57,7 @@ class RabbitmqBus {
             if (!this.channel || !message?.content)
                 return;
             const parsedMessage = JSON.parse(message.content.toString());
-            await handler.handle(parsedMessage);
+            await handler.handle(parsedMessage.data, parsedMessage);
             this.channel.ack(message);
         });
     }

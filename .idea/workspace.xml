@@ -5,43 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/config/config.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/config/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/multi-store-session/multi-store-session.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/store-connection-pool.token.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/bus/bus-implementation.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/bus-implementation.type.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/bus-message.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/bus-message.type.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/index.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/command/command-handler.decorator.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/command/command-handler.decorator.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/command/command-metadata.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/command/command-metadata.type.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/event/event-handler.decorator.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/event/event-handler.decorator.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/event/event-metadata.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/event/event-metadata.type.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/query-bus.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/query-bus.service.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/document-store/document-store.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/document-store/document-store.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/event-store/event-store.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/event-store/event-store.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/command/handle-command.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/command/handle-command.type.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/event/handle-event.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/event/handle-event.type.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/bus-implementation.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/bus-relay.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/app.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/app.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.module.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/bus-message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/bus-message.type.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/outbox.service.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/services/query-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/query-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/command/command-handler.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/command/command-handler.decorator.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/command/command-metadata.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/command/command-metadata.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/event-metadata.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/event-metadata.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/command/handle-command.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/command/handle-command.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/event/handle-event.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/handle-event.type.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/tokens/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/tokens/noxa-bus.token.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/tokens/noxa-config.token.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/psuedo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/psuedo.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/register-customer.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/register-customer.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,11 +98,11 @@
       <recent name="$PROJECT_DIR$/lib/bus" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/store" />
+      <recent name="$PROJECT_DIR$/lib/store/store" />
       <recent name="$PROJECT_DIR$/lib/tokens" />
       <recent name="$PROJECT_DIR$/lib/bus/services" />
       <recent name="$PROJECT_DIR$/lib" />
-      <recent name="$PROJECT_DIR$/lib/bus/handlers" />
-      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
   <component name="RunManager" selected="Jest.Tests in spec/">
@@ -160,7 +162,7 @@
       <workItem from="1696415754075" duration="6298000" />
       <workItem from="1696428105925" duration="21417000" />
       <workItem from="1696497709994" duration="31517000" />
-      <workItem from="1696583031059" duration="22954000" />
+      <workItem from="1696583031059" duration="40884000" />
     </task>
     <servers />
   </component>

@@ -35,8 +35,6 @@ export class RabbitmqBus implements BusRelay {
       throw new Error(`bus is not connected to rabbitmq, cannot send command`);
     }
 
-    this.logger.log(`sending command to command bus, ${command}`);
-
     this.channel.publish(
       COMMAND_BUS_EXCHANGE_NAME,
       `noxa.${command.targetContext}.commands.${command.type}`,
@@ -49,13 +47,9 @@ export class RabbitmqBus implements BusRelay {
       throw new Error(`bus is not connected to rabbitmq, cannot send event`);
     }
 
-    this.logger.log(
-      `sending event to rabbitmq exchange (${EVENT_BUS_EXCHANGE_NAME}) - ${event}`,
-    );
-
     this.channel.publish(
       EVENT_BUS_EXCHANGE_NAME,
-      `noxa.${event.targetContext}.events.${event.type}`,
+      `noxa.${event.fromContext}.events.${event.type}`,
       Buffer.from(JSON.stringify(event)),
     );
   }
@@ -83,7 +77,7 @@ export class RabbitmqBus implements BusRelay {
     await this.channel.consume(queueName, async (message) => {
       if (!this.channel || !message?.content) return;
       const parsedMessage = JSON.parse(message.content.toString());
-      await handler.handle(parsedMessage);
+      await handler.handle(parsedMessage.data, parsedMessage);
       this.channel.ack(message);
     });
   }
@@ -111,7 +105,7 @@ export class RabbitmqBus implements BusRelay {
     await this.channel.consume(queueName, async (message) => {
       if (!this.channel || !message?.content) return;
       const parsedMessage = JSON.parse(message.content.toString());
-      await handler.handle(parsedMessage);
+      await handler.handle(parsedMessage.data, parsedMessage);
       this.channel.ack(message);
     });
   }

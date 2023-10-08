@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { CommandBus } from '../lib';
 import { RegisterCustomer } from './register-customer.handler';
 
@@ -8,6 +8,6 @@ export class AppController {
 
   @Get('/')
   async get() {
-    await this.commandBus.send(new RegisterCustomer('1', 'declan'));
+    await this.commandBus.invoke(new RegisterCustomer('1', 'declan'));
   }
 }

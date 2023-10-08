@@ -18,39 +18,25 @@ const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const constants_1 = require("../../handlers/constants");
 const bus_relay_type_1 = require("../bus-relay.type");
-const outbox_service_1 = require("./outbox.service");
 const config_1 = require("../../config");
 let CommandBus = CommandBus_1 = class CommandBus {
-    constructor(busRelay, config, outbox, moduleRef) {
+    constructor(busRelay, config, moduleRef) {
         this.busRelay = busRelay;
         this.config = config;
-        this.outbox = outbox;
         this.moduleRef = moduleRef;
         this.handlers = new Map();
         this.logger = new common_1.Logger(CommandBus_1.name);
     }
-    invoke(command) {
+    async invoke(command) {
         const commandId = this.getCommandId(command);
         const handler = this.handlers.get(commandId);
         if (!handler) {
             const commandName = this.getCommandName(command);
             throw new Error(`command handler not found for ${commandName}`);
         }
-        return handler.handle(command);
+        return await handler.handle(command);
     }
-    async publish(command, options) {
-        const { toContext, tenantId, publishAt } = options;
-        await this.outbox.publish({
-            bus: 'command',
-            type: this.getCommandName(command),
-            fromContext: this.config.context,
-            targetContext: toContext ? toContext : this.config.context,
-            tenantId: tenantId ? tenantId : 'DEFAULT',
-            timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
-            data: command,
-        });
-    }
-    async send(command, options) {
+    async sendCommand(command, options) {
         const { toContext, tenantId, publishAt } = options || {};
         await this.busRelay.sendCommand({
             bus: 'command',
@@ -68,13 +54,13 @@ let CommandBus = CommandBus_1 = class CommandBus {
         }
     }
     async registerHandler(handler) {
-        const instance = this.moduleRef.get(handler, { strict: false });
-        if (!instance) {
-            return;
-        }
         const { id, type } = this.reflectCommandHandler(handler);
         if (!id) {
             throw new Error('invalid command handler');
+        }
+        const instance = this.moduleRef.get(handler, { strict: false });
+        if (!instance) {
+            return;
         }
         this.handlers.set(id, instance);
         await this.busRelay.registerCommandHandler(instance, {
@@ -110,6 +96,5 @@ exports.CommandBus = CommandBus = CommandBus_1 = __decorate([
     (0, common_1.Injectable)({}),
     __param(0, (0, bus_relay_type_1.InjectBusRelay)()),
     __param(1, (0, config_1.InjectConfig)()),
-    __metadata("design:paramtypes", [Object, Object, outbox_service_1.Outbox,
-        core_1.ModuleRef])
+    __metadata("design:paramtypes", [Object, Object, core_1.ModuleRef])
 ], CommandBus);

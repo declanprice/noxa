@@ -77,7 +77,7 @@ class RegisterCustomerHandler {
       event.customerId,
     );
 
-    // validation if event can be applied to internal store;
+    // validation if event can be applied to internal multi-store-session;
 
     await append(new InternalEvent());
   }
