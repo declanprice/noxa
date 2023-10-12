@@ -1,13 +1,17 @@
-import { Client, PoolClient } from 'pg';
-import { Type } from '@nestjs/common';
+import { Pool, PoolClient } from 'pg';
+import { Injectable, Type } from '@nestjs/common';
 import { toSnakeCase } from '../../util/to-snake-case';
 import { DocumentNotFoundError } from './errors/document-not-found.error';
 import { DOCUMENT_ID_PROPERTY_METADATA } from './document/document.decorators';
 import { DocumentIdPropertyNotConfiguredError } from './errors/document-id-property-not-configured.error';
-import { randomUUID } from 'crypto';
+import { InjectStoreConnectionPool } from '../store-connection-pool.token';
 
+@Injectable()
 export class DocumentStore {
-  constructor(private readonly client: PoolClient) {
+  constructor(
+    @InjectStoreConnectionPool()
+    private readonly client: PoolClient | Pool,
+  ) {
     console.log('document store-session was created');
   }
 
@@ -32,8 +36,11 @@ export class DocumentStore {
 
       return _document;
     } catch (error) {
-      await this.client.query('ROLLBACK');
-      this.client.release();
+      if (!(this.client instanceof Pool)) {
+        await this.client.query('ROLLBACK');
+        this.client.release();
+      }
+
       throw error;
     }
   }
@@ -60,12 +67,15 @@ export class DocumentStore {
            id,
            data,
            last_modified
-      ) values ($1, $2, $3) `,
+      ) values ($1, $2, $3)`,
         values: [documentId, document, new Date().toISOString()],
       });
     } catch (error) {
-      await this.client.query('ROLLBACK');
-      this.client.release();
+      if (!(this.client instanceof Pool)) {
+        await this.client.query('ROLLBACK');
+        this.client.release();
+      }
+
       throw error;
     }
   }
@@ -79,8 +89,10 @@ export class DocumentStore {
         values: [documentId],
       });
     } catch (error) {
-      await this.client.query('ROLLBACK');
-      this.client.release();
+      if (!(this.client instanceof Pool)) {
+        await this.client.query('ROLLBACK');
+        this.client.release();
+      }
       throw error;
     }
   }

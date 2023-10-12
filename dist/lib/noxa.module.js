@@ -84,8 +84,15 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
 exports.NoxaModule = NoxaModule;
 exports.NoxaModule = NoxaModule = NoxaModule_1 = __decorate([
     (0, common_1.Module)({
-        exports: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, store_1.StoreSession],
-        providers: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, store_1.StoreSession, handlers_1.HandlerExplorer],
+        exports: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, store_1.DocumentStore, store_1.StoreSession],
+        providers: [
+            bus_1.CommandBus,
+            bus_1.QueryBus,
+            bus_1.EventBus,
+            store_1.DocumentStore,
+            store_1.StoreSession,
+            handlers_1.HandlerExplorer,
+        ],
     }),
     __param(4, (0, bus_1.InjectBusRelay)()),
     __param(5, (0, config_1.InjectConfig)()),

@@ -80,7 +80,7 @@ let RegisterCustomerHandler = class RegisterCustomerHandler {
         this.session = session;
     }
     async handle(command) {
-        const session = await this.session.start();
+        // const session = await this.session.start();
         // const event = new CustomerNameChangedEvent(
         //   command.customerId,
         //   command.name,
@@ -98,7 +98,7 @@ let RegisterCustomerHandler = class RegisterCustomerHandler {
         //   command.customerId,
         //   new CustomerRegisteredEvent(command.customerId, command.name),
         // );
-        await session.commit();
+        // await session.commit();
     }
 };
 exports.RegisterCustomerHandler = RegisterCustomerHandler;

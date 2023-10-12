@@ -33,8 +33,15 @@ export type NoxaModuleOptions = {
 } & Config;
 
 @Module({
-  exports: [CommandBus, QueryBus, EventBus, StoreSession],
-  providers: [CommandBus, QueryBus, EventBus, StoreSession, HandlerExplorer],
+  exports: [CommandBus, QueryBus, EventBus, DocumentStore, StoreSession],
+  providers: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    DocumentStore,
+    StoreSession,
+    HandlerExplorer,
+  ],
 })
 export class NoxaModule implements OnApplicationBootstrap {
   constructor(

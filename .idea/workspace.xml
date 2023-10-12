@@ -5,47 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/document-store/document/stored-document.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/document-store/errors/document-id-property-not-configured.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/document-store/errors/document-not-found.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/document-store/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/errors/event-stream-handler-not-available.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/errors/event-stream-no-events-found.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/errors/event-stream-not-found.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/event-stream/event-stream.decorators.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/event-stream/stored-event-stream.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/event/stored-event.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/event-store/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/outbox-store/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-message/stored-outbox-message.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/store/store-session/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/util/to-snake-case.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/src/app.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/src/app.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.module.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/config.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/config.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/multi-store-session/multi-store-session.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/store-session/store-session.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/util/camelize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/util/to-camel-case.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/psuedo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/psuedo.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/register-customer.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/register-customer.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -169,7 +133,7 @@
       <workItem from="1696855861000" duration="41000" />
       <workItem from="1696856418683" duration="12000" />
       <workItem from="1696856943101" duration="1303000" />
-      <workItem from="1696889853802" duration="33601000" />
+      <workItem from="1696889853802" duration="34596000" />
     </task>
     <servers />
   </component>

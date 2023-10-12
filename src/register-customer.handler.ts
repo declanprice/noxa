@@ -9,7 +9,6 @@ import {
   Document,
   DocumentId,
 } from '../lib';
-import { randomUUID } from 'crypto';
 
 export class RegisterCustomer implements Command {
   customerId: string;
@@ -64,9 +63,9 @@ export class CustomerStream {
 @Document()
 export class CustomerDocument {
   @DocumentId()
-  customerId!: string;
+  customerId: string;
 
-  name!: string;
+  name: string;
 
   constructor(customerId: string, name: string) {
     this.customerId = customerId;
@@ -81,8 +80,7 @@ export class RegisterCustomerHandler
   constructor(private session: StoreSession) {}
 
   async handle(command: RegisterCustomer) {
-    const session = await this.session.start();
-
+    // const session = await this.session.start();
     // const event = new CustomerNameChangedEvent(
     //   command.customerId,
     //   command.name,
@@ -91,18 +89,15 @@ export class RegisterCustomerHandler
     // await session.event.appendEvent(CustomerStream, command.customerId, event);
     //
     // await session.outbox.publishEvent(event);
-
     // const customer = await session.event.hydrateStream(
     //   CustomerStream,
     //   'efac5b66-6744-41a9-8ad4-ffef4228a15b',
     // );
-
     // await session.event.startStream(
     //   CustomerStream,
     //   command.customerId,
     //   new CustomerRegisteredEvent(command.customerId, command.name),
     // );
-
-    await session.commit();
+    // await session.commit();
   }
 }
