@@ -20,3 +20,4 @@ Object.defineProperty(exports, "NoxaModule", { enumerable: true, get: function (
 __exportStar(require("./handlers"), exports);
 __exportStar(require("./bus"), exports);
 __exportStar(require("./config"), exports);
+__exportStar(require("./store"), exports);

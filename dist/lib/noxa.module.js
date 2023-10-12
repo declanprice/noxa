@@ -21,13 +21,14 @@ const config_1 = require("./config");
 const store_1 = require("./store");
 const pg_1 = require("pg");
 let NoxaModule = NoxaModule_1 = class NoxaModule {
-    constructor(handlerExplorer, commandBus, queryBus, eventBus, busRelay, config) {
+    constructor(handlerExplorer, commandBus, queryBus, eventBus, busRelay, config, pool) {
         this.handlerExplorer = handlerExplorer;
         this.commandBus = commandBus;
         this.queryBus = queryBus;
         this.eventBus = eventBus;
         this.busRelay = busRelay;
         this.config = config;
+        this.pool = pool;
     }
     static forRoot(options) {
         return {
@@ -48,6 +49,7 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
                     useValue: {
                         context: options.context,
                         asyncDaemon: options.asyncDaemon,
+                        documentTypes: options.documentTypes,
                     },
                 },
             ],
@@ -56,6 +58,23 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
     }
     async onApplicationBootstrap() {
         const { commandHandlers, queryHandlers, eventHandlers } = this.handlerExplorer.explore();
+        const connection = await this.pool.connect();
+        try {
+            await connection.query('BEGIN');
+            await store_1.EventStore.createResources(connection);
+            await store_1.OutboxStore.createResources(connection);
+            for (const documentType of this.config.documentTypes || []) {
+                await store_1.DocumentStore.createResources(documentType, connection);
+            }
+            await connection.query('COMMIT');
+        }
+        catch (error) {
+            await connection.query('ROLLBACK');
+            throw error;
+        }
+        finally {
+            connection.release();
+        }
         await this.busRelay.init(this.config);
         await this.commandBus.register(commandHandlers);
         await this.queryBus.register(queryHandlers);
@@ -65,30 +84,14 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
 exports.NoxaModule = NoxaModule;
 exports.NoxaModule = NoxaModule = NoxaModule_1 = __decorate([
     (0, common_1.Module)({
-        exports: [
-            bus_1.CommandBus,
-            bus_1.QueryBus,
-            bus_1.EventBus,
-            store_1.DocumentStore,
-            store_1.EventStore,
-            store_1.OutboxStore,
-            store_1.StoreSession,
-        ],
-        providers: [
-            bus_1.CommandBus,
-            bus_1.QueryBus,
-            bus_1.EventBus,
-            store_1.DocumentStore,
-            store_1.EventStore,
-            store_1.OutboxStore,
-            store_1.StoreSession,
-            handlers_1.HandlerExplorer,
-        ],
+        exports: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, store_1.StoreSession],
+        providers: [bus_1.CommandBus, bus_1.QueryBus, bus_1.EventBus, store_1.StoreSession, handlers_1.HandlerExplorer],
     }),
     __param(4, (0, bus_1.InjectBusRelay)()),
     __param(5, (0, config_1.InjectConfig)()),
+    __param(6, (0, store_1.InjectStoreConnectionPool)()),
     __metadata("design:paramtypes", [handlers_1.HandlerExplorer,
         bus_1.CommandBus,
         bus_1.QueryBus,
-        bus_1.EventBus, Object, Object])
+        bus_1.EventBus, Object, Object, pg_1.Pool])
 ], NoxaModule);

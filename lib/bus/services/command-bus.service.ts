@@ -25,12 +25,13 @@ export class CommandBus {
 
   async invoke(command: Command): Promise<void> {
     const commandId = this.getCommandId(command);
+    const commandName = this.getCommandName(command);
 
     const handler = this.handlers.get(commandId);
 
     if (!handler) {
-      const commandName = this.getCommandName(command);
-      throw new Error(`command handler not found for ${commandName}`);
+      console.log(`command handler not found for ${commandName}`);
+      return;
     }
 
     return await handler.handle(command);

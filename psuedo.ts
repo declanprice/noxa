@@ -1,4 +1,4 @@
-@StreamProjection({
+@EventProjection({
   type: EventProjectionType.Document,
   async: false,
 })
@@ -6,14 +6,14 @@ class CustomerEmailProjection {
   customerId: string;
   email: string;
 
-  @EventHandler(CustomerRegistered, (e) => e.customerId)
+  @EventProjectionHandler(CustomerRegistered, (e) => e.customerId)
   onCustomerRegistered(event: CustomerRegistered) {
     this.customerId = e.customerId;
     this.email = e.email;
   }
 }
 
-@StreamProjection({
+@EventProjection({
   type: EventProjectionType.Document,
   async: true,
   batchSize: 100,
@@ -22,7 +22,7 @@ class CustomerEmailProjection {
 class CustomerProjection {
   name: string;
 
-  @EventHandler(CustomerRegistered, (e) => e.id)
+  @EventProjectionHandler(CustomerRegistered, (e) => e.id)
   onCustomerRegistered(event: CustomerRegistered) {
     this.name = e.name;
   }
@@ -31,26 +31,27 @@ class CustomerProjection {
   onSideEffect() {}
 }
 
-@StreamProjection({
+@EventProjection({
   type: EventProjectionType.Generic,
   async: false,
 })
 class GenericEventProjection {
-  @EventHandler(CustomerRegistered)
+  @EventProjectionHandler(CustomerRegistered)
   onCustomerRegistered(event: CustomerRegistered) {
     // dynamodb action here...
   }
 }
 
 @Stream({
-  name: 'customer',
   snapshotPeriod: 10,
 })
 class CustomerStream {
+  @StreamId()
   customerId: string;
+
   name: string;
 
-  @EventSourcingHandler(CustomerRegistered)
+  @StreamEventHandler(CustomerRegistered)
   onCustomerRegistered(event: CustomerRegistered) {
     this.customerId = event.customerId;
     this.name = event.name;
@@ -59,7 +60,7 @@ class CustomerStream {
 
 @CommandHandler(RegisterCustomer)
 class RegisterCustomerHandler {
-  constructor(store: EventStore, bus: EventBus) {}
+  constructor(store: EventStore, outbox: Outbox) {}
   async handle(command: RegisterCustomer) {
     const event = new CustomerRegisteredEvent(data);
 
@@ -67,8 +68,7 @@ class RegisterCustomerHandler {
     await this.store.startStream(Customer, event);
 
     // for external services
-    await this.bus.publish(event); // publish event to same context
-    await this.bus.publish(event, {toContext: ''}); // publish event to another context
+    await this.outbox.publishEvent(event); // publish event to event context
   }
 
   async handle(command) {
@@ -77,7 +77,7 @@ class RegisterCustomerHandler {
       event.customerId,
     );
 
-    // validation if event can be applied to internal multi-store-session;
+    // validation if event can be applied to internal store-session;
 
     await append(new InternalEvent());
   }
@@ -95,7 +95,10 @@ class QueryHandler {
 // PUB_SUB = all instances of the group gets all messages (not all buses can support pub/sub)
 // FIFO = one instance of the group will take messages from the queue in FIFO order (different bus may have fifo ordering consumer rules),
 // STANDARD = any instance of group will compete for messages from queue
-@EventHandler(GenericIntegrationEvent, { consumerType: EventConsumerType.PUB_SUB, group: 'customer_events' })
+@EventHandler(GenericIntegrationEvent, {
+  consumerType: EventConsumerType.PUB_SUB,
+  group: 'customer_events',
+})
 class EventHandler {
   constructor(store: DocumentStore) {}
 
@@ -104,7 +107,10 @@ class EventHandler {
   }
 }
 
-@EventHandler(GenericIntegrationEvent, { consumerType: EventConsumerType.PUB_SUB, group: 'customer_events' })
+@EventHandler(GenericIntegrationEvent, {
+  consumerType: EventConsumerType.PUB_SUB,
+  group: 'customer_events',
+})
 class EventHandler {
   constructor(store: DocumentStore) {}
 
@@ -112,14 +118,11 @@ class EventHandler {
     // handl event
   }
 }
-
-
 
 @Saga({
   consumerType: SagaConsumerType.FIFO, // SagaConsumerType.STANDARD
 })
 class CustomerSaga extends Saga {
-
   define(data: CreateCustomerSagaData) {
     const saga = this.createDefinition();
 
@@ -136,8 +139,7 @@ class CustomerSaga extends Saga {
       .named('ChangeCustomerNameStep')
       .thenPublishCommand(new ChangeCustomerName())
       .toContext('customer')
-      .andExpectEvent('customerNameChanged', (e) => e.customerId)
-
+      .andExpectEvent('customerNameChanged', (e) => e.customerId);
 
     saga.failOn
       .events(['failedOneEvent', 'failedTwoEvent'])
@@ -147,45 +149,22 @@ class CustomerSaga extends Saga {
   }
 }
 
-@Process(
-  consumerType: ProcessConsumerType.FIFO,
-)
+@Process({
+  consumerType: ProcessConsumerType.FIFO, // ProcessConsumerType.STANDARD
+})
 class CustomerProcess extends Process {
-  constructor(
-    commandBus: CommandBus,
-    eventBus: EventBus,
-  ) {}
-
-  @StartProcess(CustomerRegistered, (e) => e.customerId)
+  @ProcessEventHandler({
+    event: CustomerRegisteredEvent,
+    associationId: (e) => e.customerId,
+    start: true,
+  })
   async onCustomerRegistered(e) {
-    await this.associateWith('otherId', e.otherId);
-    await this.removeAssociation('otherId', e.otherId);
-
-    // execute on local thread and commit changes with process changes [atomically]
-    const { ok, error } = await this.commandBus.execute(
-      new DoSomethingCommand(),
-    );
-
-    // publish command to external command bus with process state changes [atomically]
-    const { ok, error } = await this.commandBus.publish(
-      new DoSomethingCommand(),
-    );
-  }
-
-  @ProcessEventHandler(CustomerNameChanged, (e) => e.customerId)
-  async onCustomerNameChanged() {
-    const scheduledEventId = this.eventBus.schedule({
-      event: new ScheduledEvent(),
-      dateTime: dayjs.add('minutes', 10),
-    });
-
-    this.eventBus.unschedule(scheduledEventId);
-  }
-
-  @ProcessEventHandler(ScheduledEvent, (e) => e.customerId)
-  onScheduledEvent() {
-    // i was scheduled
-    this.processLifeCycle.end();
+    await this.lifeCycle.associateWith('otherId', e.otherId);
+    await this.lifeCycle.removeAssociation('otherId', e.otherId);
+    await this.lifeCycle.publishCommand();
+    await this.lifeCycle.scheduleEvent();
+    await this.lifeCycle.unscheduleEvent();
+    await this.lifeCycle.end();
   }
 }
 
@@ -193,14 +172,12 @@ class ExampleController {
   constructor(commandBus: CommndBus, queryBus: QueryBus, eventBus: EventBus) {}
 
   doSomething() {
-    this.commandbus.execute(new DoSomethingcommand()); // execute on local thread.
-    this.commandBus.publish(new DoSomethingCommandAsync()); // transactional publish command to message outbox.
-    this.commandBus.send(new DoSomethingCommandAsync()); // regular publish event to command bus.
+    this.commandbus.invoke(new DoSomethingcommand()); // execute on local thread.
+    this.commandBus.send(new DoSomethingCommandAsync()); // regular send event to command bus.
 
-    this.queryBus.execute(new GetSomethingQuery()); // execute on local thread.
+    this.queryBus.invoke(new GetSomethingQuery()); // execute on local thread.
 
-    this.eventBus.publish(new DoneSomethingEvent()); // transactional publish event to message outbox which then publishes to event bus.
-    this.eventBus.send(new DoneSomethingEvent()); // regular publish event to event bus.
+    this.eventBus.send(new DoneSomethingEvent()); // regular send event to event bus.
   }
 }
 
@@ -221,24 +198,14 @@ NoxaModule.forRoot({
   bus: rabbitMqBus(),
   projections: [
     CustomerEmailProjection, // sync
-    CustomerProjection // async handled by daemon
+    CustomerProjection, // async handled by daemon
   ],
   handlers: {
-    commands: [
-      RegisterCustomerHandler
-    ],
-    queries: [
-      GetCustomerByIdHandler
-    ],
-    events: [
-      ChatMessageEventHandlers
-    ],
-    sagas: [
-      CustomerSaga
-    ],
-    processes: [
-      CustomerProcess
-    ],
+    commands: [RegisterCustomerHandler],
+    queries: [GetCustomerByIdHandler],
+    events: [ChatMessageEventHandlers],
+    sagas: [CustomerSaga],
+    processes: [CustomerProcess],
   },
   autoCreateResources: true,
   asyncDaemon: {

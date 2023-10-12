@@ -3,14 +3,17 @@ import { LoggerModule } from 'nestjs-pino';
 
 import { AppController } from './app.controller';
 import { NoxaModule, RabbitmqBus } from '../lib';
-import { RegisterCustomerHandler } from './register-customer.handler';
+import {
+  CustomerDocument,
+  RegisterCustomerHandler,
+} from './register-customer.handler';
 
 @Module({
   controllers: [AppController],
   providers: [RegisterCustomerHandler],
   imports: [
     NoxaModule.forRoot({
-      context: 'customerService',
+      context: 'Customer',
       postgres: {
         connectionUrl: 'postgres://postgres:postgres@localhost:5432',
       },
@@ -20,6 +23,7 @@ import { RegisterCustomerHandler } from './register-customer.handler';
       asyncDaemon: {
         enabled: true,
       },
+      documentTypes: [CustomerDocument],
     }),
     LoggerModule.forRoot({
       // pinoHttp: {

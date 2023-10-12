@@ -1,7 +1,8 @@
-export { EventStore } from './event-store/event-store.service';
-export { DocumentStore } from './document-store/document-store.service';
-export { OutboxStore } from './outbox-store/outbox-store.service';
-export { MultiStoreSession } from './multi-store-session/multi-store-session.service';
+export * from './event-store';
+export * from './document-store';
+export * from './outbox-store';
+export * from './store-session';
+
 export {
   STORE_CONNECTION_POOL,
   InjectStoreConnectionPool,

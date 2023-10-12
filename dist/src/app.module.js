@@ -21,7 +21,7 @@ exports.ApplicationModule = ApplicationModule = __decorate([
         providers: [register_customer_handler_1.RegisterCustomerHandler],
         imports: [
             lib_1.NoxaModule.forRoot({
-                context: 'customerService',
+                context: 'Customer',
                 postgres: {
                     connectionUrl: 'postgres://postgres:postgres@localhost:5432',
                 },
@@ -31,6 +31,7 @@ exports.ApplicationModule = ApplicationModule = __decorate([
                 asyncDaemon: {
                     enabled: true,
                 },
+                documentTypes: [register_customer_handler_1.CustomerDocument],
             }),
             nestjs_pino_1.LoggerModule.forRoot({
             // pinoHttp: {
