@@ -1,23 +1,23 @@
 import { CommandHandler, HandleCommand, StoreSession } from '../lib';
 import {
-  CustomerRegistered,
+  ChangeCustomerName,
+  CustomerNameChanged,
   CustomerStream,
-  RegisterCustomer,
 } from './customer.stream';
 
-@CommandHandler(RegisterCustomer)
-export class RegisterCustomerHandler
-  implements HandleCommand<RegisterCustomer>
+@CommandHandler(ChangeCustomerName)
+export class ChangeCustomerNameHandler
+  implements HandleCommand<ChangeCustomerName>
 {
   constructor(private session: StoreSession) {}
 
-  async handle(command: RegisterCustomer) {
+  async handle(command: ChangeCustomerName) {
     const session = await this.session.start();
 
-    await session.event.startStream(
+    await session.event.appendEvent(
       CustomerStream,
       command.customerId,
-      new CustomerRegistered(command.customerId, command.name),
+      new CustomerNameChanged(command.customerId, command.name),
     );
 
     await session.commit();

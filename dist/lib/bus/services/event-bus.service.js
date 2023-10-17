@@ -38,11 +38,10 @@ let EventBus = EventBus_1 = class EventBus {
     }
     async sendEvent(event, options) {
         const { toContext, tenantId, publishAt } = options;
-        await this.busRelay.sendCommand({
-            bus: 'event',
+        await this.busRelay.sendEvent({
             type: this.getEventName(event),
             fromContext: this.config.context,
-            targetContext: null,
+            toContext: null,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: event,

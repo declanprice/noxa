@@ -45,15 +45,15 @@ export class EventStore {
 
       await this.client.query({
         text: `insert into noxa_event_streams (
-        id,
-        type,
-        version,
-        snapshot,
-        snapshot_version,
-        created,
-        timestamp,
-        tenant_id,
-        is_archived
+        "id",
+        "type",
+        "version",
+        "snapshot",
+        "snapshotVersion",
+        "created",
+        "timestamp",
+        "tenantId",
+        "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         values: [
           storedStream.id,
@@ -70,14 +70,14 @@ export class EventStore {
 
       await this.client.query({
         text: `insert into noxa_events (
-        id,
-        event_stream_id,
-        version,
-        timestamp,
-        data,
-        type,
-        tenant_id,
-        is_archived 
+        "id",
+        "eventStreamId",
+        "version",
+        "timestamp",
+        "data",
+        "type",
+        "tenantId",
+        "isArchived" 
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
         values: [
           storedEvent.id,
@@ -110,7 +110,7 @@ export class EventStore {
           values: [eventStreamType, eventStreamId],
         }),
         this.client.query({
-          text: `select * from noxa_events where event_stream_id = $1 order by version ASC`,
+          text: `select * from noxa_events where eventStreamId = $1 order by version ASC`,
           values: [eventStreamId],
         }),
       ]);
@@ -192,14 +192,14 @@ export class EventStore {
 
       await this.client.query({
         text: `insert into noxa_events (
-        id,
-        event_stream_id,
-        version,
-        timestamp,
-        data,
-        type,
-        tenant_id,
-        is_archived
+        "id",
+        "eventStreamId",
+        "version",
+        "timestamp",
+        "data",
+        "type",
+        "tenantId",
+        "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
         values: [
           storedEvent.id,
@@ -233,15 +233,15 @@ export class EventStore {
     await client.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_event_streams (
-            id uuid not null,
-            type varchar(500) not null,
-            version bigint not null,
-            snapshot jsonb null,
-            snapshot_version bigint null,
-            created timestamp with time zone not null,
-            timestamp timestamp with time zone not null,
-            tenant_id varchar default 'default' not null,
-            is_archived boolean default false not null
+            "id" uuid not null,
+            "type" varchar(500) not null,
+            "version" bigint not null,
+            "snapshot" jsonb null,
+            "snapshotVersion" bigint null,
+            "created" timestamp with time zone not null,
+            "timestamp" timestamp with time zone not null,
+            "tenantId" varchar default 'default' not null,
+            "isArchived" boolean default false not null
       )`,
       values: [],
     });
@@ -249,15 +249,25 @@ export class EventStore {
     await client.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_events (
-            sequence_id bigserial not null,
-            id uuid not null,
-            event_stream_id uuid not null,
-            version bigint not null,
-            timestamp timestamp with time zone not null,
-            data jsonb not null,
-            type varchar(500) not null,
-            tenant_id varchar default 'default' not null,
-            is_archived boolean default false not null
+            "sequenceId" bigserial not null,
+            "id" uuid not null,
+            "eventStreamId" uuid not null,
+            "version" bigint not null,
+            "timestamp" timestamp with time zone not null,
+            "data" jsonb not null,
+            "type" varchar(500) not null,
+            "tenantId" varchar default 'default' not null,
+            "isArchived" boolean default false not null
+      )`,
+      values: [],
+    });
+
+    await client.query({
+      text: `
+        CREATE TABLE IF NOT EXISTS noxa_projection_tokens (
+            "name" varchar(250) not null,
+            "lastSequenceId" bigserial not null,
+            "lastUpdated" timestamp with time zone not null
       )`,
       values: [],
     });

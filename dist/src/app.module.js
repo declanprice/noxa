@@ -12,13 +12,22 @@ const nestjs_pino_1 = require("nestjs-pino");
 const app_controller_1 = require("./app.controller");
 const lib_1 = require("../lib");
 const register_customer_handler_1 = require("./register-customer.handler");
+const customer_projection_1 = require("./customer.projection");
+const customer_document_1 = require("./customer.document");
+const change_customer_name_handler_1 = require("./change-customer-name.handler");
+const customer_generic_projection_1 = require("./customer-generic.projection");
 let ApplicationModule = class ApplicationModule {
 };
 exports.ApplicationModule = ApplicationModule;
 exports.ApplicationModule = ApplicationModule = __decorate([
     (0, common_1.Module)({
         controllers: [app_controller_1.AppController],
-        providers: [register_customer_handler_1.RegisterCustomerHandler],
+        providers: [
+            register_customer_handler_1.RegisterCustomerHandler,
+            change_customer_name_handler_1.ChangeCustomerNameHandler,
+            customer_projection_1.CustomerProjection,
+            customer_generic_projection_1.CustomerGenericProjection,
+        ],
         imports: [
             lib_1.NoxaModule.forRoot({
                 context: 'Customer',
@@ -31,7 +40,7 @@ exports.ApplicationModule = ApplicationModule = __decorate([
                 asyncDaemon: {
                     enabled: true,
                 },
-                documentTypes: [register_customer_handler_1.CustomerDocument],
+                documentTypes: [customer_document_1.CustomerDocument],
             }),
             nestjs_pino_1.LoggerModule.forRoot({
             // pinoHttp: {

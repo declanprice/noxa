@@ -9,20 +9,26 @@ import {
   BUS_RELAY_TOKEN,
   BusRelay,
   CommandBus,
-  QueryBus,
   EventBus,
   InjectBusRelay,
+  QueryBus,
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
 import {
   DocumentStore,
   EventStore,
-  OutboxStore,
-  StoreSession,
-  STORE_CONNECTION_POOL,
   InjectStoreConnectionPool,
+  OutboxStore,
+  STORE_CONNECTION_POOL,
+  StoreSession,
 } from './store';
 import { Pool } from 'pg';
+import { AsyncDaemon } from './async-daemon/async-daemon';
+import {
+  EVENT_STREAM_PROJECTION_HANDLER,
+  EventStreamProjectionOptions,
+} from './event-stream-projection/event-stream-projection.decorators';
+import { EventStreamProjectionType } from './event-stream-projection';
 
 export type NoxaModuleOptions = {
   postgres: {
@@ -40,6 +46,7 @@ export type NoxaModuleOptions = {
     EventBus,
     DocumentStore,
     StoreSession,
+    AsyncDaemon,
     HandlerExplorer,
   ],
 })
@@ -49,6 +56,7 @@ export class NoxaModule implements OnApplicationBootstrap {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly eventBus: EventBus,
+    private readonly asyncDaemon: AsyncDaemon,
     @InjectBusRelay() private readonly busRelay: BusRelay,
     @InjectConfig() private readonly config: Config,
     @InjectStoreConnectionPool() private readonly pool: Pool,
@@ -82,8 +90,12 @@ export class NoxaModule implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    const { commandHandlers, queryHandlers, eventHandlers } =
-      this.handlerExplorer.explore();
+    const {
+      commandHandlers,
+      queryHandlers,
+      eventHandlers,
+      projectionHandlers,
+    } = this.handlerExplorer.explore();
 
     const connection = await this.pool.connect();
 
@@ -108,5 +120,22 @@ export class NoxaModule implements OnApplicationBootstrap {
     await this.commandBus.register(commandHandlers);
     await this.queryBus.register(queryHandlers);
     await this.eventBus.register(eventHandlers);
+
+    if (projectionHandlers) {
+      for (const projectionType of projectionHandlers) {
+        const options = Reflect.getMetadata(
+          EVENT_STREAM_PROJECTION_HANDLER,
+          projectionType,
+        ) as EventStreamProjectionOptions;
+
+        if (options.type === EventStreamProjectionType.Document) {
+          await DocumentStore.createResources(projectionType, connection);
+        }
+      }
+
+      if (this.config.asyncDaemon.enabled) {
+        this.asyncDaemon.start(projectionHandlers).then();
+      }
+    }
   }
 }

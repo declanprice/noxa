@@ -1,14 +1,9 @@
-export type BusMessageType = 'command' | 'event';
-
 export type BusMessage = {
-  // the target bus, either "command" or "event".
-  bus: BusMessageType;
-
   // the context which the message was published from.
   fromContext: string;
 
   // the default is the context which the message was published from, otherwise specify the target context.
-  targetContext: string | null;
+  toContext: string | null;
 
   // the default is "DEFAULT", otherwise specify a tenant id.
   tenantId: string;

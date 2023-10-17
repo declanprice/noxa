@@ -9,100 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RegisterCustomerHandler = exports.CustomerDocument = exports.CustomerStream = exports.CustomerNameChangedEvent = exports.CustomerRegisteredEvent = exports.RegisterCustomer = void 0;
+exports.RegisterCustomerHandler = void 0;
 const lib_1 = require("../lib");
-class RegisterCustomer {
-    constructor(customerId, name) {
-        this.customerId = customerId;
-        this.name = name;
-    }
-}
-exports.RegisterCustomer = RegisterCustomer;
-class CustomerRegisteredEvent {
-    constructor(customerId, name) {
-        this.customerId = customerId;
-        this.name = name;
-    }
-}
-exports.CustomerRegisteredEvent = CustomerRegisteredEvent;
-class CustomerNameChangedEvent {
-    constructor(customerId, name) {
-        this.customerId = customerId;
-        this.name = name;
-    }
-}
-exports.CustomerNameChangedEvent = CustomerNameChangedEvent;
-let CustomerStream = class CustomerStream {
-    onCustomerRegistered(event) {
-        console.log('event handler called with event', event);
-        this.customerId = event.customerId;
-        this.name = event.name;
-    }
-    onCustomerNameChanged(event) {
-        this.name = event.name;
-    }
-};
-exports.CustomerStream = CustomerStream;
-__decorate([
-    (0, lib_1.EventStreamHandler)(CustomerRegisteredEvent),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CustomerRegisteredEvent]),
-    __metadata("design:returntype", void 0)
-], CustomerStream.prototype, "onCustomerRegistered", null);
-__decorate([
-    (0, lib_1.EventStreamHandler)(CustomerNameChangedEvent),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CustomerNameChangedEvent]),
-    __metadata("design:returntype", void 0)
-], CustomerStream.prototype, "onCustomerNameChanged", null);
-exports.CustomerStream = CustomerStream = __decorate([
-    (0, lib_1.EventStream)({
-        snapshotPeriod: 10,
-    })
-], CustomerStream);
-let CustomerDocument = class CustomerDocument {
-    constructor(customerId, name) {
-        this.customerId = customerId;
-        this.name = name;
-    }
-};
-exports.CustomerDocument = CustomerDocument;
-__decorate([
-    (0, lib_1.DocumentId)(),
-    __metadata("design:type", String)
-], CustomerDocument.prototype, "customerId", void 0);
-exports.CustomerDocument = CustomerDocument = __decorate([
-    (0, lib_1.Document)(),
-    __metadata("design:paramtypes", [String, String])
-], CustomerDocument);
+const customer_stream_1 = require("./customer.stream");
 let RegisterCustomerHandler = class RegisterCustomerHandler {
     constructor(session) {
         this.session = session;
     }
     async handle(command) {
-        // const session = await this.session.start();
-        // const event = new CustomerNameChangedEvent(
-        //   command.customerId,
-        //   command.name,
-        // );
-        //
-        // await session.event.appendEvent(CustomerStream, command.customerId, event);
-        //
-        // await session.outbox.publishEvent(event);
-        // const customer = await session.event.hydrateStream(
-        //   CustomerStream,
-        //   'efac5b66-6744-41a9-8ad4-ffef4228a15b',
-        // );
-        // await session.event.startStream(
-        //   CustomerStream,
-        //   command.customerId,
-        //   new CustomerRegisteredEvent(command.customerId, command.name),
-        // );
-        // await session.commit();
+        const session = await this.session.start();
+        await session.event.startStream(customer_stream_1.CustomerStream, command.customerId, new customer_stream_1.CustomerRegistered(command.customerId, command.name));
+        await session.commit();
     }
 };
 exports.RegisterCustomerHandler = RegisterCustomerHandler;
 exports.RegisterCustomerHandler = RegisterCustomerHandler = __decorate([
-    (0, lib_1.CommandHandler)(RegisterCustomer),
+    (0, lib_1.CommandHandler)(customer_stream_1.RegisterCustomer),
     __metadata("design:paramtypes", [lib_1.StoreSession])
 ], RegisterCustomerHandler);

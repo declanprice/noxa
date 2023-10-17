@@ -21,7 +21,7 @@ class RabbitmqBus {
         if (!this.channel) {
             throw new Error(`bus is not connected to rabbitmq, cannot send command`);
         }
-        this.channel.publish(COMMAND_BUS_EXCHANGE_NAME, `noxa.${command.targetContext}.commands.${command.type}`, Buffer.from(JSON.stringify(command)));
+        this.channel.publish(COMMAND_BUS_EXCHANGE_NAME, `noxa.${command.toContext}.commands.${command.type}`, Buffer.from(JSON.stringify(command)));
     }
     async sendEvent(event) {
         if (!this.channel) {

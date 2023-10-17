@@ -20,16 +20,16 @@ export class OutboxStore {
 
       await this.client.query({
         text: `insert into noxa_outbox (
-            id,
-            to_bus,
-            from_context,
-            to_context,
-            tenant_id,
-            timestamp,
-            data,
-            type,
-            published,
-            published_timestamp
+            "id",
+            "toBus",
+            "fromContext",
+            "toContext",
+            "tenantId",
+            "timestamp",
+            "data",
+            "type",
+            "published",
+            "publishedTimestamp"
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
         values: [
@@ -58,16 +58,16 @@ export class OutboxStore {
 
       await this.client.query({
         text: `insert into noxa_outbox (
-            id,
-            to_bus,
-            from_context,
-            to_context,
-            tenant_id,
-            timestamp,
-            data,
-            type,
-            published,
-            published_timestamp
+            "id",
+            "toBus",
+            "fromContext",
+            "toContext",
+            "tenantId",
+            "timestamp",
+            "data",
+            "type",
+            "published",
+            "publishedTimestamp"
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
         values: [
@@ -94,16 +94,16 @@ export class OutboxStore {
     await client.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_outbox (
-        id uuid not null,
-        to_bus varchar(500) not null,
-        from_context varchar(500) not null,
-        to_context varchar(500) null,
-        tenant_id varchar not null,
-        timestamp timestamp with time zone default now() not null,
-        data jsonb not null,
-        type varchar(500) not null,
-        published boolean default false not null,
-        published_timestamp timestamp with time zone null
+        "id" uuid not null,
+        "toBus" varchar(500) not null,
+        "fromContext" varchar(500) not null,
+        "toContext" varchar(500) null,
+        "tenantId" varchar not null,
+        "timestamp" timestamp with time zone default now() not null,
+        "data" jsonb not null,
+        "type" varchar(500) not null,
+        "published" boolean default false not null,
+        "publishedTimestamp" timestamp with time zone null
     )`,
       values: [],
     });

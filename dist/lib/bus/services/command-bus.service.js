@@ -40,10 +40,9 @@ let CommandBus = CommandBus_1 = class CommandBus {
     async sendCommand(command, options) {
         const { toContext, tenantId, publishAt } = options || {};
         await this.busRelay.sendCommand({
-            bus: 'command',
             type: this.getCommandName(command),
             fromContext: this.config.context,
-            targetContext: toContext ? toContext : this.config.context,
+            toContext: toContext ? toContext : this.config.context,
             tenantId: tenantId ? tenantId : 'DEFAULT',
             timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
             data: command,

@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { CommandBus } from '../lib';
-import { RegisterCustomer } from './register-customer.handler';
+import { ChangeCustomerName, RegisterCustomer } from './customer.stream';
 import { randomUUID } from 'crypto';
 
 @Controller()
@@ -9,8 +9,8 @@ export class AppController {
 
   @Get('/')
   async get() {
-    await this.commandBus.invoke(
-      new RegisterCustomer('efac5b66-6744-41a9-8ad4-ffef4228a15b', 'declan'),
-    );
+    const customerId = randomUUID();
+    await this.commandBus.invoke(new RegisterCustomer(customerId, 'declan'));
+    await this.commandBus.invoke(new ChangeCustomerName(customerId, 'tony'));
   }
 }

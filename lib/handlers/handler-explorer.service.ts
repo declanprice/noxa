@@ -11,11 +11,13 @@ import {
 } from './constants';
 import { HandleEvent } from './event/handle-event.type';
 import { HandleQuery } from './query/handle-query.type';
+import { EVENT_STREAM_PROJECTION_HANDLER } from '../event-stream-projection/event-stream-projection.decorators';
 
 export type HandlerOptions = {
   commandHandlers?: Type<HandleCommand>[];
   queryHandlers?: Type<HandleQuery>[];
   eventHandlers?: Type<HandleEvent>[];
+  projectionHandlers?: Type[];
 };
 
 @Injectable()
@@ -37,7 +39,16 @@ export class HandlerExplorer {
       this.filterProvider(instance, EVENT_HANDLER_METADATA),
     );
 
-    return { commandHandlers, queryHandlers, eventHandlers };
+    const projectionHandlers = this.flatMap<any>(modules, (instance) =>
+      this.filterProvider(instance, EVENT_STREAM_PROJECTION_HANDLER),
+    );
+
+    return {
+      commandHandlers,
+      queryHandlers,
+      eventHandlers,
+      projectionHandlers,
+    };
   }
 
   flatMap<T>(

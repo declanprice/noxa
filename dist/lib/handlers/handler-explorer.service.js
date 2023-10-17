@@ -13,6 +13,7 @@ exports.HandlerExplorer = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const constants_1 = require("./constants");
+const event_stream_projection_decorators_1 = require("../event-stream-projection/event-stream-projection.decorators");
 let HandlerExplorer = class HandlerExplorer {
     constructor(modulesContainer) {
         this.modulesContainer = modulesContainer;
@@ -22,7 +23,13 @@ let HandlerExplorer = class HandlerExplorer {
         const commandHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.COMMAND_HANDLER_METADATA));
         const queryHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.QUERY_HANDLER_METADATA));
         const eventHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, constants_1.EVENT_HANDLER_METADATA));
-        return { commandHandlers, queryHandlers, eventHandlers };
+        const projectionHandlers = this.flatMap(modules, (instance) => this.filterProvider(instance, event_stream_projection_decorators_1.EVENT_STREAM_PROJECTION_HANDLER));
+        return {
+            commandHandlers,
+            queryHandlers,
+            eventHandlers,
+            projectionHandlers,
+        };
     }
     flatMap(modules, callback) {
         const items = modules

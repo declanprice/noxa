@@ -20,12 +20,16 @@ const bus_1 = require("./bus");
 const config_1 = require("./config");
 const store_1 = require("./store");
 const pg_1 = require("pg");
+const async_daemon_1 = require("./async-daemon/async-daemon");
+const event_stream_projection_decorators_1 = require("./event-stream-projection/event-stream-projection.decorators");
+const event_stream_projection_1 = require("./event-stream-projection");
 let NoxaModule = NoxaModule_1 = class NoxaModule {
-    constructor(handlerExplorer, commandBus, queryBus, eventBus, busRelay, config, pool) {
+    constructor(handlerExplorer, commandBus, queryBus, eventBus, asyncDaemon, busRelay, config, pool) {
         this.handlerExplorer = handlerExplorer;
         this.commandBus = commandBus;
         this.queryBus = queryBus;
         this.eventBus = eventBus;
+        this.asyncDaemon = asyncDaemon;
         this.busRelay = busRelay;
         this.config = config;
         this.pool = pool;
@@ -57,7 +61,7 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
         };
     }
     async onApplicationBootstrap() {
-        const { commandHandlers, queryHandlers, eventHandlers } = this.handlerExplorer.explore();
+        const { commandHandlers, queryHandlers, eventHandlers, projectionHandlers, } = this.handlerExplorer.explore();
         const connection = await this.pool.connect();
         try {
             await connection.query('BEGIN');
@@ -79,6 +83,17 @@ let NoxaModule = NoxaModule_1 = class NoxaModule {
         await this.commandBus.register(commandHandlers);
         await this.queryBus.register(queryHandlers);
         await this.eventBus.register(eventHandlers);
+        if (projectionHandlers) {
+            for (const projectionType of projectionHandlers) {
+                const options = Reflect.getMetadata(event_stream_projection_decorators_1.EVENT_STREAM_PROJECTION_HANDLER, projectionType);
+                if (options.type === event_stream_projection_1.EventStreamProjectionType.Document) {
+                    await store_1.DocumentStore.createResources(projectionType, connection);
+                }
+            }
+            if (this.config.asyncDaemon.enabled) {
+                this.asyncDaemon.start(projectionHandlers).then();
+            }
+        }
     }
 };
 exports.NoxaModule = NoxaModule;
@@ -91,14 +106,16 @@ exports.NoxaModule = NoxaModule = NoxaModule_1 = __decorate([
             bus_1.EventBus,
             store_1.DocumentStore,
             store_1.StoreSession,
+            async_daemon_1.AsyncDaemon,
             handlers_1.HandlerExplorer,
         ],
     }),
-    __param(4, (0, bus_1.InjectBusRelay)()),
-    __param(5, (0, config_1.InjectConfig)()),
-    __param(6, (0, store_1.InjectStoreConnectionPool)()),
+    __param(5, (0, bus_1.InjectBusRelay)()),
+    __param(6, (0, config_1.InjectConfig)()),
+    __param(7, (0, store_1.InjectStoreConnectionPool)()),
     __metadata("design:paramtypes", [handlers_1.HandlerExplorer,
         bus_1.CommandBus,
         bus_1.QueryBus,
-        bus_1.EventBus, Object, Object, pg_1.Pool])
+        bus_1.EventBus,
+        async_daemon_1.AsyncDaemon, Object, Object, pg_1.Pool])
 ], NoxaModule);

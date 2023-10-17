@@ -37,7 +37,7 @@ export class RabbitmqBus implements BusRelay {
 
     this.channel.publish(
       COMMAND_BUS_EXCHANGE_NAME,
-      `noxa.${command.targetContext}.commands.${command.type}`,
+      `noxa.${command.toContext}.commands.${command.type}`,
       Buffer.from(JSON.stringify(command)),
     );
   }

@@ -5,11 +5,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/errors/event-stream-projection-invalid-id.error.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/errors/event-stream-projection-unsupported-event.error.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/event-stream-projection/event-stream-projection-type.enum.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/event-stream-projection/event-stream-projection.decorators.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/event-stream-projection/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/event-store/event-stream/stored-event-stream-projection-token.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/change-customer-name.handler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/customer-generic.projection.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/customer.document.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/customer.projection.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/customer.stream.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/bus/bus-message.type.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/bus-message.type.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/rabbitmq/rabbitmq-bus.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/command-bus.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/bus/services/event-bus.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/handler-explorer.service.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/handler-explorer.service.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/handlers/handler-explorer.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/handlers/handler-explorer.service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/lib/noxa.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/lib/noxa.module.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/app.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/app.module.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/app.module.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/src/register-customer.handler.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/src/register-customer.handler.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/bus-message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/bus-message.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-message/stored-outbox-message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-message/stored-outbox-message.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/psuedo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/psuedo.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/register-customer.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/register-customer.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,7 +77,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/lib/store/document-store/errors",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,18 +93,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/lib/async-daemon/errors" />
+      <recent name="$PROJECT_DIR$/lib/async-daemon" />
       <recent name="$PROJECT_DIR$/lib/store/document-store/errors" />
       <recent name="$PROJECT_DIR$/lib/store/event-store/errors" />
-      <recent name="$PROJECT_DIR$/lib/store/event-store/stream" />
-      <recent name="$PROJECT_DIR$/lib/tokens" />
-      <recent name="$PROJECT_DIR$/lib/handlers/process" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/async-daemon/projection-handlers" />
       <recent name="$PROJECT_DIR$/lib/store" />
       <recent name="$PROJECT_DIR$/lib/store/store" />
       <recent name="$PROJECT_DIR$/lib/tokens" />
       <recent name="$PROJECT_DIR$/lib/bus/services" />
-      <recent name="$PROJECT_DIR$/lib" />
     </key>
   </component>
   <component name="RunManager" selected="Jest.Tests in spec/">
@@ -133,7 +168,8 @@
       <workItem from="1696855861000" duration="41000" />
       <workItem from="1696856418683" duration="12000" />
       <workItem from="1696856943101" duration="1303000" />
-      <workItem from="1696889853802" duration="34596000" />
+      <workItem from="1696889853802" duration="43793000" />
+      <workItem from="1697211760558" duration="14790000" />
     </task>
     <servers />
   </component>

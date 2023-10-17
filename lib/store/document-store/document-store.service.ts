@@ -64,10 +64,13 @@ export class DocumentStore {
         text: `insert into ${DocumentStore.getDocumentTableNameFromObject(
           document,
         )} (
-           id,
-           data,
-           last_modified
-      ) values ($1, $2, $3)`,
+           "id",
+           "data",
+           "lastModified"
+      ) values ($1, $2, $3) 
+        on conflict (id) do update set
+        data = excluded.data,
+        "lastModified" = excluded."lastModified"`,
         values: [documentId, document, new Date().toISOString()],
       });
     } catch (error) {
@@ -98,14 +101,14 @@ export class DocumentStore {
   }
 
   static async createResources(document: Type, client: PoolClient) {
+    let tableName = DocumentStore.getDocumentTableNameFromType(document);
+
     await client.query({
       text: `
-        CREATE TABLE IF NOT EXISTS ${DocumentStore.getDocumentTableNameFromType(
-          document,
-        )} (
-        id varchar not null,
-        data jsonb not null,
-        last_modified timestamptz default now() not null
+        CREATE TABLE IF NOT EXISTS ${tableName} (
+        "id" uuid not null constraint ${tableName}_pk primary key,
+        "data" jsonb not null,
+        "lastModified" timestamptz default now() not null
     )`,
     });
   }

@@ -31,12 +31,12 @@ class CustomerProjection {
   onSideEffect() {}
 }
 
-@EventProjection({
+@EventStreamProjection({
   type: EventProjectionType.Generic,
   async: false,
 })
 class GenericEventProjection {
-  @EventProjectionHandler(CustomerRegistered)
+  @EventStreamProjectionHandler(CustomerRegistered)
   onCustomerRegistered(event: CustomerRegistered) {
     // dynamodb action here...
   }
@@ -64,7 +64,7 @@ class RegisterCustomerHandler {
   async handle(command: RegisterCustomer) {
     const event = new CustomerRegisteredEvent(data);
 
-    // for internal projections
+    // for internal event-stream-projection
     await this.store.startStream(Customer, event);
 
     // for external services

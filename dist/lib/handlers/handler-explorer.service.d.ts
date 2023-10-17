@@ -9,6 +9,7 @@ export type HandlerOptions = {
     commandHandlers?: Type<HandleCommand>[];
     queryHandlers?: Type<HandleQuery>[];
     eventHandlers?: Type<HandleEvent>[];
+    projectionHandlers?: Type[];
 };
 export declare class HandlerExplorer {
     private readonly modulesContainer;

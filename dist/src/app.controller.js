@@ -12,13 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const lib_1 = require("../lib");
-const register_customer_handler_1 = require("./register-customer.handler");
+const customer_stream_1 = require("./customer.stream");
+const crypto_1 = require("crypto");
 let AppController = class AppController {
     constructor(commandBus) {
         this.commandBus = commandBus;
     }
     async get() {
-        await this.commandBus.invoke(new register_customer_handler_1.RegisterCustomer('efac5b66-6744-41a9-8ad4-ffef4228a15b', 'declan'));
+        const customerId = (0, crypto_1.randomUUID)();
+        await this.commandBus.invoke(new customer_stream_1.RegisterCustomer(customerId, 'declan'));
+        await this.commandBus.invoke(new customer_stream_1.ChangeCustomerName(customerId, 'tony'));
     }
 };
 exports.AppController = AppController;
