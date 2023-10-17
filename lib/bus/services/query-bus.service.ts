@@ -1,12 +1,7 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { HandleQuery, Query } from '../../handlers';
-
-import { QueryMetadata } from '../../handlers/query/query-metadata.type';
-import {
-  QUERY_HANDLER_METADATA,
-  QUERY_METADATA,
-} from '../../handlers/query/query-handler.decorator';
+import { QUERY_HANDLER_METADATA } from '../../handlers/query/query-handler.decorator';
 
 @Injectable({})
 export class QueryBus {
@@ -17,12 +12,11 @@ export class QueryBus {
   constructor(private readonly moduleRef: ModuleRef) {}
 
   invoke(query: Query) {
-    const queryId = this.getQueryId(query);
+    const queryName = this.getQueryName(query);
 
-    const handler = this.handlers.get(queryId);
+    const handler = this.handlers.get(queryName);
 
     if (!handler) {
-      const queryName = this.getQueryName(query);
       throw new Error(`query handler not found for ${queryName}`);
     }
 
@@ -36,50 +30,25 @@ export class QueryBus {
   }
 
   protected async registerHandler(handler: Type<HandleQuery>) {
+    const query: Type<Query> = Reflect.getMetadata(
+      QUERY_HANDLER_METADATA,
+      handler,
+    );
+
     const instance = this.moduleRef.get(handler, { strict: false });
 
     if (!instance) {
-      return;
+      throw new Error(
+        `module ref could not resolve ${handler}, make sure it has been provided`,
+      );
     }
 
-    const target = this.reflectQueryId(handler);
-
-    if (!target) {
-      throw new Error('invalid query handler');
-    }
-
-    this.handlers.set(target, instance);
+    this.handlers.set(query.name, instance);
   }
 
   private getQueryName(query: Query): string {
     const { constructor } = Object.getPrototypeOf(query);
 
     return constructor.name as string;
-  }
-
-  private getQueryId(query: Query): string {
-    const { constructor: queryType } = Object.getPrototypeOf(query);
-
-    const queryMetaData: QueryMetadata = Reflect.getMetadata(
-      QUERY_METADATA,
-      queryType,
-    );
-
-    if (!queryMetaData) {
-      throw new Error('query handler not found');
-    }
-
-    return queryMetaData.id;
-  }
-
-  private reflectQueryId(handler: Type<HandleQuery>): string | undefined {
-    const query: Query = Reflect.getMetadata(QUERY_HANDLER_METADATA, handler);
-
-    const queryMetadata: QueryMetadata = Reflect.getMetadata(
-      QUERY_METADATA,
-      query,
-    );
-
-    return queryMetadata.id;
   }
 }

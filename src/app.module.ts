@@ -12,6 +12,7 @@ import {
   CustomerNameChangedEventHandler,
   CustomerRegisteredEventHandler,
 } from './handlers/event/customer.event-handlers';
+import { RandomService } from './services/random.service';
 
 @Module({
   controllers: [AppController],
@@ -20,6 +21,7 @@ import {
     ChangeCustomerNameHandler,
     CustomerRegisteredEventHandler,
     CustomerNameChangedEventHandler,
+    RandomService,
     CustomerProjection,
   ],
   imports: [

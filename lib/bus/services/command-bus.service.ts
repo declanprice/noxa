@@ -1,14 +1,9 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Command, HandleCommand } from '../../handlers';
-
-import { CommandMetadata } from '../../handlers/command/command-metadata.type';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
-import {
-  COMMAND_HANDLER_METADATA,
-  COMMAND_METADATA,
-} from '../../handlers/command/command-handler.decorator';
+import { COMMAND_HANDLER_METADATA } from '../../handlers/command/command-handler.decorator';
 
 @Injectable({})
 export class CommandBus {
@@ -25,14 +20,12 @@ export class CommandBus {
   ) {}
 
   async invoke(command: Command): Promise<void> {
-    const commandId = this.getCommandId(command);
     const commandName = this.getCommandName(command);
 
-    const handler = this.handlers.get(commandId);
+    const handler = this.handlers.get(commandName);
 
     if (!handler) {
-      console.log(`command handler not found for ${commandName}`);
-      return;
+      throw new Error(`command handler not found for ${commandName}`);
     }
 
     return await handler.handle(command);
@@ -61,22 +54,23 @@ export class CommandBus {
   }
 
   protected async registerHandler(handler: Type<HandleCommand>) {
-    const { id, type } = this.reflectCommandHandler(handler);
-
-    if (!id) {
-      throw new Error('invalid command handler');
-    }
+    const command: Type<Command> = Reflect.getMetadata(
+      COMMAND_HANDLER_METADATA,
+      handler,
+    );
 
     const instance = this.moduleRef.get(handler, { strict: false });
 
     if (!instance) {
-      return;
+      throw new Error(
+        `module ref could not resolve ${handler}, make sure it has been provided`,
+      );
     }
 
-    this.handlers.set(id, instance);
+    this.handlers.set(command.name, instance);
 
     await this.busRelay.registerCommandHandler(instance, {
-      type,
+      type: command.name,
     });
   }
 
@@ -84,46 +78,5 @@ export class CommandBus {
     const { constructor } = Object.getPrototypeOf(command);
 
     return constructor.name as string;
-  }
-
-  private getCommandId(command: Command): string {
-    const { constructor: commandType } = Object.getPrototypeOf(command);
-
-    const commandMetadata: CommandMetadata = Reflect.getMetadata(
-      COMMAND_METADATA,
-      commandType,
-    );
-
-    if (!commandMetadata) {
-      throw new Error('command handler not found');
-    }
-
-    return commandMetadata.id;
-  }
-
-  private reflectCommandHandler(handler: Type<HandleCommand>): {
-    id: string;
-    type: string;
-  } {
-    const command: Command = Reflect.getMetadata(
-      COMMAND_HANDLER_METADATA,
-      handler,
-    );
-
-    const commandMetadata: CommandMetadata = Reflect.getMetadata(
-      COMMAND_METADATA,
-      command,
-    );
-
-    if (!command || !commandMetadata) {
-      throw new Error(
-        `reflect data not found for handler ${handler.constructor.name}`,
-      );
-    }
-
-    return {
-      id: commandMetadata.id,
-      type: commandMetadata.type,
-    };
   }
 }

@@ -1,13 +1,15 @@
 import { ProjectionHandler } from './projection-handler';
 import { Type } from '@nestjs/common';
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 import { StoredProjectionToken } from '../stored-projection-token';
-import { EventStreamProjectionUnsupportedEventError } from '../../../async-daemon/errors/event-stream-projection-unsupported-event.error';
-import { EventStreamProjectionInvalidIdError } from '../../../async-daemon/errors/event-stream-projection-invalid-id.error';
+import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
+import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projection-invalid-id.error';
 import * as format from 'pg-format';
 import { DocumentStore } from '../../../store';
 import { StoredDocument } from '../../../store/document-store/document/stored-document.type';
 import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
+import { PROJECTION_FIELDS } from '../projection.decorators';
+import { ProjectionHasNoFieldsError } from '../errors/ProjectionHasNoFields.error';
 
 export class ProjectionHandlerDocument extends ProjectionHandler {
   async handleEvents(
@@ -15,25 +17,22 @@ export class ProjectionHandlerDocument extends ProjectionHandler {
     projection: Type,
     events: StoredEvent[],
   ): Promise<StoredProjectionToken> {
-    const targetIds: Set<string> = new Set<string>();
+    const targetProjectionIds: Set<string> = new Set<string>();
 
     for (const event of events) {
       const targetEventHandler = Reflect.getMetadata(event.type, projection);
 
       if (!targetEventHandler) {
-        throw new EventStreamProjectionUnsupportedEventError(
-          projection.name,
-          event.type,
-        );
+        throw new ProjectionUnsupportedEventError(projection.name, event.type);
       }
 
       const id = targetEventHandler.id(event.data);
 
       if (typeof id !== 'string') {
-        throw new EventStreamProjectionInvalidIdError();
+        throw new ProjectionInvalidIdError();
       }
 
-      targetIds.add(id);
+      targetProjectionIds.add(id);
     }
 
     const existingProjectionRowResults = await connection.query(
@@ -41,38 +40,77 @@ export class ProjectionHandlerDocument extends ProjectionHandler {
         `select * from ${DocumentStore.getDocumentTableNameFromType(
           projection,
         )} where id IN (%L)`,
-        Array.from(targetIds),
+        Array.from(targetProjectionIds),
       ),
     );
 
-    const projections = new Map<string, Object>();
+    // Map<projectionId, projectionData>
+    const projectionData = new Map<string, any>();
 
-    // add existing projections
-    for (const existingProjection of existingProjectionRowResults.rows as StoredDocument[]) {
-      const _projection = new projection();
-      Object.assign(_projection, existingProjection.data);
-      projections.set(existingProjection.id, _projection);
+    const projectionInstance = this.moduleRef.get(projection, {
+      strict: false,
+    });
+
+    const projectionFields: Set<string> = Reflect.getMetadata(
+      PROJECTION_FIELDS,
+      projection,
+    );
+
+    if (!projectionFields) {
+      throw new ProjectionHasNoFieldsError(projection.name);
     }
 
-    // add new projections
-    for (const targetId of targetIds) {
-      if (!projections.has(targetId)) {
-        projections.set(targetId, new projection());
+    // add existing projection data to map
+    for (const existingProjection of existingProjectionRowResults.rows as StoredDocument[]) {
+      projectionData.set(existingProjection.id, existingProjection.data);
+    }
+
+    // add new projection data to map
+    for (const targetProjectionId of targetProjectionIds) {
+      if (!projectionData.has(targetProjectionId)) {
+        projectionData.set(targetProjectionId, {});
       }
     }
 
-    // apply all events
+    // apply all events to projection instances
     for (const event of events) {
       const targetEventHandler = Reflect.getMetadata(event.type, projection);
 
-      const targetId = targetEventHandler.id(event.data);
+      if (!targetEventHandler) {
+        throw new ProjectionUnsupportedEventError(projection.name, event.type);
+      }
 
-      const _projection = projections.get(targetId);
+      const targetProjectionId = targetEventHandler.id(event.data);
 
-      (_projection as any)[targetEventHandler.propertyKey](event.data);
+      const existingProjectionData: any =
+        projectionData.get(targetProjectionId);
+
+      // reset projection fields
+      Object.keys(projectionInstance).forEach((key) => {
+        if (projectionFields.has(key)) {
+          projectionInstance[key] = undefined;
+        }
+      });
+
+      // assign existing data to projection instance
+      Object.assign(projectionInstance, existingProjectionData);
+
+      // apply event over projection instance
+      projectionInstance[targetEventHandler.propertyKey](event.data);
+
+      let updatedData: any = {};
+
+      Object.keys(projectionInstance).forEach((key) => {
+        if (projectionFields.has(key)) {
+          updatedData[key] = projectionInstance[key];
+        }
+      });
+
+      // set projection data in map
+      projectionData.set(targetProjectionId, { ...updatedData });
     }
 
-    // insert or update all affected documents and update token within one transaction
+    // commit projection document and token updates within one transaction
     let transaction = await connection.connect();
 
     try {
@@ -80,8 +118,11 @@ export class ProjectionHandlerDocument extends ProjectionHandler {
         format(
           `insert into ${DocumentStore.getDocumentTableNameFromType(
             projection,
-          )} (id, data, "lastModified") values %L`,
-          Array.from(projections).map((v) => [
+          )} (id, data, "lastModified") values %L 
+            on conflict (id) do update set
+            data = excluded.data,
+            "lastModified" = excluded."lastModified"`,
+          Array.from(projectionData).map((v) => [
             v[0],
             v[1],
             new Date().toISOString(),

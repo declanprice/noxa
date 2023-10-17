@@ -14,6 +14,7 @@ import { ProjectionHandlerGeneric } from '../handlers/projection/handler/project
 
 export class EventPoller {
   logger = new Logger(EventPoller.name);
+  pollTimeInMs = 500;
 
   constructor(
     private readonly connection: Pool,
@@ -65,7 +66,7 @@ export class EventPoller {
 
       return setTimeout(() => {
         this.pollEvents(projection, projectionType, eventTypes, token).then();
-      }, 1000);
+      }, this.pollTimeInMs);
     }
 
     this.logger.log(
@@ -119,7 +120,7 @@ export class EventPoller {
         eventTypes,
         updatedToken,
       ).then();
-    }, 1000);
+    }, this.pollTimeInMs);
   }
 
   async getProjectionToken(name: string): Promise<StoredProjectionToken> {

@@ -2,7 +2,7 @@ import { ProjectionHandler } from './projection-handler';
 import { Pool, PoolClient } from 'pg';
 import { Type } from '@nestjs/common';
 import { StoredProjectionToken } from '../stored-projection-token';
-import { EventStreamProjectionUnsupportedEventError } from '../../../async-daemon/errors/event-stream-projection-unsupported-event.error';
+import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
 
 export class ProjectionHandlerGeneric extends ProjectionHandler {
@@ -11,16 +11,13 @@ export class ProjectionHandlerGeneric extends ProjectionHandler {
     projection: Type,
     events: StoredEvent[],
   ): Promise<StoredProjectionToken> {
-    const instance = this.moduleRef.get(projection, { strict: false });
+    const instance = this.moduleRef.get(projection);
 
     for (const event of events) {
       const targetEventHandler = Reflect.getMetadata(event.type, projection);
 
       if (!targetEventHandler) {
-        throw new EventStreamProjectionUnsupportedEventError(
-          projection.name,
-          event.type,
-        );
+        throw new ProjectionUnsupportedEventError(projection.name, event.type);
       }
 
       await instance[targetEventHandler.propertyKey](event.data);

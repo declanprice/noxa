@@ -2,6 +2,7 @@ import {
   DynamicModule,
   Module,
   OnApplicationBootstrap,
+  Scope,
   Type,
 } from '@nestjs/common';
 import { HandlerExplorer, ProjectionType } from './handlers';
@@ -34,6 +35,9 @@ export type NoxaModuleOptions = {
     connectionUrl: string;
   };
   bus: BusRelay;
+  // handlers: {
+  //   projections: Type[];
+  // };
   documentTypes?: Type[];
 } & Config;
 
@@ -72,6 +76,16 @@ export class NoxaModule implements OnApplicationBootstrap {
   ) {}
 
   public static forRoot(options: NoxaModuleOptions): DynamicModule {
+    // const providers = [];
+
+    // for (const projection of options.handlers.projections) {
+    //   providers.push({
+    //     provide: projection,
+    //     scope: Scope.TRANSIENT,
+    //     useClass: projection,
+    //   });
+    // }
+
     return {
       module: NoxaModule,
       providers: [
@@ -93,6 +107,7 @@ export class NoxaModule implements OnApplicationBootstrap {
             documentTypes: options.documentTypes,
           } as Config,
         },
+        // ...providers,
       ],
       global: true,
     };
