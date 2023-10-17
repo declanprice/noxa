@@ -1,7 +1,7 @@
 export type StoredEvent = {
   sequenceId: number;
   id: string;
-  eventStreamId: string;
+  streamId: string;
   version: number;
   data: any;
   type: string;

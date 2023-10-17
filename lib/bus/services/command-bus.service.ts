@@ -1,13 +1,14 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Command, HandleCommand } from '../../handlers';
-import {
-  COMMAND_HANDLER_METADATA,
-  COMMAND_METADATA,
-} from '../../handlers/constants';
+
 import { CommandMetadata } from '../../handlers/command/command-metadata.type';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
+import {
+  COMMAND_HANDLER_METADATA,
+  COMMAND_METADATA,
+} from '../../handlers/command/command-handler.decorator';
 
 @Injectable({})
 export class CommandBus {

@@ -1,20 +1,26 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
-import { AppController } from './app.controller';
 import { NoxaModule, RabbitmqBus } from '../lib';
-import { RegisterCustomerHandler } from './register-customer.handler';
-import { CustomerProjection } from './customer.projection';
-import { CustomerDocument } from './customer.document';
-import { ChangeCustomerNameHandler } from './change-customer-name.handler';
-import { CustomerGenericProjection } from './customer-generic.projection';
+import { AppController } from './app.controller';
+import { CustomerProjection } from './handlers/projection/customer.projection';
+import { CustomerDocument } from './documents/customer.document';
+import {
+  ChangeCustomerNameHandler,
+  RegisterCustomerHandler,
+} from './handlers/command/customer.command-handlers';
+import {
+  CustomerNameChangedEventHandler,
+  CustomerRegisteredEventHandler,
+} from './handlers/event/customer.event-handlers';
 
 @Module({
   controllers: [AppController],
   providers: [
     RegisterCustomerHandler,
     ChangeCustomerNameHandler,
+    CustomerRegisteredEventHandler,
+    CustomerNameChangedEventHandler,
     CustomerProjection,
-    CustomerGenericProjection,
   ],
   imports: [
     NoxaModule.forRoot({

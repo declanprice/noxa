@@ -1,6 +1,8 @@
 import { Command } from './command.type';
-import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from '../constants';
 import { v4 } from 'uuid';
+
+export const COMMAND_METADATA = 'COMMAND_METADATA';
+export const COMMAND_HANDLER_METADATA = 'COMMAND_HANDLER_METADATA';
 
 export const CommandHandler = (
   command: Command | (new (...args: any[]) => Command),

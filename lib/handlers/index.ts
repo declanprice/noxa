@@ -12,6 +12,8 @@ export { Event } from './event/event.type';
 export { HandleEvent } from './event/handle-event.type';
 export { EventHandler } from './event/event-handler.decorator';
 
+export * from './projection';
+
 export { Saga } from './saga/saga';
 
 export { Process } from './process/process';

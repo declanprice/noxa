@@ -12,6 +12,8 @@ export class OutboxPoller {
 
   logger = new Logger(OutboxPoller.name);
 
+  pollTimeInMs = 100;
+
   async start(): Promise<any> {
     const result = await this.client.query({
       text: `select * from noxa_outbox where published = false order by timestamp ASC`,
@@ -24,7 +26,7 @@ export class OutboxPoller {
 
       return setTimeout(() => {
         this.start().then();
-      }, 500);
+      }, this.pollTimeInMs);
     }
 
     this.logger.log(
@@ -61,7 +63,7 @@ export class OutboxPoller {
 
     await this.client.query(
       format(
-        `UPDATE noxa_outbox SET published = true, published_timestamp = now() WHERE id IN (%L)`,
+        `UPDATE noxa_outbox SET published = true, "publishedTimestamp" = now() WHERE id IN (%L)`,
         messageIds,
       ),
     );
@@ -72,6 +74,6 @@ export class OutboxPoller {
 
     return setTimeout(() => {
       this.start().then();
-    }, 1000);
+    }, this.pollTimeInMs);
   }
 }

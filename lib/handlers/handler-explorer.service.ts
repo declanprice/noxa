@@ -4,14 +4,12 @@ import { Module } from '@nestjs/core/injector/module';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { HandleCommand } from './command/handle-command.type';
-import {
-  COMMAND_HANDLER_METADATA,
-  EVENT_HANDLER_METADATA,
-  QUERY_HANDLER_METADATA,
-} from './constants';
 import { HandleEvent } from './event/handle-event.type';
 import { HandleQuery } from './query/handle-query.type';
-import { EVENT_STREAM_PROJECTION_HANDLER } from '../event-stream-projection/event-stream-projection.decorators';
+import { PROJECTION_HANDLER } from './projection/projection.decorators';
+import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
+import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
+import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
 
 export type HandlerOptions = {
   commandHandlers?: Type<HandleCommand>[];
@@ -40,7 +38,7 @@ export class HandlerExplorer {
     );
 
     const projectionHandlers = this.flatMap<any>(modules, (instance) =>
-      this.filterProvider(instance, EVENT_STREAM_PROJECTION_HANDLER),
+      this.filterProvider(instance, PROJECTION_HANDLER),
     );
 
     return {

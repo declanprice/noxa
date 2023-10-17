@@ -4,7 +4,7 @@ import {
   OnApplicationBootstrap,
   Type,
 } from '@nestjs/common';
-import { HandlerExplorer } from './handlers';
+import { HandlerExplorer, ProjectionType } from './handlers';
 import {
   BUS_RELAY_TOKEN,
   BusRelay,
@@ -17,18 +17,17 @@ import { Config, CONFIG_TOKEN, InjectConfig } from './config';
 import {
   DocumentStore,
   EventStore,
-  InjectStoreConnectionPool,
+  InjectStoreConnection,
   OutboxStore,
-  STORE_CONNECTION_POOL,
+  STORE_CONNECTION_TOKEN,
   StoreSession,
 } from './store';
 import { Pool } from 'pg';
 import { AsyncDaemon } from './async-daemon/async-daemon';
 import {
-  EVENT_STREAM_PROJECTION_HANDLER,
-  EventStreamProjectionOptions,
-} from './event-stream-projection/event-stream-projection.decorators';
-import { EventStreamProjectionType } from './event-stream-projection';
+  PROJECTION_HANDLER,
+  ProjectionOptions,
+} from './handlers/projection/projection.decorators';
 
 export type NoxaModuleOptions = {
   postgres: {
@@ -39,12 +38,22 @@ export type NoxaModuleOptions = {
 } & Config;
 
 @Module({
-  exports: [CommandBus, QueryBus, EventBus, DocumentStore, StoreSession],
+  exports: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    DocumentStore,
+    EventStore,
+    OutboxStore,
+    StoreSession,
+  ],
   providers: [
     CommandBus,
     QueryBus,
     EventBus,
     DocumentStore,
+    EventStore,
+    OutboxStore,
     StoreSession,
     AsyncDaemon,
     HandlerExplorer,
@@ -59,7 +68,7 @@ export class NoxaModule implements OnApplicationBootstrap {
     private readonly asyncDaemon: AsyncDaemon,
     @InjectBusRelay() private readonly busRelay: BusRelay,
     @InjectConfig() private readonly config: Config,
-    @InjectStoreConnectionPool() private readonly pool: Pool,
+    @InjectStoreConnection() private readonly pool: Pool,
   ) {}
 
   public static forRoot(options: NoxaModuleOptions): DynamicModule {
@@ -67,7 +76,7 @@ export class NoxaModule implements OnApplicationBootstrap {
       module: NoxaModule,
       providers: [
         {
-          provide: STORE_CONNECTION_POOL,
+          provide: STORE_CONNECTION_TOKEN,
           useValue: new Pool({
             connectionString: options.postgres.connectionUrl,
           }),
@@ -124,11 +133,11 @@ export class NoxaModule implements OnApplicationBootstrap {
     if (projectionHandlers) {
       for (const projectionType of projectionHandlers) {
         const options = Reflect.getMetadata(
-          EVENT_STREAM_PROJECTION_HANDLER,
+          PROJECTION_HANDLER,
           projectionType,
-        ) as EventStreamProjectionOptions;
+        ) as ProjectionOptions;
 
-        if (options.type === EventStreamProjectionType.Document) {
+        if (options.type === ProjectionType.Document) {
           await DocumentStore.createResources(projectionType, connection);
         }
       }

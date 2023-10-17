@@ -1,16 +1,17 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { HandleEvent } from '../../handlers';
+import { BusRelay, InjectBusRelay } from '../bus-relay.type';
+import { Config, InjectConfig } from '../../config';
 import {
   EVENT_HANDLER_METADATA,
-  EVENT_METADATA,
-} from '../../handlers/constants';
-import { BusRelay, InjectBusRelay } from '../bus-relay.type';
-import { EventMetadata } from '../../handlers/event/event-metadata.type';
-import { Config, InjectConfig } from '../../config';
+  EVENT_HANDLER_OPTIONS_METADATA,
+  EventHandlerOptions,
+} from '../../handlers/event/event-handler.decorator';
 
 @Injectable({})
 export class EventBus {
+  // Map<eventType, HandleEvent>
   private handlers = new Map<string, HandleEvent<Event>>();
 
   logger = new Logger(EventBus.name);
@@ -24,12 +25,11 @@ export class EventBus {
   ) {}
 
   invoke(event: Event) {
-    const eventId = this.getEventId(event);
+    const eventName = this.getEventName(event);
 
-    const handler = this.handlers.get(eventId);
+    const handler = this.handlers.get(eventName);
 
     if (!handler) {
-      const eventName = this.getEventName(event);
       throw new Error(`event handler not found for ${eventName}`);
     }
 
@@ -38,9 +38,9 @@ export class EventBus {
 
   async sendEvent(
     event: Event,
-    options: { toContext?: string; tenantId?: string; publishAt?: Date },
+    options: { tenantId?: string; publishAt?: Date },
   ): Promise<void> {
-    const { toContext, tenantId, publishAt } = options;
+    const { tenantId, publishAt } = options;
 
     await this.busRelay.sendEvent({
       type: this.getEventName(event),
@@ -53,72 +53,72 @@ export class EventBus {
   }
 
   async register(handlers: Type<HandleEvent>[] = []) {
+    const eventHandlerGroups = new Map<
+      string,
+      { consumerType: any; handlers: Map<string, HandleEvent> }
+    >();
+
     for (const handler of handlers) {
-      await this.registerHandler(handler);
+      const { eventType, handlerInstance } =
+        await this.registerHandler(handler);
+
+      const options = Reflect.getMetadata(
+        EVENT_HANDLER_OPTIONS_METADATA,
+        handler,
+      ) as EventHandlerOptions;
+
+      let groupName = options.group ? options.group : handler.name;
+
+      let eventHandlerGroup = eventHandlerGroups.get(groupName);
+
+      if (eventHandlerGroup) {
+        eventHandlerGroup.handlers.set(eventType, handlerInstance);
+      } else {
+        const handlers = new Map<string, HandleEvent>();
+        handlers.set(eventType, handlerInstance);
+        eventHandlerGroups.set(groupName, {
+          consumerType: options.consumerType,
+          handlers,
+        });
+      }
+    }
+
+    for (const [groupName, group] of eventHandlerGroups) {
+      await this.busRelay.registerEventHandlerGroup(
+        groupName,
+        group.consumerType,
+        group.handlers,
+      );
     }
   }
 
-  protected async registerHandler(handler: Type<HandleEvent>) {
+  protected async registerHandler(
+    handler: Type<HandleEvent>,
+  ): Promise<{ eventType: string; handlerInstance: HandleEvent }> {
+    const event: Type<Event> = Reflect.getMetadata(
+      EVENT_HANDLER_METADATA,
+      handler,
+    );
+
     const instance = this.moduleRef.get(handler, { strict: false });
 
     if (!instance) {
-      return;
+      throw new Error(
+        `module ref could not resolve ${handler}, make sure it has been provided`,
+      );
     }
 
-    const { id, type } = this.reflectEventHandler(handler);
+    this.handlers.set(event.name, instance);
 
-    if (!id) {
-      throw new Error('invalid event handler');
-    }
-
-    this.handlers.set(id, instance);
-
-    await this.busRelay.registerEventHandler(instance, {
-      type,
-    });
+    return {
+      eventType: event.name,
+      handlerInstance: instance,
+    };
   }
 
   private getEventName(event: Event): string {
     const { constructor } = Object.getPrototypeOf(event);
 
     return constructor.name as string;
-  }
-
-  private getEventId(event: Event): string {
-    const { constructor: eventType } = Object.getPrototypeOf(event);
-
-    const eventMetadata: EventMetadata = Reflect.getMetadata(
-      EVENT_METADATA,
-      eventType,
-    );
-
-    if (!eventMetadata) {
-      throw new Error(`event handler for event ${eventType} not found`);
-    }
-
-    return eventMetadata.id;
-  }
-
-  private reflectEventHandler(handler: Type<HandleEvent>): {
-    id: string;
-    type: string;
-  } {
-    const event: Event = Reflect.getMetadata(EVENT_HANDLER_METADATA, handler);
-
-    const eventMetadata: EventMetadata = Reflect.getMetadata(
-      EVENT_METADATA,
-      event,
-    );
-
-    if (!event || !eventMetadata) {
-      throw new Error(
-        `reflect data not found for handler ${handler.constructor.name}`,
-      );
-    }
-
-    return {
-      id: eventMetadata.id,
-      type: eventMetadata.type,
-    };
   }
 }

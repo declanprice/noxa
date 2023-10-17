@@ -3,13 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { DocumentStore } from '../document-store/document-store.service';
 import { EventStore } from '../event-store/event-store.service';
 import { OutboxStore } from '../outbox-store/outbox-store.service';
-import { InjectStoreConnectionPool } from '../store-connection-pool.token';
+import { InjectStoreConnection } from '../store-connection.token';
 import { Config, InjectConfig } from '../../config';
 
 @Injectable()
 export class StoreSession {
   constructor(
-    @InjectStoreConnectionPool() private readonly pool: Pool,
+    @InjectStoreConnection() private readonly pool: Pool,
     @InjectConfig() private readonly config: Config,
   ) {}
 

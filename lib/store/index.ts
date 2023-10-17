@@ -4,6 +4,6 @@ export * from './outbox-store';
 export * from './store-session';
 
 export {
-  STORE_CONNECTION_POOL,
-  InjectStoreConnectionPool,
-} from './store-connection-pool.token';
+  STORE_CONNECTION_TOKEN,
+  InjectStoreConnection,
+} from './store-connection.token';

@@ -1,11 +1,12 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { HandleQuery, Query } from '../../handlers';
+
+import { QueryMetadata } from '../../handlers/query/query-metadata.type';
 import {
   QUERY_HANDLER_METADATA,
   QUERY_METADATA,
-} from '../../handlers/constants';
-import { QueryMetadata } from '../../handlers/query/query-metadata.type';
+} from '../../handlers/query/query-handler.decorator';
 
 @Injectable({})
 export class QueryBus {

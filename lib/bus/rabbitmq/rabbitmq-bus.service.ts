@@ -5,6 +5,8 @@ import { BusRelay } from '../bus-relay.type';
 import { Command, HandleCommand, HandleEvent } from '../../handlers';
 import { BusMessage } from '../bus-message.type';
 import { Config } from '../../config';
+import { RabbitmqEventConsumerType } from './rabbitmq-event-consumer-type';
+import { QueueCannotHandleEventTypeError } from './errors/queue-cannot-handle-event-type.error';
 
 const COMMAND_BUS_EXCHANGE_NAME = 'noxa.commandBus';
 const EVENT_BUS_EXCHANGE_NAME = 'noxa.eventBus';
@@ -16,6 +18,7 @@ export type RabbitmqBusOptions = {
 
 export class RabbitmqBus implements BusRelay {
   private logger = new Logger(RabbitmqBus.name);
+
   private channel?: Channel;
   private config?: Config;
 
@@ -82,29 +85,52 @@ export class RabbitmqBus implements BusRelay {
     });
   }
 
-  async registerEventHandler(
-    handler: HandleEvent<Event>,
-    options: { type: string },
+  async registerEventHandlerGroup(
+    groupName: string,
+    consumerType: RabbitmqEventConsumerType,
+    handlers: Map<string, HandleEvent<Event>>,
   ): Promise<void> {
     if (!this.channel || !this.config) {
       throw new Error(
-        `bus is not connected to rabbitmq, cannot register event handler`,
+        `bus is not connected to rabbitmq, cannot register event handler group`,
       );
     }
 
-    const queueName = `noxa.${this.config.context}.eventHandlers.${handler.constructor.name}`;
-    const queueRouteKey = `noxa.${this.config.context}.events.${options.type}`;
+    const queueName = `noxa.${this.config.context}.eventHandlers.${groupName}`;
 
-    await this.channel.assertQueue(queueName);
-    await this.channel.bindQueue(
-      queueName,
-      EVENT_BUS_EXCHANGE_NAME,
-      queueRouteKey,
-    );
+    await this.channel.assertQueue(queueName, {
+      arguments: {
+        'x-single-active-consumer':
+          consumerType === RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
+      },
+    });
+
+    for (const eventType of handlers.keys()) {
+      const queueRouteKey = `noxa.${this.config.context}.events.${eventType}`;
+
+      await this.channel.bindQueue(
+        queueName,
+        EVENT_BUS_EXCHANGE_NAME,
+        queueRouteKey,
+      );
+    }
 
     await this.channel.consume(queueName, async (message) => {
       if (!this.channel || !message?.content) return;
-      const parsedMessage = JSON.parse(message.content.toString());
+
+      const parsedMessage = JSON.parse(
+        message.content.toString(),
+      ) as BusMessage;
+
+      const handler = handlers.get(parsedMessage.type);
+
+      if (!handler) {
+        throw new QueueCannotHandleEventTypeError(
+          queueName,
+          parsedMessage.type,
+        );
+      }
+
       await handler.handle(parsedMessage.data, parsedMessage);
       this.channel.ack(message);
     });

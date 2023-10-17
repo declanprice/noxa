@@ -1,11 +1,16 @@
+import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { PoolClient } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import { Command, Event } from '../../handlers';
-import { Config } from '../../config';
+import { Config, InjectConfig } from '../../config';
+import { InjectStoreConnection } from '../store-connection.token';
 
+@Injectable()
 export class OutboxStore {
   constructor(
-    private readonly client: PoolClient,
+    @InjectStoreConnection()
+    private readonly connection: PoolClient | Pool,
+    @InjectConfig()
     private readonly config: Config,
   ) {
     console.log('outbox store was created');
@@ -18,7 +23,7 @@ export class OutboxStore {
     try {
       const { toContext, tenantId } = options || {};
 
-      await this.client.query({
+      await this.connection.query({
         text: `insert into noxa_outbox (
             "id",
             "toBus",
@@ -46,8 +51,10 @@ export class OutboxStore {
         ],
       });
     } catch (error) {
-      await this.client.query('ROLLBACK');
-      this.client.release();
+      if (!(this.connection instanceof Pool)) {
+        await this.connection.query('ROLLBACK');
+        this.connection.release();
+      }
       throw error;
     }
   }
@@ -56,7 +63,7 @@ export class OutboxStore {
     try {
       const { tenantId } = options || {};
 
-      await this.client.query({
+      await this.connection.query({
         text: `insert into noxa_outbox (
             "id",
             "toBus",
@@ -84,14 +91,16 @@ export class OutboxStore {
         ],
       });
     } catch (error) {
-      await this.client.query('ROLLBACK');
-      this.client.release();
+      if (!(this.connection instanceof Pool)) {
+        await this.connection.query('ROLLBACK');
+        this.connection.release();
+      }
       throw error;
     }
   }
 
-  static async createResources(client: PoolClient) {
-    await client.query({
+  static async createResources(connection: PoolClient) {
+    await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_outbox (
         "id" uuid not null,

@@ -15,5 +15,5 @@ export type BusMessage = {
   type: string;
 
   // the command or event data
-  data: object;
+  data: any;
 };

@@ -64,7 +64,7 @@ class RegisterCustomerHandler {
   async handle(command: RegisterCustomer) {
     const event = new CustomerRegisteredEvent(data);
 
-    // for internal event-stream-projection
+    // for internal streams-projection
     await this.store.startStream(Customer, event);
 
     // for external services

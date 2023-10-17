@@ -1,6 +1,9 @@
 import { Query } from './query.type';
 import { v4 } from 'uuid';
-import { QUERY_HANDLER_METADATA, QUERY_METADATA } from '../constants';
+
+export const QUERY_METADATA = 'QUERY_METADATA';
+
+export const QUERY_HANDLER_METADATA = 'QUERY_HANDLER_METADATA';
 
 export const QueryHandler = (
   query: Query | (new (...args: any[]) => Query),

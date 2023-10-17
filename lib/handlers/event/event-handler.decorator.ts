@@ -1,14 +1,11 @@
 import { Event } from './event.type';
-import { v4 } from 'uuid';
-import {
-  EVENT_HANDLER_METADATA,
-  EVENT_HANDLER_OPTIONS_METADATA,
-  EVENT_METADATA,
-} from '../constants';
-import { EventConsumerType } from './event-handler-consumer-type.enum';
+
+export const EVENT_HANDLER_METADATA = 'EVENT_HANDLER_METADATA';
+
+export const EVENT_HANDLER_OPTIONS_METADATA = 'EVENT_HANDLER_OPTIONS_METADATA';
 
 export type EventHandlerOptions = {
-  consumerType?: EventConsumerType;
+  consumerType?: any;
   group?: string;
 };
 
@@ -17,14 +14,6 @@ export const EventHandler = (
   options?: EventHandlerOptions,
 ): ClassDecorator => {
   return (target: object) => {
-    if (!Reflect.hasOwnMetadata(EVENT_METADATA, event)) {
-      Reflect.defineMetadata(
-        EVENT_METADATA,
-        { id: v4(), type: (event as any).name },
-        event,
-      );
-    }
-
     Reflect.defineMetadata(EVENT_HANDLER_OPTIONS_METADATA, options, target);
     Reflect.defineMetadata(EVENT_HANDLER_METADATA, event, target);
   };

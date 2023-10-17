@@ -1,16 +1,16 @@
 import { Pool, PoolClient } from 'pg';
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable, Optional, Type } from '@nestjs/common';
 import { toSnakeCase } from '../../util/to-snake-case';
 import { DocumentNotFoundError } from './errors/document-not-found.error';
 import { DOCUMENT_ID_PROPERTY_METADATA } from './document/document.decorators';
 import { DocumentIdPropertyNotConfiguredError } from './errors/document-id-property-not-configured.error';
-import { InjectStoreConnectionPool } from '../store-connection-pool.token';
+import { InjectStoreConnection } from '../store-connection.token';
 
 @Injectable()
 export class DocumentStore {
   constructor(
-    @InjectStoreConnectionPool()
-    private readonly client: PoolClient | Pool,
+    @InjectStoreConnection()
+    private readonly connection: PoolClient | Pool,
   ) {
     console.log('document store-session was created');
   }
@@ -19,7 +19,7 @@ export class DocumentStore {
     try {
       const documentType = document.name;
 
-      const documentResult = await this.client.query({
+      const documentResult = await this.connection.query({
         text: `select * from ${DocumentStore.getDocumentTableNameFromType(
           document,
         )} where id = $1`,
@@ -36,11 +36,10 @@ export class DocumentStore {
 
       return _document;
     } catch (error) {
-      if (!(this.client instanceof Pool)) {
-        await this.client.query('ROLLBACK');
-        this.client.release();
+      if (!(this.connection instanceof Pool)) {
+        await this.connection.query('ROLLBACK');
+        this.connection.release();
       }
-
       throw error;
     }
   }
@@ -60,7 +59,7 @@ export class DocumentStore {
 
       const documentId = document[documentIdProperty];
 
-      await this.client.query({
+      await this.connection.query({
         text: `insert into ${DocumentStore.getDocumentTableNameFromObject(
           document,
         )} (
@@ -74,36 +73,35 @@ export class DocumentStore {
         values: [documentId, document, new Date().toISOString()],
       });
     } catch (error) {
-      if (!(this.client instanceof Pool)) {
-        await this.client.query('ROLLBACK');
-        this.client.release();
+      if (!(this.connection instanceof Pool)) {
+        await this.connection.query('ROLLBACK');
+        this.connection.release();
       }
-
       throw error;
     }
   }
 
   async delete(document: Type, documentId: string): Promise<void> {
     try {
-      await this.client.query({
+      await this.connection.query({
         text: `delete from ${DocumentStore.getDocumentTableNameFromType(
           document,
         )} where id = $1`,
         values: [documentId],
       });
     } catch (error) {
-      if (!(this.client instanceof Pool)) {
-        await this.client.query('ROLLBACK');
-        this.client.release();
+      if (!(this.connection instanceof Pool)) {
+        await this.connection.query('ROLLBACK');
+        this.connection.release();
       }
       throw error;
     }
   }
 
-  static async createResources(document: Type, client: PoolClient) {
+  static async createResources(document: Type, connection: PoolClient) {
     let tableName = DocumentStore.getDocumentTableNameFromType(document);
 
-    await client.query({
+    await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS ${tableName} (
         "id" uuid not null constraint ${tableName}_pk primary key,
