@@ -40,10 +40,9 @@ export class CustomerProcess extends ProcessLifeCycle {
 
     this.customerId = event.customerId;
     this.name = event.name;
-
     this.deadlineId = await this.session.outbox.publishEvent(
       new CustomerProcessDeadlineEvent(event.customerId),
-      { timestamp: dayjs().add(10, 'seconds').toISOString() },
+      { timestamp: dayjs().add(60, 'seconds').toISOString() },
     );
   }
 
@@ -53,7 +52,13 @@ export class CustomerProcess extends ProcessLifeCycle {
   })
   async onNameChange(event: CustomerRegistered) {
     console.log('onNameChangeEvent', event);
+
     this.name = event.name;
+
+    if (this.deadlineId) {
+      await this.session.outbox.unpublishEvent(this.deadlineId);
+      this.deadlineId = undefined;
+    }
   }
 
   @ProcessEventHandler({

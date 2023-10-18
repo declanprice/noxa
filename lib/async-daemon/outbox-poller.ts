@@ -20,10 +20,6 @@ export class OutboxPoller {
     });
 
     if (result.rowCount === 0) {
-      this.logger.log(
-        `all messages have been published, checking again in 1 seconds.`,
-      );
-
       return setTimeout(() => {
         this.start().then();
       }, this.pollTimeInMs);

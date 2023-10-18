@@ -57,8 +57,6 @@ export class EventPoller {
     });
 
     if (events.rowCount === 0) {
-      this.logger.log('no new events available, checking again in 1 second.');
-
       return setTimeout(() => {
         this.pollEvents(projection, projectionType, eventTypes, token).then();
       }, this.pollTimeInMs);

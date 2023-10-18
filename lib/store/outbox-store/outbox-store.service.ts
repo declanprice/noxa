@@ -99,7 +99,7 @@ export class OutboxStore {
     await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_outbox (
-        "id" uuid not null,
+        "id" uuid not null constraint noxa_outbox_pk primary key,
         "toBus" varchar(500) not null,
         "fromContext" varchar(500) not null,
         "toContext" varchar(500) null,

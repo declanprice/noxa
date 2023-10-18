@@ -124,7 +124,7 @@ export abstract class ProcessLifeCycle {
     Object.assign(this, processDocument.data);
 
     // apply event over projection instance
-    (this as any)[targetEventHandler.propertyKey](message.data);
+    await (this as any)[targetEventHandler.propertyKey](message.data);
 
     let updatedProcessData: any = {};
 

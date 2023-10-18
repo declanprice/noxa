@@ -211,7 +211,7 @@ export class EventStore {
     await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_event_streams (
-            "id" uuid not null,
+            "id" uuid not null constraint noxa_event_streams_pk primary key,
             "type" varchar(500) not null,
             "version" bigint not null,
             "snapshot" jsonb null,
@@ -227,7 +227,7 @@ export class EventStore {
     await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_events (
-            "sequenceId" bigserial not null,
+            "sequenceId" bigserial not null constraint noxa_events_pk primary key,
             "id" uuid not null,
             "streamId" uuid not null,
             "version" bigint not null,
@@ -243,7 +243,7 @@ export class EventStore {
     await connection.query({
       text: `
         CREATE TABLE IF NOT EXISTS noxa_projection_tokens (
-            "name" varchar(250) not null,
+            "name" varchar(250) not null constraint noxa_projection_tokens_pk primary key,
             "lastSequenceId" bigserial not null,
             "lastUpdated" timestamp with time zone not null
       )`,
