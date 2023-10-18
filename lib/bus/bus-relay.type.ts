@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 
-import { Command, HandleCommand, HandleEvent } from '../handlers';
+import { Command, Event, HandleCommand, HandleEvent } from '../handlers';
 import { BusMessage } from './bus-message.type';
 import { Config } from '../config';
 import { RabbitmqEventConsumerType } from './rabbitmq/rabbitmq-event-consumer-type';
@@ -21,7 +21,8 @@ export type BusRelay = {
   registerEventHandlerGroup(
     groupName: string,
     consumerType: RabbitmqEventConsumerType,
-    handlers: Map<string, HandleEvent<Event>>,
+    eventTypes: string[],
+    onMessage: (message: BusMessage) => Promise<void>,
   ): Promise<void>;
 };
 

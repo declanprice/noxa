@@ -10,12 +10,15 @@ import { PROJECTION_HANDLER } from './projection/projection.decorators';
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
 import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
 import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
+import { ProcessLifeCycle } from './process';
+import { PROCESS_HANDLER_METADATA } from './process/process.decorators';
 
 export type HandlerOptions = {
   commandHandlers?: Type<HandleCommand>[];
   queryHandlers?: Type<HandleQuery>[];
   eventHandlers?: Type<HandleEvent>[];
   projectionHandlers?: Type[];
+  processHandlers?: Type<ProcessLifeCycle>[];
 };
 
 @Injectable()
@@ -41,11 +44,17 @@ export class HandlerExplorer {
       this.filterProvider(instance, PROJECTION_HANDLER),
     );
 
+    const processHandlers = this.flatMap<ProcessLifeCycle>(
+      modules,
+      (instance) => this.filterProvider(instance, PROCESS_HANDLER_METADATA),
+    );
+
     return {
       commandHandlers,
       queryHandlers,
       eventHandlers,
       projectionHandlers,
+      processHandlers,
     };
   }
 

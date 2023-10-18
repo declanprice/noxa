@@ -1,4 +1,4 @@
-import { Document, DocumentId } from '../../lib';
+import { Document, DocumentId } from '../../../lib';
 
 @Document()
 export class CustomerDocument {

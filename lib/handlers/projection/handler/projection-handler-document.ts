@@ -37,7 +37,7 @@ export class ProjectionHandlerDocument extends ProjectionHandler {
 
     const existingProjectionRowResults = await connection.query(
       format(
-        `select * from ${DocumentStore.getDocumentTableNameFromType(
+        `select * from ${DocumentStore.tableNameFromType(
           projection,
         )} where id IN (%L)`,
         Array.from(targetProjectionIds),
@@ -116,7 +116,7 @@ export class ProjectionHandlerDocument extends ProjectionHandler {
     try {
       await transaction.query(
         format(
-          `insert into ${DocumentStore.getDocumentTableNameFromType(
+          `insert into ${DocumentStore.tableNameFromType(
             projection,
           )} (id, data, "lastModified") values %L 
             on conflict (id) do update set

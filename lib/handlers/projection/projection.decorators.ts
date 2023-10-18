@@ -8,11 +8,18 @@ export const PROJECTION_FIELDS = 'PROJECTION_FIELDS';
 
 export const PROJECTION_EVENT_TYPES = 'PROJECTION_EVENT_TYPES';
 
-export type ProjectionOptions = {
+export type ProjectionOptionsMetadata = {
   type: ProjectionType;
 };
 
-export const Projection = (options?: ProjectionOptions): ClassDecorator => {
+export type ProjectionHandlerMetadata<E extends Event> = {
+  propertyKey: string;
+  id: (event: E) => string;
+};
+
+export const Projection = (
+  options?: ProjectionOptionsMetadata,
+): ClassDecorator => {
   return (target: object) => {
     Reflect.defineMetadata(PROJECTION_HANDLER, options, target);
   };
@@ -39,9 +46,9 @@ export const ProjectionField = (): PropertyDecorator => {
   };
 };
 
-export const ProjectionEventHandler = <T extends Event>(
-  event: Type<T>,
-  id: (e: T) => string,
+export const ProjectionEventHandler = <E extends Event>(
+  event: Type<E>,
+  id: (e: E) => string,
 ): MethodDecorator => {
   return (target: object, propertyKey: string | symbol) => {
     const eventType = event.name;
@@ -64,13 +71,58 @@ export const ProjectionEventHandler = <T extends Event>(
       target.constructor,
     );
 
-    Reflect.defineMetadata(
-      eventType,
-      {
-        propertyKey,
-        id,
-      },
-      target.constructor,
-    );
+    const handlerMetadata: ProjectionHandlerMetadata<E> = {
+      propertyKey: propertyKey as string,
+      id,
+    };
+
+    Reflect.defineMetadata(eventType, handlerMetadata, target.constructor);
   };
+};
+
+export const getProjectionOptionMetadata = (
+  projection: Type,
+): ProjectionOptionsMetadata => {
+  const options = Reflect.getMetadata(
+    PROJECTION_HANDLER,
+    projection,
+  ) as ProjectionOptionsMetadata;
+
+  if (!options) {
+    throw new Error(`projection ${projection} has no @Projection decorator`);
+  }
+
+  return options;
+};
+
+export const getProjectionEventTypesMetadata = (
+  projection: Type,
+): Set<string> => {
+  const eventTypes = Reflect.getMetadata(PROJECTION_EVENT_TYPES, projection);
+
+  if (!eventTypes) {
+    throw new Error(
+      `projection ${projection} has no @ProjectionEventHandler decorators`,
+    );
+  }
+
+  return eventTypes;
+};
+
+export const getProjectionEventHandlerMetadata = <E extends Event>(
+  projection: Type,
+  eventType: string,
+): ProjectionHandlerMetadata<E> => {
+  const handlerMetadata = Reflect.getMetadata(
+    eventType,
+    projection,
+  ) as ProjectionHandlerMetadata<E>;
+
+  if (!handlerMetadata) {
+    throw new Error(
+      `projection ${projection} has no @ProjectionEventHandler for event type ${eventType}`,
+    );
+  }
+
+  return handlerMetadata;
 };

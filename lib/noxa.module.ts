@@ -1,10 +1,4 @@
-import {
-  DynamicModule,
-  Module,
-  OnApplicationBootstrap,
-  Scope,
-  Type,
-} from '@nestjs/common';
+import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
 import { HandlerExplorer, ProjectionType } from './handlers';
 import {
   BUS_RELAY_TOKEN,
@@ -25,20 +19,13 @@ import {
 } from './store';
 import { Pool } from 'pg';
 import { AsyncDaemon } from './async-daemon/async-daemon';
-import {
-  PROJECTION_HANDLER,
-  ProjectionOptions,
-} from './handlers/projection/projection.decorators';
+import { getProjectionOptionMetadata } from './handlers/projection/projection.decorators';
 
 export type NoxaModuleOptions = {
   postgres: {
     connectionUrl: string;
   };
   bus: BusRelay;
-  // handlers: {
-  //   projections: Type[];
-  // };
-  documentTypes?: Type[];
 } & Config;
 
 @Module({
@@ -76,18 +63,9 @@ export class NoxaModule implements OnApplicationBootstrap {
   ) {}
 
   public static forRoot(options: NoxaModuleOptions): DynamicModule {
-    // const providers = [];
-
-    // for (const projection of options.handlers.projections) {
-    //   providers.push({
-    //     provide: projection,
-    //     scope: Scope.TRANSIENT,
-    //     useClass: projection,
-    //   });
-    // }
-
     return {
       module: NoxaModule,
+      exports: [STORE_CONNECTION_TOKEN],
       providers: [
         {
           provide: STORE_CONNECTION_TOKEN,
@@ -104,10 +82,9 @@ export class NoxaModule implements OnApplicationBootstrap {
           useValue: {
             context: options.context,
             asyncDaemon: options.asyncDaemon,
-            documentTypes: options.documentTypes,
+            documents: options.documents,
           } as Config,
         },
-        // ...providers,
       ],
       global: true,
     };
@@ -119,6 +96,7 @@ export class NoxaModule implements OnApplicationBootstrap {
       queryHandlers,
       eventHandlers,
       projectionHandlers,
+      processHandlers,
     } = this.handlerExplorer.explore();
 
     const connection = await this.pool.connect();
@@ -128,8 +106,24 @@ export class NoxaModule implements OnApplicationBootstrap {
       await EventStore.createResources(connection);
       await OutboxStore.createResources(connection);
 
-      for (const documentType of this.config.documentTypes || []) {
+      for (const documentType of this.config.documents || []) {
         await DocumentStore.createResources(documentType, connection);
+      }
+
+      if (projectionHandlers) {
+        for (const projection of projectionHandlers) {
+          const optionMetadata = getProjectionOptionMetadata(projection);
+
+          if (optionMetadata.type === ProjectionType.Document) {
+            await DocumentStore.createResources(projection, connection);
+          }
+        }
+      }
+
+      if (processHandlers) {
+        for (const process of processHandlers) {
+          await DocumentStore.createResources(process, connection);
+        }
       }
 
       await connection.query('COMMIT');
@@ -141,25 +135,13 @@ export class NoxaModule implements OnApplicationBootstrap {
     }
 
     await this.busRelay.init(this.config);
-    await this.commandBus.register(commandHandlers);
-    await this.queryBus.register(queryHandlers);
-    await this.eventBus.register(eventHandlers);
+    await this.commandBus.registerCommandHandlers(commandHandlers);
+    await this.queryBus.registerQueryHandlers(queryHandlers);
+    await this.eventBus.registerEventHandlers(eventHandlers);
+    await this.eventBus.registerProcessHandlers(processHandlers);
 
-    if (projectionHandlers) {
-      for (const projectionType of projectionHandlers) {
-        const options = Reflect.getMetadata(
-          PROJECTION_HANDLER,
-          projectionType,
-        ) as ProjectionOptions;
-
-        if (options.type === ProjectionType.Document) {
-          await DocumentStore.createResources(projectionType, connection);
-        }
-      }
-
-      if (this.config.asyncDaemon.enabled) {
-        this.asyncDaemon.start(projectionHandlers).then();
-      }
+    if (this.config.asyncDaemon.enabled) {
+      this.asyncDaemon.start(projectionHandlers).then();
     }
   }
 }

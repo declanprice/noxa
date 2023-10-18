@@ -31,7 +31,7 @@ export class CommandBus {
     return await handler.handle(command);
   }
 
-  async sendCommand(
+  async send(
     command: Command,
     options?: { toContext?: string; tenantId?: string; publishAt?: Date },
   ): Promise<void> {
@@ -47,13 +47,13 @@ export class CommandBus {
     });
   }
 
-  async register(handlers: Type<HandleCommand>[] = []) {
+  async registerCommandHandlers(handlers: Type<HandleCommand>[] = []) {
     for (const handler of handlers) {
       await this.registerHandler(handler);
     }
   }
 
-  protected async registerHandler(handler: Type<HandleCommand>) {
+  private async registerHandler(handler: Type<HandleCommand>) {
     const command: Type<Command> = Reflect.getMetadata(
       COMMAND_HANDLER_METADATA,
       handler,

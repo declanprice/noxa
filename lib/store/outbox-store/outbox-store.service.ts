@@ -12,19 +12,16 @@ export class OutboxStore {
     private readonly connection: PoolClient | Pool,
     @InjectConfig()
     private readonly config: Config,
-  ) {
-    console.log('outbox store was created');
-  }
+  ) {}
 
   async publishCommand(
     command: Command,
     options?: { toContext?: string; tenantId?: string },
   ): Promise<void> {
-    try {
-      const { toContext, tenantId } = options || {};
+    const { toContext, tenantId } = options || {};
 
-      await this.connection.query({
-        text: `insert into noxa_outbox (
+    await this.connection.query({
+      text: `insert into noxa_outbox (
             "id",
             "toBus",
             "fromContext",
@@ -37,34 +34,29 @@ export class OutboxStore {
             "publishedTimestamp"
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
-        values: [
-          randomUUID(),
-          'command',
-          this.config.context,
-          toContext ? toContext : this.config.context,
-          tenantId ? tenantId : 'default',
-          new Date().toISOString(),
-          command,
-          command.constructor.name,
-          false,
-          null,
-        ],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+      values: [
+        randomUUID(),
+        'command',
+        this.config.context,
+        toContext ? toContext : this.config.context,
+        tenantId ? tenantId : 'default',
+        new Date().toISOString(),
+        command,
+        command.constructor.name,
+        false,
+        null,
+      ],
+    });
   }
 
-  async publishEvent(event: Event, options?: { tenantId?: string }) {
-    try {
-      const { tenantId } = options || {};
+  async publishEvent(
+    event: Event,
+    options?: { tenantId?: string; timestamp?: string },
+  ) {
+    const { tenantId, timestamp } = options || {};
 
-      await this.connection.query({
-        text: `insert into noxa_outbox (
+    await this.connection.query({
+      text: `insert into noxa_outbox (
             "id",
             "toBus",
             "fromContext",
@@ -77,26 +69,26 @@ export class OutboxStore {
             "publishedTimestamp"
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
-        values: [
-          randomUUID(),
-          'event',
-          this.config.context,
-          null,
-          tenantId ? tenantId : 'default',
-          new Date().toISOString(),
-          event,
-          event.constructor.name,
-          false,
-          null,
-        ],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+      values: [
+        randomUUID(),
+        'event',
+        this.config.context,
+        null,
+        tenantId ? tenantId : 'default',
+        timestamp ? timestamp : new Date().toISOString(),
+        event,
+        event.constructor.name,
+        false,
+        null,
+      ],
+    });
+  }
+
+  async unpublishEvent(messageId: string) {
+    await this.connection.query({
+      text: `DELETE FROM noxa_outbox WHERE id = $1`,
+      values: [messageId],
+    });
   }
 
   static async createResources(connection: PoolClient) {

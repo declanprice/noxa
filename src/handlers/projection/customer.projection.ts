@@ -7,8 +7,8 @@ import {
 import {
   CustomerNameChanged,
   CustomerRegistered,
-} from '../../streams/customer.stream';
-import { RandomService } from '../../services/random.service';
+} from '../../model/streams/customer.stream';
+
 import { ProjectionField } from '../../../lib/handlers/projection/projection.decorators';
 
 @Projection({
@@ -20,8 +20,6 @@ export class CustomerProjection {
 
   @ProjectionField()
   name!: string;
-
-  constructor(private readonly randomService: RandomService) {}
 
   @ProjectionEventHandler(CustomerRegistered, (e) => e.customerId)
   onRegistered(event: CustomerRegistered) {

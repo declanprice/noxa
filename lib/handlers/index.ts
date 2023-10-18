@@ -16,4 +16,4 @@ export * from './projection';
 
 export { Saga } from './saga/saga';
 
-export { Process } from './process/process';
+export * from './process';

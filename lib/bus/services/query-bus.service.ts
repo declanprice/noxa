@@ -23,13 +23,13 @@ export class QueryBus {
     return handler.handle(query);
   }
 
-  async register(handlers: Type<HandleQuery>[] = []) {
+  async registerQueryHandlers(handlers: Type<HandleQuery>[] = []) {
     for (const handler of handlers) {
       await this.registerHandler(handler);
     }
   }
 
-  protected async registerHandler(handler: Type<HandleQuery>) {
+  private async registerHandler(handler: Type<HandleQuery>) {
     const query: Type<Query> = Reflect.getMetadata(
       QUERY_HANDLER_METADATA,
       handler,

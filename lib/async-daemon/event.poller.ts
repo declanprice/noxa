@@ -2,9 +2,10 @@ import { Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Pool } from 'pg';
 import {
+  getProjectionEventTypesMetadata,
+  getProjectionOptionMetadata,
   PROJECTION_EVENT_TYPES,
   PROJECTION_HANDLER,
-  ProjectionOptions,
 } from '../handlers/projection/projection.decorators';
 import { StoredProjectionToken } from '../handlers/projection/stored-projection-token';
 import { ProjectionType } from '../handlers/';
@@ -22,21 +23,15 @@ export class EventPoller {
   ) {}
 
   async start(projection: Type) {
-    const handlerMetadata = Reflect.getMetadata(
-      PROJECTION_HANDLER,
-      projection,
-    ) as ProjectionOptions;
+    const optionMetadata = getProjectionOptionMetadata(projection);
 
-    const handlerEventTypes: Set<string> = Reflect.getMetadata(
-      PROJECTION_EVENT_TYPES,
-      projection,
-    );
+    const eventTypes = getProjectionEventTypesMetadata(projection);
 
-    if (!handlerMetadata) {
+    if (!optionMetadata) {
       throw Error(`${projection.name} is not a valid @Projection`);
     }
 
-    if (!handlerEventTypes) {
+    if (!eventTypes) {
       throw Error(`${projection.name} has no @ProjectionEventHandler's`);
     }
 
@@ -44,8 +39,8 @@ export class EventPoller {
 
     this.pollEvents(
       projection,
-      handlerMetadata.type,
-      Array.from(handlerEventTypes),
+      optionMetadata.type,
+      Array.from(eventTypes),
       token,
     ).then();
   }

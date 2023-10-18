@@ -7,7 +7,7 @@ import {
 import {
   CustomerNameChanged,
   CustomerRegistered,
-} from '../../streams/customer.stream';
+} from '../../model/streams/customer.stream';
 
 @EventHandler(CustomerRegistered, {
   group: 'CustomerEvents',

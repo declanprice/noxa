@@ -4,7 +4,7 @@ import {
   CustomerRegistered,
   CustomerStream,
   RegisterCustomer,
-} from '../../streams/customer.stream';
+} from '../../model/streams/customer.stream';
 
 import { CommandHandler, HandleCommand, StoreSession } from '../../../lib';
 
@@ -17,13 +17,23 @@ export class RegisterCustomerHandler
   async handle(command: RegisterCustomer) {
     const session = await this.session.start();
 
-    const event = new CustomerRegistered(command.customerId, command.name);
+    try {
+      const event = new CustomerRegistered(command.customerId, command.name);
 
-    await session.event.startStream(CustomerStream, command.customerId, event);
+      await session.event.startStream(
+        CustomerStream,
+        command.customerId,
+        event,
+      );
 
-    await session.outbox.publishEvent(event);
+      await session.outbox.publishEvent(event);
 
-    await session.commit();
+      await session.commit();
+    } catch (error) {
+      await session.rollback();
+    } finally {
+      session.release();
+    }
   }
 }
 
@@ -36,10 +46,22 @@ export class ChangeCustomerNameHandler
   async handle(command: ChangeCustomerName) {
     const session = await this.session.start();
 
-    const event = new CustomerNameChanged(command.customerId, command.name);
+    try {
+      const event = new CustomerNameChanged(command.customerId, command.name);
 
-    await session.event.appendEvent(CustomerStream, command.customerId, event);
+      await session.event.appendEvent(
+        CustomerStream,
+        command.customerId,
+        event,
+      );
 
-    await session.commit();
+      await session.outbox.publishEvent(event);
+
+      await session.commit();
+    } catch (error) {
+      await session.rollback();
+    } finally {
+      session.release();
+    }
   }
 }

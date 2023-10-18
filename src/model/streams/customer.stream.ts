@@ -1,4 +1,4 @@
-import { Command, Event, Stream, StreamEventHandler } from '../../lib';
+import { Command, Event, Stream, StreamEventHandler } from '../../../lib';
 
 export class RegisterCustomer implements Command {
   constructor(

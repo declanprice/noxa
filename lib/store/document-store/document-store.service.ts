@@ -1,105 +1,74 @@
 import { Pool, PoolClient } from 'pg';
-import { Injectable, Optional, Type } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { toSnakeCase } from '../../util/to-snake-case';
 import { DocumentNotFoundError } from './errors/document-not-found.error';
-import { DOCUMENT_ID_PROPERTY_METADATA } from './document/document.decorators';
-import { DocumentIdPropertyNotConfiguredError } from './errors/document-id-property-not-configured.error';
 import { InjectStoreConnection } from '../store-connection.token';
+import { StoredDocument } from './document/stored-document.type';
 
 @Injectable()
 export class DocumentStore {
   constructor(
     @InjectStoreConnection()
     private readonly connection: PoolClient | Pool,
-  ) {
-    console.log('document store-session was created');
+  ) {}
+
+  async rawQuery<T>(query: { text: string; values: any[] }): Promise<T[]> {
+    const { rows } = await this.connection.query(query);
+    return rows;
   }
 
   async get<T>(document: Type<T>, documentId: string): Promise<T> {
-    try {
-      const documentType = document.name;
+    const documentType = document.name;
 
-      const documentResult = await this.connection.query({
-        text: `select * from ${DocumentStore.getDocumentTableNameFromType(
-          document,
-        )} where id = $1`,
-        values: [documentId],
-      });
+    const documentResult = await this.connection.query({
+      text: `select * from ${DocumentStore.tableNameFromType(
+        document,
+      )} where id = $1`,
+      values: [documentId],
+    });
 
-      if (documentResult.rowCount === 0) {
-        throw new DocumentNotFoundError(documentType, documentId);
-      }
-
-      const _document: T = new document();
-
-      Object.assign(_document as any, documentResult.rows[0].data);
-
-      return _document;
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
+    if (documentResult.rowCount === 0) {
+      throw new DocumentNotFoundError(documentType, documentId);
     }
+
+    const _document: T = new document();
+
+    Object.assign(_document as any, documentResult.rows[0].data);
+
+    return _document;
   }
 
-  async store(document: any): Promise<void> {
-    try {
-      const documentType = document.constructor.name;
-
-      const documentIdProperty = Reflect.getMetadata(
-        DOCUMENT_ID_PROPERTY_METADATA,
-        document,
-      );
-
-      if (!documentIdProperty) {
-        throw new DocumentIdPropertyNotConfiguredError(documentType);
-      }
-
-      const documentId = document[documentIdProperty];
-
-      await this.connection.query({
-        text: `insert into ${DocumentStore.getDocumentTableNameFromObject(
-          document,
-        )} (
+  async store<D>(
+    document: Type<D>,
+    documentId: string,
+    data: D,
+  ): Promise<StoredDocument> {
+    const { rows } = await this.connection.query({
+      text: `insert into ${DocumentStore.tableNameFromType(document)} (
            "id",
            "data",
            "lastModified"
       ) values ($1, $2, $3) 
         on conflict (id) do update set
         data = excluded.data,
-        "lastModified" = excluded."lastModified"`,
-        values: [documentId, document, new Date().toISOString()],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+        "lastModified" = excluded."lastModified" returning *`,
+      values: [documentId, data, new Date().toISOString()],
+    });
+
+    return rows[0] as StoredDocument;
   }
 
   async delete(document: Type, documentId: string): Promise<void> {
-    try {
-      await this.connection.query({
-        text: `delete from ${DocumentStore.getDocumentTableNameFromType(
-          document,
-        )} where id = $1`,
-        values: [documentId],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+    await this.connection.query({
+      text: `delete from ${DocumentStore.tableNameFromType(
+        document,
+      )} where id = $1`,
+      values: [documentId],
+    });
   }
 
   static async createResources(document: Type, connection: PoolClient) {
-    let tableName = DocumentStore.getDocumentTableNameFromType(document);
+    let tableName = DocumentStore.tableNameFromType(document);
 
     await connection.query({
       text: `
@@ -111,11 +80,11 @@ export class DocumentStore {
     });
   }
 
-  static getDocumentTableNameFromType = (document: Type) => {
+  static tableNameFromType = (document: Type) => {
     return `noxa_docs_${toSnakeCase(document.name)}`;
   };
 
-  static getDocumentTableNameFromObject = (document: Object) => {
+  static tableNameFromInstance = (document: Object) => {
     return `noxa_docs_${toSnakeCase(document.constructor.name)}`;
   };
 }

@@ -1,17 +1,32 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
 import { CommandBus } from '../lib';
-import { RegisterCustomer } from './streams/customer.stream';
+import {
+  ChangeCustomerName,
+  RegisterCustomer,
+} from './model/streams/customer.stream';
 
 @Controller()
 export class AppController {
   constructor(public commandBus: CommandBus) {}
 
-  @Get('/')
+  @Post('/')
   async get() {
     const customerId = randomUUID();
 
-    await this.commandBus.invoke(new RegisterCustomer(customerId, 'declan'));
+    const command = new RegisterCustomer(customerId, 'declan');
+
+    await this.commandBus.invoke(command);
+  }
+
+  @Post('/name')
+  async updateName() {
+    const command = new ChangeCustomerName(
+      '2088d4b2-5d48-4d9b-ad34-1c44b830a2be',
+      'bob',
+    );
+
+    await this.commandBus.invoke(command);
   }
 }

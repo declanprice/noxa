@@ -1,6 +1,6 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { HandleEvent } from '../../handlers';
+import { HandleEvent, ProcessLifeCycle, Event } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
@@ -8,12 +8,15 @@ import {
   EVENT_HANDLER_OPTIONS_METADATA,
   EventHandlerOptions,
 } from '../../handlers/event/event-handler.decorator';
+import { BusMessage } from '../bus-message.type';
+import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
+import {
+  getProcessEventTypesMetadata,
+  getProcessOptionMetadata,
+} from '../../handlers/process/process.decorators';
 
 @Injectable({})
 export class EventBus {
-  // Map<eventType, HandleEvent>
-  private handlers = new Map<string, HandleEvent<Event>>();
-
   logger = new Logger(EventBus.name);
 
   constructor(
@@ -24,19 +27,7 @@ export class EventBus {
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  invoke(event: Event) {
-    const eventName = this.getEventName(event);
-
-    const handler = this.handlers.get(eventName);
-
-    if (!handler) {
-      throw new Error(`event handler not found for ${eventName}`);
-    }
-
-    return handler.handle(event);
-  }
-
-  async sendEvent(
+  async send(
     event: Event,
     options: { tenantId?: string; publishAt?: Date },
   ): Promise<void> {
@@ -52,15 +43,25 @@ export class EventBus {
     });
   }
 
-  async register(handlers: Type<HandleEvent>[] = []) {
+  async registerEventHandlers(handlers: Type<HandleEvent>[] = []) {
     const eventHandlerGroups = new Map<
       string,
       { consumerType: any; handlers: Map<string, HandleEvent> }
     >();
 
     for (const handler of handlers) {
-      const { eventType, handlerInstance } =
-        await this.registerHandler(handler);
+      const event: Type<Event> = Reflect.getMetadata(
+        EVENT_HANDLER_METADATA,
+        handler,
+      );
+
+      const instance = this.moduleRef.get(handler, { strict: false });
+
+      if (!instance) {
+        throw new Error(
+          `module ref could not resolve ${handler}, make sure it has been provided`,
+        );
+      }
 
       const options = Reflect.getMetadata(
         EVENT_HANDLER_OPTIONS_METADATA,
@@ -72,10 +73,10 @@ export class EventBus {
       let eventHandlerGroup = eventHandlerGroups.get(groupName);
 
       if (eventHandlerGroup) {
-        eventHandlerGroup.handlers.set(eventType, handlerInstance);
+        eventHandlerGroup.handlers.set(event.name, instance);
       } else {
         const handlers = new Map<string, HandleEvent>();
-        handlers.set(eventType, handlerInstance);
+        handlers.set(event.name, instance);
         eventHandlerGroups.set(groupName, {
           consumerType: options.consumerType,
           handlers,
@@ -84,36 +85,50 @@ export class EventBus {
     }
 
     for (const [groupName, group] of eventHandlerGroups) {
+      const handleEvent = async (message: BusMessage): Promise<void> => {
+        const handler = group.handlers.get(message.type);
+
+        if (!handler) {
+          throw new GroupCannotHandleEventTypeError(groupName, message.type);
+        }
+
+        await handler.handle(message.data);
+      };
+
       await this.busRelay.registerEventHandlerGroup(
         groupName,
         group.consumerType,
-        group.handlers,
+        Array.from(group.handlers.keys()),
+        handleEvent,
       );
     }
   }
 
-  protected async registerHandler(
-    handler: Type<HandleEvent>,
-  ): Promise<{ eventType: string; handlerInstance: HandleEvent }> {
-    const event: Type<Event> = Reflect.getMetadata(
-      EVENT_HANDLER_METADATA,
-      handler,
-    );
+  async registerProcessHandlers(processes: Type<ProcessLifeCycle>[] = []) {
+    for (const process of processes) {
+      const instance = this.moduleRef.get(process, { strict: false });
 
-    const instance = this.moduleRef.get(handler, { strict: false });
+      if (!instance) {
+        throw new Error(
+          `module ref could not resolve ${process}, make sure it has been provided`,
+        );
+      }
 
-    if (!instance) {
-      throw new Error(
-        `module ref could not resolve ${handler}, make sure it has been provided`,
+      const options = getProcessOptionMetadata(process);
+      const eventTypes = getProcessEventTypesMetadata(process);
+      const groupName = process.name;
+
+      const handleEvent = async (message: BusMessage): Promise<void> => {
+        await instance.handle(message);
+      };
+
+      await this.busRelay.registerEventHandlerGroup(
+        groupName,
+        options.consumerType,
+        Array.from(eventTypes),
+        handleEvent,
       );
     }
-
-    this.handlers.set(event.name, instance);
-
-    return {
-      eventType: event.name,
-      handlerInstance: instance,
-    };
   }
 
   private getEventName(event: Event): string {

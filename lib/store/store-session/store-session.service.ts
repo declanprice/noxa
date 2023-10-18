@@ -6,6 +6,15 @@ import { OutboxStore } from '../outbox-store/outbox-store.service';
 import { InjectStoreConnection } from '../store-connection.token';
 import { Config, InjectConfig } from '../../config';
 
+export type Session = {
+  document: DocumentStore;
+  event: EventStore;
+  outbox: OutboxStore;
+  commit: () => Promise<void>;
+  rollback: () => Promise<void>;
+  release: () => void;
+};
+
 @Injectable()
 export class StoreSession {
   constructor(
@@ -13,38 +22,37 @@ export class StoreSession {
     @InjectConfig() private readonly config: Config,
   ) {}
 
-  async start() {
+  async start(): Promise<Session> {
     const client = await this.pool.connect();
 
-    await client.query('BEGIN');
+    try {
+      await client.query('BEGIN');
+      const documentStore = new DocumentStore(client);
+      const eventStore = new EventStore(client);
+      const outboxStore = new OutboxStore(client, this.config);
 
-    const documentStore = new DocumentStore(client);
-    const eventStore = new EventStore(client);
-    const outboxStore = new OutboxStore(client, this.config);
-
-    return {
-      document: documentStore,
-      event: eventStore,
-      outbox: outboxStore,
-      commit: async () => {
-        try {
+      return {
+        document: documentStore,
+        event: eventStore,
+        outbox: outboxStore,
+        commit: async () => {
           await client.query('COMMIT');
-        } catch (error) {
+        },
+        rollback: async () => {
           await client.query('ROLLBACK');
-          throw error;
-        } finally {
+        },
+        release: async () => {
           client.release();
-        }
-      },
-      rollback: async () => {
-        try {
-          await client.query('ROLLBACK');
-        } catch (error) {
-          throw error;
-        } finally {
-          client.release();
-        }
-      },
-    };
+        },
+      };
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } finally {
+        client.release();
+      }
+
+      throw error;
+    }
   }
 }

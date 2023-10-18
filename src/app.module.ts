@@ -3,7 +3,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { NoxaModule, RabbitmqBus } from '../lib';
 import { AppController } from './app.controller';
 import { CustomerProjection } from './handlers/projection/customer.projection';
-import { CustomerDocument } from './documents/customer.document';
+import { CustomerDocument } from './model/documents/customer.document';
 import {
   ChangeCustomerNameHandler,
   RegisterCustomerHandler,
@@ -13,6 +13,7 @@ import {
   CustomerRegisteredEventHandler,
 } from './handlers/event/customer.event-handlers';
 import { RandomService } from './services/random.service';
+import { CustomerProcess } from './handlers/process/customer.process';
 
 @Module({
   controllers: [AppController],
@@ -23,6 +24,7 @@ import { RandomService } from './services/random.service';
     CustomerNameChangedEventHandler,
     RandomService,
     CustomerProjection,
+    CustomerProcess,
   ],
   imports: [
     NoxaModule.forRoot({
@@ -36,7 +38,7 @@ import { RandomService } from './services/random.service';
       asyncDaemon: {
         enabled: true,
       },
-      documentTypes: [CustomerDocument],
+      documents: [CustomerDocument],
     }),
     LoggerModule.forRoot({
       // pinoHttp: {

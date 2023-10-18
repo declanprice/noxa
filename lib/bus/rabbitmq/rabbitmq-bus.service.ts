@@ -2,11 +2,10 @@ import { Logger } from '@nestjs/common';
 import { Channel, connect } from 'amqplib';
 
 import { BusRelay } from '../bus-relay.type';
-import { Command, HandleCommand, HandleEvent } from '../../handlers';
+import { Command, HandleCommand, Event } from '../../handlers';
 import { BusMessage } from '../bus-message.type';
 import { Config } from '../../config';
 import { RabbitmqEventConsumerType } from './rabbitmq-event-consumer-type';
-import { QueueCannotHandleEventTypeError } from './errors/queue-cannot-handle-event-type.error';
 
 const COMMAND_BUS_EXCHANGE_NAME = 'noxa.commandBus';
 const EVENT_BUS_EXCHANGE_NAME = 'noxa.eventBus';
@@ -88,7 +87,8 @@ export class RabbitmqBus implements BusRelay {
   async registerEventHandlerGroup(
     groupName: string,
     consumerType: RabbitmqEventConsumerType,
-    handlers: Map<string, HandleEvent<Event>>,
+    eventTypes: string[],
+    onMessage: (message: BusMessage) => Promise<void>,
   ): Promise<void> {
     if (!this.channel || !this.config) {
       throw new Error(
@@ -105,7 +105,7 @@ export class RabbitmqBus implements BusRelay {
       },
     });
 
-    for (const eventType of handlers.keys()) {
+    for (const eventType of eventTypes) {
       const queueRouteKey = `noxa.${this.config.context}.events.${eventType}`;
 
       await this.channel.bindQueue(
@@ -115,24 +115,22 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
-    await this.channel.consume(queueName, async (message) => {
-      if (!this.channel || !message?.content) return;
+    await this.channel.consume(queueName, async (message: any) => {
+      try {
+        if (!this.channel || !message?.content) return;
 
-      const parsedMessage = JSON.parse(
-        message.content.toString(),
-      ) as BusMessage;
+        const parsedMessage = JSON.parse(message.content.toString());
 
-      const handler = handlers.get(parsedMessage.type);
+        await onMessage(parsedMessage);
 
-      if (!handler) {
-        throw new QueueCannotHandleEventTypeError(
-          queueName,
-          parsedMessage.type,
-        );
+        this.channel.ack(message);
+      } catch (error) {
+        this.logger.error(error);
+
+        setTimeout(() => {
+          this.channel?.nack(message);
+        }, 3000);
       }
-
-      await handler.handle(parsedMessage.data, parsedMessage);
-      this.channel.ack(message);
     });
   }
 }

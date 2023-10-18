@@ -14,41 +14,38 @@ export class EventStore {
   constructor(
     @InjectStoreConnection()
     private readonly connection: PoolClient | Pool,
-  ) {
-    console.log('event store was created');
-  }
+  ) {}
 
   async startStream(steam: Type, streamId: string, event: Event) {
-    try {
-      const steamType = steam.name;
-      const eventType = event.constructor.name;
-      const now = new Date().toISOString();
+    const steamType = steam.name;
+    const eventType = event.constructor.name;
+    const now = new Date().toISOString();
 
-      const storedStream: StoredStream = {
-        id: streamId,
-        type: steamType,
-        version: 0,
-        snapshot: null,
-        snapshotVersion: null,
-        created: now,
-        timestamp: now,
-        isArchived: false,
-        tenantId: 'default',
-      };
+    const storedStream: StoredStream = {
+      id: streamId,
+      type: steamType,
+      version: 0,
+      snapshot: null,
+      snapshotVersion: null,
+      created: now,
+      timestamp: now,
+      isArchived: false,
+      tenantId: 'default',
+    };
 
-      const storedEvent: Partial<StoredEvent> = {
-        id: randomUUID(),
-        type: eventType,
-        data: event,
-        version: 0,
-        streamId,
-        timestamp: now,
-        isArchived: false,
-        tenantId: 'default',
-      };
+    const storedEvent: Partial<StoredEvent> = {
+      id: randomUUID(),
+      type: eventType,
+      data: event,
+      version: 0,
+      streamId,
+      timestamp: now,
+      isArchived: false,
+      tenantId: 'default',
+    };
 
-      await this.connection.query({
-        text: `insert into noxa_event_streams (
+    await this.connection.query({
+      text: `insert into noxa_event_streams (
         "id",
         "type",
         "version",
@@ -59,21 +56,21 @@ export class EventStore {
         "tenantId",
         "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        values: [
-          storedStream.id,
-          storedStream.type,
-          storedStream.version,
-          storedStream.snapshot,
-          storedStream.snapshotVersion,
-          storedStream.created,
-          storedStream.timestamp,
-          storedStream.tenantId,
-          storedStream.isArchived,
-        ],
-      });
+      values: [
+        storedStream.id,
+        storedStream.type,
+        storedStream.version,
+        storedStream.snapshot,
+        storedStream.snapshotVersion,
+        storedStream.created,
+        storedStream.timestamp,
+        storedStream.tenantId,
+        storedStream.isArchived,
+      ],
+    });
 
-      await this.connection.query({
-        text: `insert into noxa_events (
+    await this.connection.query({
+      text: `insert into noxa_events (
         "id",
         "streamId",
         "version",
@@ -83,72 +80,57 @@ export class EventStore {
         "tenantId",
         "isArchived" 
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        values: [
-          storedEvent.id,
-          storedEvent.streamId,
-          storedEvent.version,
-          storedEvent.timestamp,
-          storedEvent.data,
-          storedEvent.type,
-          storedEvent.tenantId,
-          storedEvent.isArchived,
-        ],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+      values: [
+        storedEvent.id,
+        storedEvent.streamId,
+        storedEvent.version,
+        storedEvent.timestamp,
+        storedEvent.data,
+        storedEvent.type,
+        storedEvent.tenantId,
+        storedEvent.isArchived,
+      ],
+    });
   }
 
   async hydrateStream<T>(stream: Type<T>, streamId: string): Promise<T> {
-    try {
-      const streamType = stream.name;
+    const streamType = stream.name;
 
-      const [streamResult, eventsResult] = await Promise.all([
-        this.connection.query({
-          text: `select * from noxa_event_streams where type = $1 and id = $2`,
-          values: [streamType, streamId],
-        }),
-        this.connection.query({
-          text: `select * from noxa_events where "streamId" = $1 order by version ASC`,
-          values: [streamId],
-        }),
-      ]);
+    const [streamResult, eventsResult] = await Promise.all([
+      this.connection.query({
+        text: `select * from noxa_event_streams where type = $1 and id = $2`,
+        values: [streamType, streamId],
+      }),
+      this.connection.query({
+        text: `select * from noxa_events where "streamId" = $1 order by version ASC`,
+        values: [streamId],
+      }),
+    ]);
 
-      if (streamResult.rowCount === 0) {
-        throw new StreamNotFoundError(streamType, streamId);
-      }
-
-      if (eventsResult.rowCount === 0) {
-        throw new StreamNoEventsFoundError(streamType, streamId);
-      }
-
-      let hydratedStream: T = new stream();
-
-      for (const eventRow of eventsResult.rows as StoredEvent[]) {
-        const streamEventHandler = Reflect.getMetadata(eventRow.type, stream);
-
-        if (!streamEventHandler) {
-          throw new StreamEventHandlerNotAvailableError(
-            streamType,
-            eventRow.type,
-          );
-        }
-
-        (hydratedStream as any)[streamEventHandler](eventRow.data);
-      }
-
-      return hydratedStream;
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
+    if (streamResult.rowCount === 0) {
+      throw new StreamNotFoundError(streamType, streamId);
     }
+
+    if (eventsResult.rowCount === 0) {
+      throw new StreamNoEventsFoundError(streamType, streamId);
+    }
+
+    let hydratedStream: T = new stream();
+
+    for (const eventRow of eventsResult.rows as StoredEvent[]) {
+      const streamEventHandler = Reflect.getMetadata(eventRow.type, stream);
+
+      if (!streamEventHandler) {
+        throw new StreamEventHandlerNotAvailableError(
+          streamType,
+          eventRow.type,
+        );
+      }
+
+      (hydratedStream as any)[streamEventHandler](eventRow.data);
+    }
+
+    return hydratedStream;
   }
 
   async appendEvent(
@@ -156,44 +138,43 @@ export class EventStore {
     streamId: string,
     event: Event,
   ): Promise<void> {
-    try {
-      const streamType = stream.name;
-      const eventType = event.constructor.name;
-      const now = new Date().toISOString();
+    const streamType = stream.name;
+    const eventType = event.constructor.name;
+    const now = new Date().toISOString();
 
-      const streamResult = await this.connection.query({
-        text: `select * from noxa_event_streams where type = $1 and id = $2 for update`,
-        values: [streamType, streamId],
-      });
+    const streamResult = await this.connection.query({
+      text: `select * from noxa_event_streams where type = $1 and id = $2 for update`,
+      values: [streamType, streamId],
+    });
 
-      if (streamResult.rowCount === 0) {
-        throw new StreamNotFoundError(streamType, streamId);
-      }
+    if (streamResult.rowCount === 0) {
+      throw new StreamNotFoundError(streamType, streamId);
+    }
 
-      const streamRow = streamResult.rows[0] as StoredStream;
+    const streamRow = streamResult.rows[0] as StoredStream;
 
-      const newVersion = Number(streamRow.version) + 1;
+    const newVersion = Number(streamRow.version) + 1;
 
-      const storedEvent: Partial<StoredEvent> = {
-        id: randomUUID(),
-        type: eventType,
-        data: event,
-        version: newVersion,
-        streamId,
-        timestamp: now,
-        isArchived: false,
-        tenantId: 'default',
-      };
+    const storedEvent: Partial<StoredEvent> = {
+      id: randomUUID(),
+      type: eventType,
+      data: event,
+      version: newVersion,
+      streamId,
+      timestamp: now,
+      isArchived: false,
+      tenantId: 'default',
+    };
 
-      const storedStream: Partial<StoredStream> = {
-        id: streamId,
-        type: streamType,
-        timestamp: new Date().toISOString(),
-        version: newVersion,
-      };
+    const storedStream: Partial<StoredStream> = {
+      id: streamId,
+      type: streamType,
+      timestamp: new Date().toISOString(),
+      version: newVersion,
+    };
 
-      await this.connection.query({
-        text: `insert into noxa_events (
+    await this.connection.query({
+      text: `insert into noxa_events (
         "id",
         "streamId",
         "version",
@@ -203,34 +184,27 @@ export class EventStore {
         "tenantId",
         "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        values: [
-          storedEvent.id,
-          storedEvent.streamId,
-          storedEvent.version,
-          storedEvent.timestamp,
-          storedEvent.data,
-          storedEvent.type,
-          storedEvent.tenantId,
-          storedEvent.isArchived,
-        ],
-      });
+      values: [
+        storedEvent.id,
+        storedEvent.streamId,
+        storedEvent.version,
+        storedEvent.timestamp,
+        storedEvent.data,
+        storedEvent.type,
+        storedEvent.tenantId,
+        storedEvent.isArchived,
+      ],
+    });
 
-      await this.connection.query({
-        text: `update noxa_event_streams set version = $1, timestamp = $2 where type = $3 and id = $4`,
-        values: [
-          storedStream.version,
-          storedStream.timestamp,
-          storedStream.type,
-          storedStream.id,
-        ],
-      });
-    } catch (error) {
-      if (!(this.connection instanceof Pool)) {
-        await this.connection.query('ROLLBACK');
-        this.connection.release();
-      }
-      throw error;
-    }
+    await this.connection.query({
+      text: `update noxa_event_streams set version = $1, timestamp = $2 where type = $3 and id = $4`,
+      values: [
+        storedStream.version,
+        storedStream.timestamp,
+        storedStream.type,
+        storedStream.id,
+      ],
+    });
   }
 
   static async createResources(connection: PoolClient) {
