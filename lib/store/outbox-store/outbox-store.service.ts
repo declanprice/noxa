@@ -52,8 +52,10 @@ export class OutboxStore {
   async publishEvent(
     event: Event,
     options?: { tenantId?: string; timestamp?: string },
-  ) {
+  ): Promise<string> {
     const { tenantId, timestamp } = options || {};
+
+    const messageId = randomUUID();
 
     await this.connection.query({
       text: `insert into noxa_outbox (
@@ -70,7 +72,7 @@ export class OutboxStore {
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
       values: [
-        randomUUID(),
+        messageId,
         'event',
         this.config.context,
         null,
@@ -82,6 +84,8 @@ export class OutboxStore {
         null,
       ],
     });
+
+    return messageId;
   }
 
   async unpublishEvent(messageId: string) {

@@ -18,28 +18,28 @@ export abstract class ProcessLifeCycle {
   @ProcessField()
   private associations: string[] = [];
 
-  session?: Session;
+  private tableName = DocumentStore.tableNameFromInstance(this);
+
+  session!: Session;
 
   constructor(
     @Inject(StoreSession) private readonly storeSession: StoreSession,
   ) {}
 
   async handle(message: BusMessage): Promise<void> {
-    const handlerMetadata = getProcessEventHandlerMetadata(
-      this.constructor,
-      message.type,
-    );
-
-    const associationId = handlerMetadata.associationId(message.data);
-
     this.session = await this.storeSession.start();
 
     try {
-      const tableName = DocumentStore.tableNameFromInstance(this);
+      const handlerMetadata = getProcessEventHandlerMetadata(
+        this.constructor,
+        message.type,
+      );
+
+      const associationId = handlerMetadata.associationId(message.data);
 
       const processDocuments: StoredDocument[] =
         await this.session.document.rawQuery({
-          text: `select * from ${tableName} where data-> 'associations' @> '["${associationId}"]'`,
+          text: `select * from ${this.tableName} where data-> 'associations' @> '["${associationId}"]'`,
           values: [],
         });
 
@@ -76,7 +76,7 @@ export abstract class ProcessLifeCycle {
     }
   }
 
-  async end(): Promise<void> {
+  end(): void {
     this.processEnded = true;
   }
 

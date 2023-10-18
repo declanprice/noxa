@@ -8,9 +8,3 @@ export const Document = (options?: DocumentOptions): ClassDecorator => {
     Reflect.defineMetadata(DOCUMENT_METADATA, options, target);
   };
 };
-
-export const DocumentId = (options?: DocumentOptions): PropertyDecorator => {
-  return (target: object, propertyKey: string | symbol) => {
-    Reflect.defineMetadata(DOCUMENT_ID_PROPERTY_METADATA, propertyKey, target);
-  };
-};

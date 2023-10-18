@@ -1,8 +1,7 @@
-import { Document, DocumentId } from '../../../lib';
+import { Document } from '../../../lib';
 
 @Document()
 export class CustomerDocument {
-  @DocumentId()
   customerId: string;
 
   name: string;

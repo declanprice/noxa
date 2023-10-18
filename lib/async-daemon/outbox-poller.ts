@@ -16,7 +16,7 @@ export class OutboxPoller {
 
   async start(): Promise<any> {
     const result = await this.client.query({
-      text: `select * from noxa_outbox where published = false order by timestamp ASC`,
+      text: `select * from noxa_outbox where published = false and timestamp <= now() order by timestamp ASC`,
     });
 
     if (result.rowCount === 0) {
