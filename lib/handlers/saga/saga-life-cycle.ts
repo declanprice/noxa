@@ -132,7 +132,7 @@ export abstract class SagaLifeCycle {
         const nextStep = steps[storedSaga.currentStepIndex];
 
         console.log(
-          `saga ${this.sagaType.name}:${sagaId} is moving onto step ${storedSaga.currentStepIndex}.`,
+          `saga ${this.sagaType.name}:${sagaId} is moving onto step ${nextStep.name}.`,
         );
 
         if (!nextStep.publishCommand) {
@@ -153,6 +153,7 @@ export abstract class SagaLifeCycle {
         );
 
         await session.document.store(this.sagaType, sagaId, storedSaga);
+
         await session.commit();
       }
     } catch (error) {
@@ -169,10 +170,12 @@ export abstract class SagaLifeCycle {
   };
 
   private isSagaComplete = (saga: StoredSaga, message: BusMessage) => {
-    const totalSteps = saga.definition.steps.length;
-    const currentStep = saga.definition.steps[saga.currentStepIndex];
+    const steps = saga.definition.steps.sort((s) => s.position);
+    const totalSteps = steps.length;
+    const currentStep = steps[saga.currentStepIndex];
+
     return (
-      totalSteps === saga.currentStepIndex - 1 &&
+      totalSteps - 1 === saga.currentStepIndex &&
       currentStep.andExpectEvent === message.type
     );
   };
@@ -183,26 +186,20 @@ export abstract class SagaLifeCycle {
     session: Session,
   ): Promise<void> {
     for (const step of steps) {
-      console.log(step);
-    }
+      if (step.position === failedAtStepIndex) break;
 
-    // for (const stepName in definition.steps) {
-    // console.log('stepName', stepName);
-    // if (failedAtStepName === stepName) break;
-    //
-    // const compensateCommand =
-    //   definition.steps[stepName].withCompensationCommand;
-    //
-    // if (compensateCommand) {
-    //   console.log(`sending compensation command for step ${stepName}.`);
-    //
-    //   await session.outbox.publishMessage(
-    //     'command',
-    //     compensateCommand.type,
-    //     compensateCommand.data,
-    //   );
-    // }
-    // }
+      const compensateCommand = step.withCompensationCommand;
+
+      if (compensateCommand) {
+        console.log(`sending compensation command for step ${step.name}.`);
+
+        await session.outbox.publishMessage(
+          'command',
+          compensateCommand.type,
+          compensateCommand.data,
+        );
+      }
+    }
   }
 }
 

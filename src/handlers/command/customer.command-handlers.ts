@@ -92,7 +92,7 @@ export class ChangeCustomerAgeCommandHandler
         event,
       );
 
-      if (command.age === 1010) {
+      if (command.age === 100) {
         await session.outbox.publishEvent(
           new FailToChangeCustomerAge(command.customerId),
         );

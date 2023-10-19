@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
