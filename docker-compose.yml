@@ -10,4 +10,5 @@ services:
     image: rabbitmq:3.9.29-management
     ports:
       - 15671:15671
+      - 15672:15672
       - 5672:5672

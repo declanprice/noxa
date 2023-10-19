@@ -5,31 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/saga/errors/invalid-saga-definition.error.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/saga/saga.decorators.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/psuedo.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/process/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/process/customer.process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/streams/customer.stream.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/streams/customer.stream.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

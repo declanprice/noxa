@@ -42,11 +42,17 @@ export class CustomerSaga extends SagaLifeCycle {
     saga
       .step('ChangeCustomerName-1')
       .thenPublishCommand(new ChangeCustomerName(customerId, 'sam'))
+      .withCompensationCommand(
+        new ChangeCustomerName(customerId, 'changed via compensation 1'),
+      )
       .andExpectEvent(CustomerNameChanged);
 
     saga
       .step('ChangeCustomerAge-1')
       .thenPublishCommand(new ChangeCustomerAge(customerId, 33))
+      .withCompensationCommand(
+        new ChangeCustomerName(customerId, 'changed via compensation 2'),
+      )
       .andExpectEvent(CustomerAgeChanged);
 
     saga
