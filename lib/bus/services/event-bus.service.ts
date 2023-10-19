@@ -1,6 +1,11 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { HandleEvent, ProcessLifeCycle, Event } from '../../handlers';
+import {
+  HandleEvent,
+  ProcessLifeCycle,
+  Event,
+  SagaLifeCycle,
+} from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
@@ -14,6 +19,11 @@ import {
   getProcessEventTypesMetadata,
   getProcessOptionMetadata,
 } from '../../handlers/process/process.decorators';
+import {
+  getSagaEventTypes,
+  getSagaOptionMetadata,
+} from '../../handlers/saga/saga.decorators';
+import { Saga } from '../../../dist/lib/handlers/saga/saga';
 
 @Injectable({})
 export class EventBus {
@@ -117,6 +127,32 @@ export class EventBus {
       const options = getProcessOptionMetadata(process);
       const eventTypes = getProcessEventTypesMetadata(process);
       const groupName = process.name;
+
+      const handleEvent = async (message: BusMessage): Promise<void> => {
+        await instance.handle(message);
+      };
+
+      await this.busRelay.registerEventHandlerGroup(
+        groupName,
+        options.consumerType,
+        Array.from(eventTypes),
+        handleEvent,
+      );
+    }
+  }
+
+  async registerSagaHandlers(
+    sagaHandlers: Type<SagaLifeCycle>[] = [],
+  ): Promise<void> {
+    console.log(sagaHandlers);
+
+    for (const saga of sagaHandlers) {
+      const instance = this.moduleRef.get(saga, { strict: false });
+
+      const options = getSagaOptionMetadata(saga);
+      const eventTypes = getSagaEventTypes(saga);
+
+      const groupName = saga.name;
 
       const handleEvent = async (message: BusMessage): Promise<void> => {
         await instance.handle(message);

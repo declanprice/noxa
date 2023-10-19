@@ -14,6 +14,6 @@ export { EventHandler } from './event/event-handler.decorator';
 
 export * from './projection';
 
-export { Saga } from './saga/saga';
+export { SagaLifeCycle } from './saga/saga-life-cycle';
 
 export * from './process';

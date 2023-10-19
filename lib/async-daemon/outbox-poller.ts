@@ -25,10 +25,6 @@ export class OutboxPoller {
       }, this.pollTimeInMs);
     }
 
-    this.logger.log(
-      `found ${result.rowCount} unpublished messages, sending them to the bus now.`,
-    );
-
     let messageIds: string[] = [];
 
     for (const row of result.rows as StoredOutboxMessage[]) {

@@ -38,6 +38,25 @@ export class DocumentStore {
     return _document;
   }
 
+  async find<T>(document: Type<T>, documentId: string): Promise<T | null> {
+    const documentResult = await this.connection.query({
+      text: `select * from ${DocumentStore.tableNameFromType(
+        document,
+      )} where id = $1`,
+      values: [documentId],
+    });
+
+    if (documentResult.rowCount === 0) {
+      return null;
+    }
+
+    const _document: T = new document();
+
+    Object.assign(_document as any, documentResult.rows[0].data);
+
+    return _document;
+  }
+
   async store<D>(
     document: Type<D>,
     documentId: string,

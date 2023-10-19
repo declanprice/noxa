@@ -97,6 +97,7 @@ export class NoxaModule implements OnApplicationBootstrap {
       eventHandlers,
       projectionHandlers,
       processHandlers,
+      sagaHandlers,
     } = this.handlerExplorer.explore();
 
     const connection = await this.pool.connect();
@@ -126,6 +127,12 @@ export class NoxaModule implements OnApplicationBootstrap {
         }
       }
 
+      if (sagaHandlers) {
+        for (const saga of sagaHandlers) {
+          await DocumentStore.createResources(saga, connection);
+        }
+      }
+
       await connection.query('COMMIT');
     } catch (error) {
       await connection.query('ROLLBACK');
@@ -139,6 +146,7 @@ export class NoxaModule implements OnApplicationBootstrap {
     await this.queryBus.registerQueryHandlers(queryHandlers);
     await this.eventBus.registerEventHandlers(eventHandlers);
     await this.eventBus.registerProcessHandlers(processHandlers);
+    await this.eventBus.registerSagaHandlers(sagaHandlers);
 
     if (this.config.asyncDaemon.enabled) {
       this.asyncDaemon.start(projectionHandlers).then();

@@ -11,6 +11,7 @@ import {
   CustomerNameChanged,
   CustomerRegistered,
 } from '../../model/streams/customer.stream';
+
 import * as dayjs from 'dayjs';
 
 class CustomerProcessDeadlineEvent implements Event {
@@ -37,7 +38,6 @@ export class CustomerProcess extends ProcessLifeCycle {
   })
   async onRegister(event: CustomerRegistered) {
     console.log('onRegister', event);
-
     this.customerId = event.customerId;
     this.name = event.name;
     this.deadlineId = await this.session.outbox.publishEvent(

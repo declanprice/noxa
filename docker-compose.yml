@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+  rabbitmq:
+    image: rabbitmq:3.9.29-management
+    ports:
+      - 15671:15671
+      - 5672:5672

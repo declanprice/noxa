@@ -11,18 +11,18 @@ import {
 export class AppController {
   constructor(public commandBus: CommandBus) {}
 
-  customerId = randomUUID();
-
   @Post('/')
   async get() {
-    const command = new RegisterCustomer(this.customerId, 'declan');
+    const customerId = randomUUID();
+
+    const command = new RegisterCustomer(customerId, 'declan', 25);
 
     await this.commandBus.invoke(command);
   }
 
   @Post('/name')
   async updateName() {
-    const command = new ChangeCustomerName(this.customerId, 'bob');
+    const command = new ChangeCustomerName('', 'bob');
 
     await this.commandBus.invoke(command);
   }

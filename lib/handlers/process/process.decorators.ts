@@ -17,7 +17,7 @@ export type ProcessHandlerMetadata<E extends Event> = {
   start?: boolean;
 };
 
-export const Process = (options?: ProcessOptionsMetadata): ClassDecorator => {
+export const Process = (options: ProcessOptionsMetadata): ClassDecorator => {
   return (target: object) => {
     Reflect.defineMetadata(PROCESS_HANDLER_METADATA, options, target);
   };

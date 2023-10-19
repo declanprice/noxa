@@ -12,6 +12,8 @@ import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
 import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
 import { ProcessLifeCycle } from './process';
 import { PROCESS_HANDLER_METADATA } from './process/process.decorators';
+import { SAGA_HANDLER_METADATA } from './saga/saga.decorators';
+import { SagaLifeCycle } from './saga/saga-life-cycle';
 
 export type HandlerOptions = {
   commandHandlers?: Type<HandleCommand>[];
@@ -19,6 +21,7 @@ export type HandlerOptions = {
   eventHandlers?: Type<HandleEvent>[];
   projectionHandlers?: Type[];
   processHandlers?: Type<ProcessLifeCycle>[];
+  sagaHandlers?: Type<SagaLifeCycle>[];
 };
 
 @Injectable()
@@ -49,12 +52,17 @@ export class HandlerExplorer {
       (instance) => this.filterProvider(instance, PROCESS_HANDLER_METADATA),
     );
 
+    const sagaHandlers = this.flatMap<SagaLifeCycle>(modules, (instance) =>
+      this.filterProvider(instance, SAGA_HANDLER_METADATA),
+    );
+
     return {
       commandHandlers,
       queryHandlers,
       eventHandlers,
       projectionHandlers,
       processHandlers,
+      sagaHandlers,
     };
   }
 

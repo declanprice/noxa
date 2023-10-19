@@ -12,6 +12,7 @@ export class AsyncDaemon {
   constructor(
     @InjectStoreConnection() private readonly pool: Pool,
     @InjectBusRelay() private readonly busRelay: BusRelay,
+
     private readonly moduleRef: ModuleRef,
   ) {}
 

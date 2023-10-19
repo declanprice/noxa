@@ -14,6 +14,43 @@ export class OutboxStore {
     private readonly config: Config,
   ) {}
 
+  async publishMessage(
+    bus: 'command' | 'event',
+    type: string,
+    data: any,
+    options?: { toContext?: string; tenantId?: string },
+  ): Promise<void> {
+    const { toContext, tenantId } = options || {};
+
+    await this.connection.query({
+      text: `insert into noxa_outbox (
+            "id",
+            "toBus",
+            "fromContext",
+            "toContext",
+            "tenantId",
+            "timestamp",
+            "data",
+            "type",
+            "published",
+            "publishedTimestamp"
+        ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       `,
+      values: [
+        randomUUID(),
+        bus,
+        this.config.context,
+        toContext ? toContext : this.config.context,
+        tenantId ? tenantId : 'default',
+        new Date().toISOString(),
+        data,
+        type,
+        false,
+        null,
+      ],
+    });
+  }
+
   async publishCommand(
     command: Command,
     options?: { toContext?: string; tenantId?: string },

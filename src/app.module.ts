@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { NoxaModule, RabbitmqBus } from '../lib';
 import { AppController } from './app.controller';
-import { CustomerProjection } from './handlers/projection/customer.projection';
 import { CustomerDocument } from './model/documents/customer.document';
 import {
+  ChangeCustomerAgeCommandHandler,
   ChangeCustomerNameHandler,
   RegisterCustomerHandler,
 } from './handlers/command/customer.command-handlers';
@@ -12,8 +12,7 @@ import {
   CustomerNameChangedEventHandler,
   CustomerRegisteredEventHandler,
 } from './handlers/event/customer.event-handlers';
-import { RandomService } from './services/random.service';
-import { CustomerProcess } from './handlers/process/customer.process';
+import { CustomerSaga } from './handlers/saga/customer.saga';
 
 @Module({
   controllers: [AppController],
@@ -22,9 +21,8 @@ import { CustomerProcess } from './handlers/process/customer.process';
     ChangeCustomerNameHandler,
     CustomerRegisteredEventHandler,
     CustomerNameChangedEventHandler,
-    RandomService,
-    CustomerProjection,
-    CustomerProcess,
+    ChangeCustomerAgeCommandHandler,
+    CustomerSaga,
   ],
   imports: [
     NoxaModule.forRoot({
