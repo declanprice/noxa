@@ -4,10 +4,11 @@ import { Command, HandleCommand } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import { COMMAND_HANDLER_METADATA } from '../../handlers/command/command-handler.decorator';
+import { BusMessage } from '../bus-message.type';
 
 @Injectable({})
 export class CommandBus {
-  private handlers = new Map<string, HandleCommand<Command>>();
+  private handlers = new Map<string, HandleCommand>();
 
   logger = new Logger(CommandBus.name);
 
@@ -20,15 +21,7 @@ export class CommandBus {
   ) {}
 
   async invoke(command: Command): Promise<void> {
-    const commandName = this.getCommandName(command);
-
-    const handler = this.handlers.get(commandName);
-
-    if (!handler) {
-      throw new Error(`command handler not found for ${commandName}`);
-    }
-
-    return await handler.handle(command);
+    return await this.invokeHandler(command.constructor.name, command);
   }
 
   async send(
@@ -38,7 +31,7 @@ export class CommandBus {
     const { toContext, tenantId, publishAt } = options || {};
 
     await this.busRelay.sendCommand({
-      type: this.getCommandName(command),
+      type: command.constructor.name,
       fromContext: this.config.context,
       toContext: toContext ? toContext : this.config.context,
       tenantId: tenantId ? tenantId : 'DEFAULT',
@@ -69,14 +62,37 @@ export class CommandBus {
 
     this.handlers.set(command.name, instance);
 
-    await this.busRelay.registerCommandHandler(instance, {
-      type: command.name,
-    });
+    await this.busRelay.registerCommandHandler(
+      handler.name,
+      command.name,
+      async (message) => {
+        await this.invokeHandler(message.type, message.data, message);
+      },
+    );
   }
 
-  private getCommandName(command: Command): string {
-    const { constructor } = Object.getPrototypeOf(command);
+  private async invokeHandler(
+    type: string,
+    data: any,
+    originalMessage?: BusMessage,
+  ): Promise<void> {
+    const handler = this.handlers.get(type);
 
-    return constructor.name as string;
+    if (!handler) {
+      throw new Error(`command handler not found for ${type}`);
+    }
+
+    handler.session = await handler.storeSession.start();
+
+    try {
+      const result = await handler.handle(data, originalMessage);
+      await handler.session.commit();
+      return result;
+    } catch (error) {
+      await handler.session.rollback();
+      throw error;
+    } finally {
+      handler.session.release();
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
-import { CommandBus } from '../lib';
+import { CommandBus, EventBus, QueryBus } from '../lib';
 import {
   ChangeCustomerName,
   RegisterCustomer,
@@ -9,7 +9,10 @@ import {
 
 @Controller()
 export class AppController {
-  constructor(public commandBus: CommandBus) {}
+  constructor(
+    public commandBus: CommandBus,
+    public queryBus: QueryBus,
+  ) {}
 
   @Post('/')
   async get() {

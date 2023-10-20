@@ -5,106 +5,56 @@ import {
   CustomerNameChanged,
   CustomerRegistered,
   CustomerStream,
-  FailToChangeCustomerAge,
   RegisterCustomer,
 } from '../../model/streams/customer.stream';
 
-import { CommandHandler, HandleCommand, StoreSession } from '../../../lib';
+import { CommandHandler, HandleCommand } from '../../../lib';
 
 @CommandHandler(RegisterCustomer)
-export class RegisterCustomerHandler
-  implements HandleCommand<RegisterCustomer>
-{
-  constructor(private session: StoreSession) {}
-
+export class RegisterCustomerHandler extends HandleCommand {
   async handle(command: RegisterCustomer) {
-    const session = await this.session.start();
+    const event = new CustomerRegistered(
+      command.customerId,
+      command.name,
+      command.age,
+    );
 
-    try {
-      const event = new CustomerRegistered(
-        command.customerId,
-        command.name,
-        command.age,
-      );
+    await this.session.event.startStream(
+      CustomerStream,
+      command.customerId,
+      event,
+    );
 
-      await session.event.startStream(
-        CustomerStream,
-        command.customerId,
-        event,
-      );
-
-      await session.outbox.publishEvent(event);
-
-      await session.commit();
-    } catch (error) {
-      console.log(error);
-      await session.rollback();
-    } finally {
-      session.release();
-    }
+    await this.session.outbox.publishEvent(event);
   }
 }
 
 @CommandHandler(ChangeCustomerName)
-export class ChangeCustomerNameHandler
-  implements HandleCommand<ChangeCustomerName>
-{
-  constructor(private session: StoreSession) {}
-
+export class ChangeCustomerNameHandler extends HandleCommand {
   async handle(command: ChangeCustomerName) {
-    const session = await this.session.start();
+    const event = new CustomerNameChanged(command.customerId, command.name);
 
-    try {
-      const event = new CustomerNameChanged(command.customerId, command.name);
+    await this.session.event.appendEvent(
+      CustomerStream,
+      command.customerId,
+      event,
+    );
 
-      await session.event.appendEvent(
-        CustomerStream,
-        command.customerId,
-        event,
-      );
-
-      await session.outbox.publishEvent(event);
-
-      await session.commit();
-    } catch (error) {
-      await session.rollback();
-    } finally {
-      session.release();
-    }
+    await this.session.outbox.publishEvent(event);
   }
 }
 
 @CommandHandler(ChangeCustomerAge)
-export class ChangeCustomerAgeCommandHandler
-  implements HandleCommand<ChangeCustomerAge>
-{
-  constructor(private session: StoreSession) {}
-
+export class ChangeCustomerAgeCommandHandler extends HandleCommand {
   async handle(command: ChangeCustomerAge) {
-    const session = await this.session.start();
+    const event = new CustomerAgeChanged(command.customerId, command.age);
 
-    try {
-      const event = new CustomerAgeChanged(command.customerId, command.age);
+    await this.session.event.appendEvent(
+      CustomerStream,
+      command.customerId,
+      event,
+    );
 
-      await session.event.appendEvent(
-        CustomerStream,
-        command.customerId,
-        event,
-      );
-
-      if (command.age === 100) {
-        await session.outbox.publishEvent(
-          new FailToChangeCustomerAge(command.customerId),
-        );
-      } else {
-        await session.outbox.publishEvent(event);
-      }
-
-      await session.commit();
-    } catch (error) {
-      await session.rollback();
-    } finally {
-      session.release();
-    }
+    await this.session.outbox.publishEvent(event);
   }
 }

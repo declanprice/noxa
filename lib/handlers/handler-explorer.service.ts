@@ -3,8 +3,8 @@ import { ModulesContainer } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
-import { HandleCommand } from './command/handle-command.type';
-import { HandleEvent } from './event/handle-event.type';
+import { HandleCommand } from './command/handle-command';
+import { HandleEvent } from './event/handle-event';
 import { HandleQuery } from './query/handle-query.type';
 import { PROJECTION_HANDLER } from './projection/projection.decorators';
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';

@@ -57,8 +57,9 @@ export class RabbitmqBus implements BusRelay {
   }
 
   async registerCommandHandler(
-    handler: HandleCommand<Command>,
-    options: { type: string },
+    handlerName: string,
+    commandType: string,
+    onMessage: (message: BusMessage) => Promise<void>,
   ): Promise<void> {
     if (!this.channel || !this.config) {
       throw new Error(
@@ -66,8 +67,8 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
-    const queueName = `noxa.${this.config.context}.commandHandlers.${handler.constructor.name}`;
-    const queueRouteKey = `noxa.${this.config.context}.commands.${options.type}`;
+    const queueName = `noxa.${this.config.context}.commandHandlers.${handlerName}`;
+    const queueRouteKey = `noxa.${this.config.context}.commands.${commandType}`;
 
     await this.channel.assertQueue(queueName);
     await this.channel.bindQueue(
@@ -76,12 +77,7 @@ export class RabbitmqBus implements BusRelay {
       queueRouteKey,
     );
 
-    await this.channel.consume(queueName, async (message) => {
-      if (!this.channel || !message?.content) return;
-      const parsedMessage = JSON.parse(message.content.toString());
-      await handler.handle(parsedMessage.data, parsedMessage);
-      this.channel.ack(message);
-    });
+    await this.consumeMessage(queueName, onMessage);
   }
 
   async registerEventHandlerGroup(
@@ -115,18 +111,26 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
+    await this.consumeMessage(queueName, onMessage);
+  }
+
+  private async consumeMessage(
+    queueName: string,
+    onMessage: (message: any) => Promise<void>,
+  ) {
+    if (!this.channel) {
+      throw new Error('not connected to rabbitmq channel');
+    }
+
     await this.channel.consume(queueName, async (message: any) => {
+      if (!this.channel || !message?.content) return;
+
       try {
-        if (!this.channel || !message?.content) return;
-
         const parsedMessage = JSON.parse(message.content.toString());
-
         await onMessage(parsedMessage);
-
         this.channel.ack(message);
       } catch (error) {
         this.logger.error(error);
-
         setTimeout(() => {
           this.channel?.nack(message);
         }, 3000);

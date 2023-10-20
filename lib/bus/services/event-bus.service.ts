@@ -23,7 +23,6 @@ import {
   getSagaEventTypes,
   getSagaOptionMetadata,
 } from '../../handlers/saga/saga.decorators';
-import { Saga } from '../../../dist/lib/handlers/saga/saga';
 
 @Injectable({})
 export class EventBus {
@@ -44,7 +43,7 @@ export class EventBus {
     const { tenantId, publishAt } = options;
 
     await this.busRelay.sendEvent({
-      type: this.getEventName(event),
+      type: event.constructor.name,
       fromContext: this.config.context,
       toContext: null,
       tenantId: tenantId ? tenantId : 'DEFAULT',
@@ -102,7 +101,17 @@ export class EventBus {
           throw new GroupCannotHandleEventTypeError(groupName, message.type);
         }
 
-        await handler.handle(message.data);
+        handler.session = await handler.storeSession.start();
+
+        try {
+          await handler.handle(message.data);
+          await handler.session.commit();
+        } catch (error) {
+          await handler.session.rollback();
+          throw error;
+        } finally {
+          handler.session.release();
+        }
       };
 
       await this.busRelay.registerEventHandlerGroup(
@@ -120,7 +129,7 @@ export class EventBus {
 
       if (!instance) {
         throw new Error(
-          `module ref could not resolve ${process}, make sure it has been provided`,
+          `module ref could not resolve ${process.name}, make sure it has been provided`,
         );
       }
 
@@ -128,15 +137,13 @@ export class EventBus {
       const eventTypes = getProcessEventTypesMetadata(process);
       const groupName = process.name;
 
-      const handleEvent = async (message: BusMessage): Promise<void> => {
-        await instance.handle(message);
-      };
-
       await this.busRelay.registerEventHandlerGroup(
         groupName,
         options.consumerType,
         Array.from(eventTypes),
-        handleEvent,
+        async (message: BusMessage) => {
+          await instance.handle(message);
+        },
       );
     }
   }
@@ -149,27 +156,24 @@ export class EventBus {
     for (const saga of sagaHandlers) {
       const instance = this.moduleRef.get(saga, { strict: false });
 
+      if (!instance) {
+        throw new Error(
+          `module ref could not resolve ${saga.name}, make sure it has been provided`,
+        );
+      }
+
       const options = getSagaOptionMetadata(saga);
       const eventTypes = getSagaEventTypes(saga);
-
       const groupName = saga.name;
-
-      const handleEvent = async (message: BusMessage): Promise<void> => {
-        await instance.handle(message);
-      };
 
       await this.busRelay.registerEventHandlerGroup(
         groupName,
         options.consumerType,
         Array.from(eventTypes),
-        handleEvent,
+        async (message: BusMessage) => {
+          await instance.handle(message);
+        },
       );
     }
-  }
-
-  private getEventName(event: Event): string {
-    const { constructor } = Object.getPrototypeOf(event);
-
-    return constructor.name as string;
   }
 }

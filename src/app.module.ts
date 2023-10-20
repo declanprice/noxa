@@ -22,7 +22,6 @@ import { CustomerSaga } from './handlers/saga/customer.saga';
     CustomerRegisteredEventHandler,
     CustomerNameChangedEventHandler,
     ChangeCustomerAgeCommandHandler,
-    CustomerSaga,
   ],
   imports: [
     NoxaModule.forRoot({

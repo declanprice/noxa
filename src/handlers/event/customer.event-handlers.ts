@@ -13,9 +13,7 @@ import {
   group: 'CustomerEvents',
   consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
 })
-export class CustomerRegisteredEventHandler
-  implements HandleEvent<CustomerRegistered>
-{
+export class CustomerRegisteredEventHandler extends HandleEvent {
   async handle(event: CustomerRegistered): Promise<void> {
     console.log('handling customer registered', event);
   }
@@ -23,10 +21,9 @@ export class CustomerRegisteredEventHandler
 
 @EventHandler(CustomerNameChanged, {
   group: 'CustomerEvents',
+  consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
 })
-export class CustomerNameChangedEventHandler
-  implements HandleEvent<CustomerNameChanged>
-{
+export class CustomerNameChangedEventHandler extends HandleEvent {
   async handle(event: CustomerNameChanged): Promise<void> {
     console.log('handling customer name changed', event);
   }
