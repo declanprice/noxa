@@ -30,7 +30,6 @@ export class EventStore {
       created: now,
       timestamp: now,
       isArchived: false,
-      tenantId: 'default',
     };
 
     const storedEvent: Partial<StoredEvent> = {
@@ -41,7 +40,6 @@ export class EventStore {
       streamId,
       timestamp: now,
       isArchived: false,
-      tenantId: 'default',
     };
 
     await this.connection.query({
@@ -53,7 +51,6 @@ export class EventStore {
         "snapshotVersion",
         "created",
         "timestamp",
-        "tenantId",
         "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       values: [
@@ -64,7 +61,6 @@ export class EventStore {
         storedStream.snapshotVersion,
         storedStream.created,
         storedStream.timestamp,
-        storedStream.tenantId,
         storedStream.isArchived,
       ],
     });
@@ -77,7 +73,6 @@ export class EventStore {
         "timestamp",
         "data",
         "type",
-        "tenantId",
         "isArchived" 
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       values: [
@@ -87,7 +82,6 @@ export class EventStore {
         storedEvent.timestamp,
         storedEvent.data,
         storedEvent.type,
-        storedEvent.tenantId,
         storedEvent.isArchived,
       ],
     });
@@ -163,7 +157,6 @@ export class EventStore {
       streamId,
       timestamp: now,
       isArchived: false,
-      tenantId: 'default',
     };
 
     const storedStream: Partial<StoredStream> = {
@@ -181,7 +174,6 @@ export class EventStore {
         "timestamp",
         "data",
         "type",
-        "tenantId",
         "isArchived"
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       values: [
@@ -191,7 +183,6 @@ export class EventStore {
         storedEvent.timestamp,
         storedEvent.data,
         storedEvent.type,
-        storedEvent.tenantId,
         storedEvent.isArchived,
       ],
     });
@@ -218,7 +209,6 @@ export class EventStore {
             "snapshotVersion" bigint null,
             "created" timestamp with time zone not null,
             "timestamp" timestamp with time zone not null,
-            "tenantId" varchar default 'default' not null,
             "isArchived" boolean default false not null
       )`,
       values: [],
@@ -234,7 +224,6 @@ export class EventStore {
             "timestamp" timestamp with time zone not null,
             "data" jsonb not null,
             "type" varchar(500) not null,
-            "tenantId" varchar default 'default' not null,
             "isArchived" boolean default false not null
       )`,
       values: [],

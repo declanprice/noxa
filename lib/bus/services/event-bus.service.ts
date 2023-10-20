@@ -36,17 +36,11 @@ export class EventBus {
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  async send(
-    event: Event,
-    options: { tenantId?: string; publishAt?: Date },
-  ): Promise<void> {
-    const { tenantId, publishAt } = options;
+  async send(event: Event, options: { publishAt?: Date }): Promise<void> {
+    const { publishAt } = options;
 
     await this.busRelay.sendEvent({
       type: event.constructor.name,
-      fromContext: this.config.context,
-      toContext: null,
-      tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: event,
     });

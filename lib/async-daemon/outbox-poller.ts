@@ -30,22 +30,16 @@ export class OutboxPoller {
     for (const row of result.rows as StoredOutboxMessage[]) {
       if (row.toBus === 'command') {
         await this.busRelay.sendCommand({
-          fromContext: row.fromContext,
-          toContext: row.toContext,
           type: row.type,
           timestamp: row.timestamp,
-          tenantId: row.tenantId,
           data: row.data,
         });
       }
 
       if (row.toBus === 'event') {
         await this.busRelay.sendEvent({
-          fromContext: row.fromContext,
-          toContext: row.toContext,
           type: row.type,
           timestamp: row.timestamp,
-          tenantId: row.tenantId,
           data: row.data,
         });
       }

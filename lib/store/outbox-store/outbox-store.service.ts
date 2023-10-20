@@ -18,17 +18,14 @@ export class OutboxStore {
     bus: 'command' | 'event',
     type: string,
     data: any,
-    options?: { toContext?: string; tenantId?: string },
+    options?: { timestamp?: string },
   ): Promise<void> {
-    const { toContext, tenantId } = options || {};
+    const { timestamp } = options || {};
 
     await this.connection.query({
       text: `insert into noxa_outbox (
             "id",
             "toBus",
-            "fromContext",
-            "toContext",
-            "tenantId",
             "timestamp",
             "data",
             "type",
@@ -39,10 +36,7 @@ export class OutboxStore {
       values: [
         randomUUID(),
         bus,
-        this.config.context,
-        toContext ? toContext : this.config.context,
-        tenantId ? tenantId : 'default',
-        new Date().toISOString(),
+        timestamp ? timestamp : new Date().toISOString(),
         data,
         type,
         false,
@@ -53,17 +47,16 @@ export class OutboxStore {
 
   async publishCommand(
     command: Command,
-    options?: { toContext?: string; tenantId?: string },
-  ): Promise<void> {
-    const { toContext, tenantId } = options || {};
+    options?: { timestamp?: string },
+  ): Promise<string> {
+    const { timestamp } = options || {};
+
+    const messageId = randomUUID();
 
     await this.connection.query({
       text: `insert into noxa_outbox (
             "id",
             "toBus",
-            "fromContext",
-            "toContext",
-            "tenantId",
             "timestamp",
             "data",
             "type",
@@ -72,25 +65,31 @@ export class OutboxStore {
         ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        `,
       values: [
-        randomUUID(),
+        messageId,
         'command',
-        this.config.context,
-        toContext ? toContext : this.config.context,
-        tenantId ? tenantId : 'default',
-        new Date().toISOString(),
+        timestamp ? timestamp : new Date().toISOString(),
         command,
         command.constructor.name,
         false,
         null,
       ],
     });
+
+    return messageId;
+  }
+
+  async unpublishCommand(messageId: string) {
+    await this.connection.query({
+      text: `DELETE FROM noxa_outbox WHERE id = $1`,
+      values: [messageId],
+    });
   }
 
   async publishEvent(
     event: Event,
-    options?: { tenantId?: string; timestamp?: string },
+    options?: { timestamp?: string },
   ): Promise<string> {
-    const { tenantId, timestamp } = options || {};
+    const { timestamp } = options || {};
 
     const messageId = randomUUID();
 
@@ -98,9 +97,6 @@ export class OutboxStore {
       text: `insert into noxa_outbox (
             "id",
             "toBus",
-            "fromContext",
-            "toContext",
-            "tenantId",
             "timestamp",
             "data",
             "type",
@@ -111,9 +107,6 @@ export class OutboxStore {
       values: [
         messageId,
         'event',
-        this.config.context,
-        null,
-        tenantId ? tenantId : 'default',
         timestamp ? timestamp : new Date().toISOString(),
         event,
         event.constructor.name,
@@ -138,9 +131,6 @@ export class OutboxStore {
         CREATE TABLE IF NOT EXISTS noxa_outbox (
         "id" uuid not null constraint noxa_outbox_pk primary key,
         "toBus" varchar(500) not null,
-        "fromContext" varchar(500) not null,
-        "toContext" varchar(500) null,
-        "tenantId" varchar not null,
         "timestamp" timestamp with time zone default now() not null,
         "data" jsonb not null,
         "type" varchar(500) not null,

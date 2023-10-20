@@ -9,7 +9,6 @@ import {
   InvalidSagaStepDefinitionError,
 } from './errors/invalid-saga-definition.error';
 import { Session } from '../../store/store-session/store-session.service';
-import { Store } from 'nestjs-pino/storage';
 
 export type SagaStepDefinition = {
   name: string;
@@ -22,7 +21,6 @@ export type SagaStepDefinition = {
     type: string;
     data: any;
   };
-  toContext?: string;
   andExpectEvent?: string;
 };
 
@@ -236,11 +234,6 @@ class SagaStepBuilder {
       data: command,
     };
 
-    return this;
-  }
-
-  toContext(context: string): this {
-    this.definition.steps[this.definition.steps.length - 1].toContext = context;
     return this;
   }
 

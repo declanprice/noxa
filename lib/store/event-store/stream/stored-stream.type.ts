@@ -6,6 +6,5 @@ export type StoredStream = {
   snapshotVersion: number | null;
   created: string;
   timestamp: string;
-  tenantId: string;
   isArchived: boolean;
 };

@@ -6,6 +6,5 @@ export type StoredEvent = {
   data: any;
   type: string;
   timestamp: string;
-  tenantId: string;
   isArchived: boolean;
 };

@@ -24,17 +24,11 @@ export class CommandBus {
     return await this.invokeHandler(command.constructor.name, command);
   }
 
-  async send(
-    command: Command,
-    options?: { toContext?: string; tenantId?: string; publishAt?: Date },
-  ): Promise<void> {
-    const { toContext, tenantId, publishAt } = options || {};
+  async send(command: Command, options?: { publishAt?: Date }): Promise<void> {
+    const { publishAt } = options || {};
 
     await this.busRelay.sendCommand({
       type: command.constructor.name,
-      fromContext: this.config.context,
-      toContext: toContext ? toContext : this.config.context,
-      tenantId: tenantId ? tenantId : 'DEFAULT',
       timestamp: publishAt ? publishAt.toISOString() : new Date().toISOString(),
       data: command,
     });

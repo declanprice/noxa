@@ -39,7 +39,7 @@ export class RabbitmqBus implements BusRelay {
 
     this.channel.publish(
       COMMAND_BUS_EXCHANGE_NAME,
-      `noxa.${command.toContext}.commands.${command.type}`,
+      `noxa.commands.${command.type}`,
       Buffer.from(JSON.stringify(command)),
     );
   }
@@ -51,7 +51,7 @@ export class RabbitmqBus implements BusRelay {
 
     this.channel.publish(
       EVENT_BUS_EXCHANGE_NAME,
-      `noxa.${event.fromContext}.events.${event.type}`,
+      `noxa.events.${event.type}`,
       Buffer.from(JSON.stringify(event)),
     );
   }
@@ -67,8 +67,8 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
-    const queueName = `noxa.${this.config.context}.commandHandlers.${handlerName}`;
-    const queueRouteKey = `noxa.${this.config.context}.commands.${commandType}`;
+    const queueName = `noxa.${this.config.serviceName}.commandHandlers.${handlerName}`;
+    const queueRouteKey = `noxa.${this.config.serviceName}.commands.${commandType}`;
 
     await this.channel.assertQueue(queueName);
     await this.channel.bindQueue(
@@ -92,7 +92,7 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
-    const queueName = `noxa.${this.config.context}.eventHandlers.${groupName}`;
+    const queueName = `noxa.${this.config.serviceName}.eventHandlers.${groupName}`;
 
     await this.channel.assertQueue(queueName, {
       arguments: {
@@ -102,7 +102,7 @@ export class RabbitmqBus implements BusRelay {
     });
 
     for (const eventType of eventTypes) {
-      const queueRouteKey = `noxa.${this.config.context}.events.${eventType}`;
+      const queueRouteKey = `noxa.${this.config.serviceName}.events.${eventType}`;
 
       await this.channel.bindQueue(
         queueName,

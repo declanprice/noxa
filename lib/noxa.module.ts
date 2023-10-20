@@ -80,7 +80,7 @@ export class NoxaModule implements OnApplicationBootstrap {
         {
           provide: CONFIG_TOKEN,
           useValue: {
-            context: options.context,
+            serviceName: options.serviceName,
             asyncDaemon: options.asyncDaemon,
             documents: options.documents,
           } as Config,

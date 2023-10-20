@@ -25,7 +25,7 @@ import { CustomerSaga } from './handlers/saga/customer.saga';
   ],
   imports: [
     NoxaModule.forRoot({
-      context: 'Customer',
+      serviceName: 'Restaurant',
       postgres: {
         connectionUrl: 'postgres://postgres:postgres@localhost:5432',
       },
