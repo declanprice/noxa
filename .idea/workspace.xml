@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/command/handle-command.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/bus-relay.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/bus-relay.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/command/handle-command.type.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/handle-event.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/handle-event.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/event/customer.event-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/event/customer.event-handlers.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,7 +131,7 @@
       <workItem from="1696889853802" duration="43793000" />
       <workItem from="1697211760558" duration="36507000" />
       <workItem from="1697624599981" duration="20650000" />
-      <workItem from="1697805715927" duration="7121000" />
+      <workItem from="1697805715927" duration="7178000" />
     </task>
     <servers />
   </component>
