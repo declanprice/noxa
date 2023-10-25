@@ -1,7 +1,7 @@
 import {
   Process,
   ProcessEventHandler,
-  ProcessLifeCycle,
+  HandleProcess,
   RabbitmqEventConsumerType,
   Event,
 } from '../../lib';
@@ -12,16 +12,17 @@ import {
 } from '../model/streams/customer.stream';
 
 import * as dayjs from 'dayjs';
+
 import { CustomerProcessDocument } from '../model/documents/customer-process.document';
 
 class CustomerProcessDeadlineEvent implements Event {
   constructor(public readonly customerId: string) {}
 }
 
-@Process(CustomerProcessDocument, {
+@Process(CustomerProcess, {
   consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
 })
-export class CustomerProcess extends ProcessLifeCycle {
+export class CustomerProcess extends HandleProcess {
   @ProcessEventHandler({
     event: CustomerRegistered,
     associationId: (event) => event.customerId,

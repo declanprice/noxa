@@ -1,2 +1,2 @@
-export { SagaBuilder, SagaLifeCycle } from './saga-life-cycle';
+export { SagaBuilder, HandleSaga } from './handle-saga';
 export { Saga, StartSagaHandler } from './saga.decorators';

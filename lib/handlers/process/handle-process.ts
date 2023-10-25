@@ -10,9 +10,7 @@ import { BusMessage } from '../../bus';
 import { Session } from '../../store/store-session/store-session.service';
 import { StoredDocument } from '../../store/document-store/document/stored-document.type';
 
-export abstract class ProcessLifeCycle {
-  private tableName = DocumentStore.tableNameFromInstance(this);
-
+export abstract class HandleProcess {
   session!: Session;
 
   constructor(

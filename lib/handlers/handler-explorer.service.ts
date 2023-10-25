@@ -13,10 +13,10 @@ import {
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
 import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
 import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
-import { ProcessLifeCycle } from './process';
+import { HandleProcess } from './process';
 import { PROCESS_HANDLER_METADATA } from './process/process.decorators';
 import { SAGA_HANDLER_METADATA } from './saga/saga.decorators';
-import { SagaLifeCycle } from './saga/saga-life-cycle';
+import { HandleSaga } from './saga/handle-saga';
 import { HandleEventGroup } from './event';
 import { EVENT_GROUP_HANDLER_METADATA } from './event/group/event-group.decorator';
 
@@ -27,8 +27,8 @@ export type HandlerOptions = {
   eventGroupHandlers: Type<HandleEventGroup>[];
   documentProjectionHandlers: Type[];
   eventProjectionHandlers: Type[];
-  processHandlers: Type<ProcessLifeCycle>[];
-  sagaHandlers: Type<SagaLifeCycle>[];
+  processHandlers: Type<HandleProcess>[];
+  sagaHandlers: Type<HandleSaga>[];
 };
 
 @Injectable()
@@ -63,12 +63,11 @@ export class HandlerExplorer {
       this.filterProvider(instance, EVENT_PROJECTION_HANDLER),
     );
 
-    const processHandlers = this.flatMap<ProcessLifeCycle>(
-      modules,
-      (instance) => this.filterProvider(instance, PROCESS_HANDLER_METADATA),
+    const processHandlers = this.flatMap<HandleProcess>(modules, (instance) =>
+      this.filterProvider(instance, PROCESS_HANDLER_METADATA),
     );
 
-    const sagaHandlers = this.flatMap<SagaLifeCycle>(modules, (instance) =>
+    const sagaHandlers = this.flatMap<HandleSaga>(modules, (instance) =>
       this.filterProvider(instance, SAGA_HANDLER_METADATA),
     );
 

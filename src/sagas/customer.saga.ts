@@ -2,7 +2,7 @@ import * as dayjs from 'dayjs';
 
 import {
   RabbitmqEventConsumerType,
-  SagaLifeCycle,
+  HandleSaga,
   SagaBuilder,
   Saga,
   StartSagaHandler,
@@ -17,7 +17,7 @@ import {
 } from '../model/streams/customer.stream';
 
 @Saga({ consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER })
-export class CustomerSaga extends SagaLifeCycle {
+export class CustomerSaga extends HandleSaga {
   @StartSagaHandler({
     startOn: {
       event: CustomerRegistered,

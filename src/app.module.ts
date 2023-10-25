@@ -10,6 +10,7 @@ import {
 import { CustomerEventsHandler } from './handlers/event/customer.events-handler';
 import { CustomerRegisteredEventHandler } from './handlers/event/customer-registered.event-handler';
 import { CustomerProjection } from './projections/customer.projection';
+import { CustomerProcess } from './processes/customer.process';
 
 @Module({
   controllers: [AppController],
@@ -20,6 +21,7 @@ import { CustomerProjection } from './projections/customer.projection';
     CustomerRegisteredEventHandler,
     ChangeCustomerAgeCommandHandler,
     CustomerProjection,
+    CustomerProcess,
   ],
   imports: [
     NoxaModule.forRoot({

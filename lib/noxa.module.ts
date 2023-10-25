@@ -19,7 +19,10 @@ import {
 } from './store';
 import { Pool } from 'pg';
 import { AsyncDaemon } from './async-daemon/async-daemon';
-import { DOCUMENT_PROJECTION_HANDLER } from './handlers/projection/projection.decorators';
+import {
+  DOCUMENT_PROJECTION_HANDLER,
+  getProjectionDocumentMetadata,
+} from './handlers/projection/projection.decorators';
 import { getProcessDocumentMetadata } from './handlers/process/process.decorators';
 
 export type NoxaModuleOptions = {
@@ -116,7 +119,10 @@ export class NoxaModule implements OnApplicationBootstrap {
 
       if (documentProjectionHandlers) {
         for (const documentProjection of documentProjectionHandlers) {
-          await DocumentStore.createResources(documentProjection, connection);
+          const documentType =
+            getProjectionDocumentMetadata(documentProjection);
+
+          await DocumentStore.createResources(documentType, connection);
         }
       }
 

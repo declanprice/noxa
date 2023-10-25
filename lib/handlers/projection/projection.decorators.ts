@@ -95,6 +95,19 @@ export const getProjectionOptionMetadata = (
   return options;
 };
 
+export const getProjectionDocumentMetadata = (projection: Type): Type => {
+  const document = Reflect.getMetadata(
+    DOCUMENT_PROJECTION_HANDLER,
+    projection,
+  ) as Type;
+
+  if (!document) {
+    throw new Error(`projection ${projection} has no document metadata.`);
+  }
+
+  return document;
+};
+
 export const getProjectionEventTypesMetadata = (
   projection: Type,
 ): Set<string> => {

@@ -31,7 +31,7 @@ export type SagaDefinition = {
   completeOnStep?: number;
 };
 
-export abstract class SagaLifeCycle {
+export abstract class HandleSaga {
   private sagaType = this.constructor as Type;
 
   constructor(

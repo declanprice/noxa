@@ -2,8 +2,8 @@ import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
 import {
   HandleEvent,
-  ProcessLifeCycle,
-  SagaLifeCycle,
+  HandleProcess,
+  HandleSaga,
   HandleEventGroup,
 } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
@@ -110,7 +110,7 @@ export class EventBus {
     }
   }
 
-  async registerProcessHandlers(processes: Type<ProcessLifeCycle>[] = []) {
+  async registerProcessHandlers(processes: Type<HandleProcess>[] = []) {
     for (const process of processes) {
       const instance = this.moduleRef.get(process, { strict: false });
 
@@ -136,7 +136,7 @@ export class EventBus {
   }
 
   async registerSagaHandlers(
-    sagaHandlers: Type<SagaLifeCycle>[] = [],
+    sagaHandlers: Type<HandleSaga>[] = [],
   ): Promise<void> {
     console.log(sagaHandlers);
 

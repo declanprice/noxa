@@ -8,6 +8,7 @@ import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projectio
 import { DocumentStore } from '../../../store';
 import { StoredDocument } from '../../../store/document-store/document/stored-document.type';
 import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
+import { getProjectionDocumentMetadata } from '../projection.decorators';
 
 export class DocumentProjectionHandler extends ProjectionHandler {
   async handleEvents(
@@ -15,6 +16,8 @@ export class DocumentProjectionHandler extends ProjectionHandler {
     projection: Type,
     events: StoredEvent[],
   ): Promise<StoredProjectionToken> {
+    const documentType = getProjectionDocumentMetadata(projection);
+
     const targetDocumentIds: Set<string> = new Set<string>();
 
     for (const event of events) {
@@ -36,7 +39,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
     const existingDocumentRows = await connection.query(
       format(
         `select * from ${DocumentStore.tableNameFromType(
-          projection,
+          documentType,
         )} where id IN (%L)`,
         Array.from(targetDocumentIds),
       ),
@@ -88,7 +91,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
       await transaction.query(
         format(
           `insert into ${DocumentStore.tableNameFromType(
-            projection,
+            documentType,
           )} (id, data, "lastModified") values %L 
             on conflict (id) do update set
             data = excluded.data,

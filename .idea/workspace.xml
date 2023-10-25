@@ -6,7 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/processes/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/processes/customer.process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sagas/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/sagas/customer.saga.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +146,7 @@
       <workItem from="1697624599981" duration="20650000" />
       <workItem from="1697805715927" duration="7178000" />
       <workItem from="1698069507714" duration="10260000" />
-      <workItem from="1698241935185" duration="12956000" />
+      <workItem from="1698241935185" duration="13764000" />
     </task>
     <servers />
   </component>
