@@ -1,10 +1,9 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Type } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
 import {
+  getProcessDocumentMetadata,
   getProcessEventHandlerMetadata,
-  getProcessFields,
-  ProcessField,
 } from './process.decorators';
 import { DocumentStore, StoreSession } from '../../store';
 import { BusMessage } from '../../bus';
@@ -12,12 +11,6 @@ import { Session } from '../../store/store-session/store-session.service';
 import { StoredDocument } from '../../store/document-store/document/stored-document.type';
 
 export abstract class ProcessLifeCycle {
-  @ProcessField()
-  private processEnded: boolean = false;
-
-  @ProcessField()
-  private associations: string[] = [];
-
   private tableName = DocumentStore.tableNameFromInstance(this);
 
   session!: Session;
@@ -27,6 +20,8 @@ export abstract class ProcessLifeCycle {
   ) {}
 
   async handle(message: BusMessage): Promise<void> {
+    const documentType = getProcessDocumentMetadata(this.constructor as Type);
+
     this.session = await this.storeSession.start();
 
     try {
@@ -44,11 +39,13 @@ export abstract class ProcessLifeCycle {
         });
 
       if (!processDocuments.length && handlerMetadata.start === true) {
-        processDocuments.push(await this.startNewProcess(associationId));
+        processDocuments.push(
+          await this.startNewProcess(documentType, associationId),
+        );
       }
 
       for (const process of processDocuments) {
-        await this.handleProcessMessage(process, message);
+        await this.handleProcessMessage(documentType, process, message);
       }
 
       await this.session.commit();
@@ -60,27 +57,8 @@ export abstract class ProcessLifeCycle {
     }
   }
 
-  associateWith(id: string): void {
-    const indexOf = this.associations.indexOf(id);
-
-    if (indexOf === -1) {
-      this.associations.push(id);
-    }
-  }
-
-  removeAssociation(id: string): void {
-    const indexOf = this.associations.indexOf(id);
-
-    if (indexOf !== -1) {
-      this.associations.splice(indexOf, 1);
-    }
-  }
-
-  end(): void {
-    this.processEnded = true;
-  }
-
   private async startNewProcess(
+    documentType: Type,
     associationId: string,
   ): Promise<StoredDocument> {
     if (!this.session) {
@@ -89,61 +67,38 @@ export abstract class ProcessLifeCycle {
       );
     }
 
-    return await this.session.document.store(
-      this.constructor as any,
-      randomUUID(),
-      {
-        associations: [associationId],
-      },
-    );
+    return await this.session.document.store(documentType, randomUUID(), {
+      associations: [associationId],
+    });
   }
 
   private async handleProcessMessage(
-    processDocument: StoredDocument,
+    documentType: Type,
+    document: StoredDocument,
     message: BusMessage,
   ): Promise<void> {
     if (!this.session) {
       throw new Error('invalid process session, cannot handle message');
     }
 
-    const processFields = getProcessFields(this.constructor as any);
-
     const targetEventHandler = getProcessEventHandlerMetadata(
       this.constructor as any,
       message.type,
     );
 
-    // reset projection fields
-    Object.keys(this).forEach((key) => {
-      if (processFields.has(key)) {
-        (this as any)[key] = undefined;
-      }
-    });
-
-    // assign existing data to projection instance
-    Object.assign(this, processDocument.data);
-
     // apply event over projection instance
-    await (this as any)[targetEventHandler.propertyKey](message.data);
+    const updatedDocument = await (this as any)[targetEventHandler.propertyKey](
+      message.data,
+      document.data,
+    );
 
-    let updatedProcessData: any = {};
-
-    Object.keys(this).forEach((key) => {
-      if (processFields.has(key)) {
-        updatedProcessData[key] = (this as any)[key];
-      }
-    });
-
-    if (this.processEnded) {
-      await this.session.document.delete(
-        this.constructor as any,
-        processDocument.id,
-      );
+    if (updatedDocument?.processEnded) {
+      await this.session.document.delete(documentType, document.id);
     } else {
       await this.session.document.store(
-        this.constructor as any,
-        processDocument.id,
-        updatedProcessData,
+        documentType,
+        document.id,
+        updatedDocument,
       );
     }
   }

@@ -1,15 +1,17 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
-import { ProjectionType } from './projection-type.enum';
 
-export const PROJECTION_HANDLER = 'PROJECTION_HANDLER';
+export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
 
-export const PROJECTION_FIELDS = 'PROJECTION_FIELDS';
+export const DOCUMENT_PROJECTION_HANDLER = 'DOCUMENT_PROJECTION_HANDLER';
+
+export const PROJECTION_OPTIONS_METADATA = 'PROJECTION_OPTIONS_METADATA';
 
 export const PROJECTION_EVENT_TYPES = 'PROJECTION_EVENT_TYPES';
 
 export type ProjectionOptionsMetadata = {
-  type: ProjectionType;
+  fetchEventsSize?: number;
+  batchEventsSize?: number;
 };
 
 export type ProjectionHandlerMetadata<E extends Event> = {
@@ -17,31 +19,29 @@ export type ProjectionHandlerMetadata<E extends Event> = {
   id: (event: E) => string;
 };
 
-export const Projection = (
+export const EventProjection = (
   options?: ProjectionOptionsMetadata,
 ): ClassDecorator => {
   return (target: object) => {
-    Reflect.defineMetadata(PROJECTION_HANDLER, options, target);
+    Reflect.defineMetadata(EVENT_PROJECTION_HANDLER, options, target);
+    Reflect.defineMetadata(
+      PROJECTION_OPTIONS_METADATA,
+      options || { batchEventsSize: 100, fetchEventsSize: 1000 },
+      target,
+    );
   };
 };
 
-export const ProjectionField = (): PropertyDecorator => {
-  return (target: Object, propertyKey: string | symbol) => {
-    let projectionFields: Set<string> = Reflect.getMetadata(
-      PROJECTION_FIELDS,
-      target.constructor,
-    );
-
-    if (!projectionFields) {
-      projectionFields = new Set<string>();
-    }
-
-    projectionFields.add(propertyKey as string);
-
+export const DocumentProjection = (
+  document: Type,
+  options?: ProjectionOptionsMetadata,
+): ClassDecorator => {
+  return (target: object) => {
+    Reflect.defineMetadata(DOCUMENT_PROJECTION_HANDLER, document, target);
     Reflect.defineMetadata(
-      PROJECTION_FIELDS,
-      projectionFields,
-      target.constructor,
+      PROJECTION_OPTIONS_METADATA,
+      options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
+      target,
     );
   };
 };
@@ -84,12 +84,12 @@ export const getProjectionOptionMetadata = (
   projection: Type,
 ): ProjectionOptionsMetadata => {
   const options = Reflect.getMetadata(
-    PROJECTION_HANDLER,
+    PROJECTION_OPTIONS_METADATA,
     projection,
   ) as ProjectionOptionsMetadata;
 
   if (!options) {
-    throw new Error(`projection ${projection} has no @Projection decorator`);
+    throw new Error(`projection ${projection} has no option metadata.`);
   }
 
   return options;
@@ -101,9 +101,7 @@ export const getProjectionEventTypesMetadata = (
   const eventTypes = Reflect.getMetadata(PROJECTION_EVENT_TYPES, projection);
 
   if (!eventTypes) {
-    throw new Error(
-      `projection ${projection} has no @ProjectionEventHandler decorators`,
-    );
+    throw new Error(`projection ${projection} has no event type metadata.`);
   }
 
   return eventTypes;
@@ -120,7 +118,7 @@ export const getProjectionEventHandlerMetadata = <E extends Event>(
 
   if (!handlerMetadata) {
     throw new Error(
-      `projection ${projection} has no @ProjectionEventHandler for event type ${eventType}`,
+      `projection ${projection} has no handler metadata for event type ${eventType}`,
     );
   }
 

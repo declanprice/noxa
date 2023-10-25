@@ -3,6 +3,10 @@ import { Event } from '../index';
 
 export const PROCESS_HANDLER_METADATA = 'PROCESS_HANDLER_METADATA';
 
+export const PROCESS_HANDLER_OPTIONS_METADATA = 'PROCESS_HANDLER_METADATA';
+
+export const PROCESS_HANDLER_DOCUMENT_METADATA = 'PROCESS_HANDLER_METADATA';
+
 export const PROCESS_FIELDS_METADATA = 'PROCESS_FIELDS_METADATA';
 
 export const PROCESS_EVENT_TYPES_METADATA = 'PROCESS_EVENT_TYPES_METADATA';
@@ -17,26 +21,14 @@ export type ProcessHandlerMetadata<E extends Event> = {
   start?: boolean;
 };
 
-export const Process = (options: ProcessOptionsMetadata): ClassDecorator => {
+export const Process = (
+  document: Type,
+  options: ProcessOptionsMetadata,
+): ClassDecorator => {
   return (target: object) => {
+    Reflect.defineMetadata(PROCESS_HANDLER_DOCUMENT_METADATA, document, target);
+    Reflect.defineMetadata(PROCESS_HANDLER_OPTIONS_METADATA, options, target);
     Reflect.defineMetadata(PROCESS_HANDLER_METADATA, options, target);
-  };
-};
-
-export const ProcessField = (): PropertyDecorator => {
-  return (target: Object, propertyKey: string | symbol) => {
-    let fields: Set<string> = Reflect.getMetadata(
-      PROCESS_FIELDS_METADATA,
-      target.constructor,
-    );
-
-    if (!fields) {
-      fields = new Set<string>();
-    }
-
-    fields.add(propertyKey as string);
-
-    Reflect.defineMetadata(PROCESS_FIELDS_METADATA, fields, target.constructor);
   };
 };
 
@@ -90,14 +82,17 @@ export const getProcessOptionMetadata = (
   return options;
 };
 
-export const getProcessFields = (process: Type): Set<string> => {
-  const fields = Reflect.getMetadata(PROCESS_FIELDS_METADATA, process);
+export const getProcessDocumentMetadata = (process: Type): Type => {
+  const document = Reflect.getMetadata(
+    PROCESS_HANDLER_DOCUMENT_METADATA,
+    process,
+  );
 
-  if (!fields) {
-    throw new Error(`process ${process} has no @ProcessField decorators`);
+  if (!document) {
+    throw new Error(`process ${process} has no document type metadata.`);
   }
 
-  return fields;
+  return document;
 };
 
 export const getProcessEventTypesMetadata = (process: Type): Set<string> => {

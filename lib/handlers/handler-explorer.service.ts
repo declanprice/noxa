@@ -6,7 +6,10 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { HandleCommand } from './command/handle-command';
 import { HandleEvent } from './event/handle-event';
 import { HandleQuery } from './query/handle-query.type';
-import { PROJECTION_HANDLER } from './projection/projection.decorators';
+import {
+  DOCUMENT_PROJECTION_HANDLER,
+  EVENT_PROJECTION_HANDLER,
+} from './projection/projection.decorators';
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
 import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
 import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
@@ -14,14 +17,18 @@ import { ProcessLifeCycle } from './process';
 import { PROCESS_HANDLER_METADATA } from './process/process.decorators';
 import { SAGA_HANDLER_METADATA } from './saga/saga.decorators';
 import { SagaLifeCycle } from './saga/saga-life-cycle';
+import { HandleEventGroup } from './event';
+import { EVENT_GROUP_HANDLER_METADATA } from './event/group/event-group.decorator';
 
 export type HandlerOptions = {
-  commandHandlers?: Type<HandleCommand>[];
-  queryHandlers?: Type<HandleQuery>[];
-  eventHandlers?: Type<HandleEvent>[];
-  projectionHandlers?: Type[];
-  processHandlers?: Type<ProcessLifeCycle>[];
-  sagaHandlers?: Type<SagaLifeCycle>[];
+  commandHandlers: Type<HandleCommand>[];
+  queryHandlers: Type<HandleQuery>[];
+  eventHandlers: Type<HandleEvent>[];
+  eventGroupHandlers: Type<HandleEventGroup>[];
+  documentProjectionHandlers: Type[];
+  eventProjectionHandlers: Type[];
+  processHandlers: Type<ProcessLifeCycle>[];
+  sagaHandlers: Type<SagaLifeCycle>[];
 };
 
 @Injectable()
@@ -43,8 +50,17 @@ export class HandlerExplorer {
       this.filterProvider(instance, EVENT_HANDLER_METADATA),
     );
 
-    const projectionHandlers = this.flatMap<any>(modules, (instance) =>
-      this.filterProvider(instance, PROJECTION_HANDLER),
+    const eventGroupHandlers = this.flatMap<HandleEventGroup>(
+      modules,
+      (instance) => this.filterProvider(instance, EVENT_GROUP_HANDLER_METADATA),
+    );
+
+    const documentProjectionHandlers = this.flatMap<any>(modules, (instance) =>
+      this.filterProvider(instance, DOCUMENT_PROJECTION_HANDLER),
+    );
+
+    const eventProjectionHandlers = this.flatMap<any>(modules, (instance) =>
+      this.filterProvider(instance, EVENT_PROJECTION_HANDLER),
     );
 
     const processHandlers = this.flatMap<ProcessLifeCycle>(
@@ -60,7 +76,9 @@ export class HandlerExplorer {
       commandHandlers,
       queryHandlers,
       eventHandlers,
-      projectionHandlers,
+      eventGroupHandlers,
+      documentProjectionHandlers,
+      eventProjectionHandlers,
       processHandlers,
       sagaHandlers,
     };

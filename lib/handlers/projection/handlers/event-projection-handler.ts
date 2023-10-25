@@ -5,7 +5,7 @@ import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
 
-export class ProjectionHandlerGeneric extends ProjectionHandler {
+export class EventProjectionHandler extends ProjectionHandler {
   async handleEvents(
     connection: Pool | PoolClient,
     projection: Type,

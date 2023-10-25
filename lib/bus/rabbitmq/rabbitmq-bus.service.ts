@@ -2,7 +2,6 @@ import { Logger } from '@nestjs/common';
 import { Channel, connect } from 'amqplib';
 
 import { BusRelay } from '../bus-relay.type';
-import { Command, HandleCommand, Event } from '../../handlers';
 import { BusMessage } from '../bus-message.type';
 import { Config } from '../../config';
 import { RabbitmqEventConsumerType } from './rabbitmq-event-consumer-type';
@@ -68,7 +67,7 @@ export class RabbitmqBus implements BusRelay {
     }
 
     const queueName = `noxa.${this.config.serviceName}.commandHandlers.${handlerName}`;
-    const queueRouteKey = `noxa.${this.config.serviceName}.commands.${commandType}`;
+    const queueRouteKey = `noxa.commands.${commandType}`;
 
     await this.channel.assertQueue(queueName);
     await this.channel.bindQueue(
@@ -80,8 +79,39 @@ export class RabbitmqBus implements BusRelay {
     await this.consumeMessage(queueName, onMessage);
   }
 
-  async registerEventHandlerGroup(
-    groupName: string,
+  async registerEventHandler(
+    handlerName: string,
+    consumerType: RabbitmqEventConsumerType,
+    eventType: string,
+    onMessage: (message: BusMessage) => Promise<void>,
+  ): Promise<void> {
+    if (!this.channel || !this.config) {
+      throw new Error(
+        `bus is not connected to rabbitmq, cannot register command handler`,
+      );
+    }
+
+    const queueName = `noxa.${this.config.serviceName}.eventHandlers.${handlerName}`;
+    const queueRouteKey = `noxa.events.${eventType}`;
+
+    await this.channel.assertQueue(queueName, {
+      arguments: {
+        'x-single-active-consumer':
+          consumerType === RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
+      },
+    });
+
+    await this.channel.bindQueue(
+      queueName,
+      EVENT_BUS_EXCHANGE_NAME,
+      queueRouteKey,
+    );
+
+    await this.consumeMessage(queueName, onMessage);
+  }
+
+  async registerEventGroupHandler(
+    handlerName: string,
     consumerType: RabbitmqEventConsumerType,
     eventTypes: string[],
     onMessage: (message: BusMessage) => Promise<void>,
@@ -92,7 +122,7 @@ export class RabbitmqBus implements BusRelay {
       );
     }
 
-    const queueName = `noxa.${this.config.serviceName}.eventHandlers.${groupName}`;
+    const queueName = `noxa.${this.config.serviceName}.eventHandlers.${handlerName}`;
 
     await this.channel.assertQueue(queueName, {
       arguments: {
@@ -102,7 +132,7 @@ export class RabbitmqBus implements BusRelay {
     });
 
     for (const eventType of eventTypes) {
-      const queueRouteKey = `noxa.${this.config.serviceName}.events.${eventType}`;
+      const queueRouteKey = `noxa.events.${eventType}`;
 
       await this.channel.bindQueue(
         queueName,

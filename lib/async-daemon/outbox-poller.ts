@@ -60,6 +60,6 @@ export class OutboxPoller {
 
     return setTimeout(() => {
       this.start().then();
-    }, this.pollTimeInMs);
+    }, 0);
   }
 }

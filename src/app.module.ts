@@ -2,26 +2,24 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { NoxaModule, RabbitmqBus } from '../lib';
 import { AppController } from './app.controller';
-import { CustomerDocument } from './model/documents/customer.document';
 import {
   ChangeCustomerAgeCommandHandler,
   ChangeCustomerNameHandler,
   RegisterCustomerHandler,
 } from './handlers/command/customer.command-handlers';
-import {
-  CustomerNameChangedEventHandler,
-  CustomerRegisteredEventHandler,
-} from './handlers/event/customer.event-handlers';
-import { CustomerSaga } from './handlers/saga/customer.saga';
+import { CustomerEventsHandler } from './handlers/event/customer.events-handler';
+import { CustomerRegisteredEventHandler } from './handlers/event/customer-registered.event-handler';
+import { CustomerProjection } from './projections/customer.projection';
 
 @Module({
   controllers: [AppController],
   providers: [
     RegisterCustomerHandler,
     ChangeCustomerNameHandler,
+    CustomerEventsHandler,
     CustomerRegisteredEventHandler,
-    CustomerNameChangedEventHandler,
     ChangeCustomerAgeCommandHandler,
+    CustomerProjection,
   ],
   imports: [
     NoxaModule.forRoot({
@@ -35,7 +33,6 @@ import { CustomerSaga } from './handlers/saga/customer.saga';
       asyncDaemon: {
         enabled: true,
       },
-      documents: [CustomerDocument],
     }),
     LoggerModule.forRoot({
       // pinoHttp: {

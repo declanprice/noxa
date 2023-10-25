@@ -52,7 +52,7 @@ export class EventStore {
         "created",
         "timestamp",
         "isArchived"
-      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       values: [
         storedStream.id,
         storedStream.type,
@@ -74,7 +74,7 @@ export class EventStore {
         "data",
         "type",
         "isArchived" 
-      ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      ) values ($1, $2, $3, $4, $5, $6, $7)`,
       values: [
         storedEvent.id,
         storedEvent.streamId,

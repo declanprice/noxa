@@ -3,18 +3,16 @@ import { Injectable, Logger, Type } from '@nestjs/common';
 import {
   HandleEvent,
   ProcessLifeCycle,
-  Event,
   SagaLifeCycle,
+  HandleEventGroup,
 } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
-  EVENT_HANDLER_METADATA,
-  EVENT_HANDLER_OPTIONS_METADATA,
-  EventHandlerOptions,
+  getEventHandler,
+  getEventHandlerOptions,
 } from '../../handlers/event/event-handler.decorator';
 import { BusMessage } from '../bus-message.type';
-import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
 import {
   getProcessEventTypesMetadata,
   getProcessOptionMetadata,
@@ -23,6 +21,10 @@ import {
   getSagaEventTypes,
   getSagaOptionMetadata,
 } from '../../handlers/saga/saga.decorators';
+import {
+  getEventGroupEventTypes,
+  getEventGroupOptions,
+} from '../../handlers/event/group/event-group.decorator';
 
 @Injectable({})
 export class EventBus {
@@ -47,17 +49,7 @@ export class EventBus {
   }
 
   async registerEventHandlers(handlers: Type<HandleEvent>[] = []) {
-    const eventHandlerGroups = new Map<
-      string,
-      { consumerType: any; handlers: Map<string, HandleEvent> }
-    >();
-
     for (const handler of handlers) {
-      const event: Type<Event> = Reflect.getMetadata(
-        EVENT_HANDLER_METADATA,
-        handler,
-      );
-
       const instance = this.moduleRef.get(handler, { strict: false });
 
       if (!instance) {
@@ -66,53 +58,54 @@ export class EventBus {
         );
       }
 
-      const options = Reflect.getMetadata(
-        EVENT_HANDLER_OPTIONS_METADATA,
-        handler,
-      ) as EventHandlerOptions;
+      const event = getEventHandler(handler);
+      const options = getEventHandlerOptions(handler);
+      const groupName = handler.name;
 
-      let groupName = options.group ? options.group : handler.name;
-
-      let eventHandlerGroup = eventHandlerGroups.get(groupName);
-
-      if (eventHandlerGroup) {
-        eventHandlerGroup.handlers.set(event.name, instance);
-      } else {
-        const handlers = new Map<string, HandleEvent>();
-        handlers.set(event.name, instance);
-        eventHandlerGroups.set(groupName, {
-          consumerType: options.consumerType,
-          handlers,
-        });
-      }
-    }
-
-    for (const [groupName, group] of eventHandlerGroups) {
-      const handleEvent = async (message: BusMessage): Promise<void> => {
-        const handler = group.handlers.get(message.type);
-
-        if (!handler) {
-          throw new GroupCannotHandleEventTypeError(groupName, message.type);
-        }
-
-        handler.session = await handler.storeSession.start();
-
-        try {
-          await handler.handle(message.data);
-          await handler.session.commit();
-        } catch (error) {
-          await handler.session.rollback();
-          throw error;
-        } finally {
-          handler.session.release();
-        }
-      };
-
-      await this.busRelay.registerEventHandlerGroup(
+      await this.busRelay.registerEventHandler(
         groupName,
-        group.consumerType,
-        Array.from(group.handlers.keys()),
-        handleEvent,
+        options.consumerType,
+        event.name,
+        async (message) => {
+          instance.session = await instance.storeSession.start();
+
+          try {
+            await instance.handle(message);
+            await instance.session.commit();
+          } catch (error) {
+            await instance.session.rollback();
+            throw error;
+          } finally {
+            instance.session.release();
+          }
+        },
+      );
+    }
+  }
+
+  async registerEventGroupHandlers(
+    eventGroupHandlers: Type<HandleEventGroup>[] = [],
+  ) {
+    for (const handler of eventGroupHandlers) {
+      const instance = this.moduleRef.get(handler, { strict: false });
+
+      if (!instance) {
+        throw new Error(
+          `module ref could not resolve ${handler}, make sure it has been provided`,
+        );
+      }
+
+      const options = getEventGroupOptions(handler);
+      const eventTypes = getEventGroupEventTypes(handler);
+      const groupName = handler.name;
+
+      await this.busRelay.registerEventGroupHandler(
+        groupName,
+        options.consumerType,
+        Array.from(eventTypes),
+        async (message) => {
+          await instance.handle(message);
+        },
       );
     }
   }
@@ -131,7 +124,7 @@ export class EventBus {
       const eventTypes = getProcessEventTypesMetadata(process);
       const groupName = process.name;
 
-      await this.busRelay.registerEventHandlerGroup(
+      await this.busRelay.registerEventGroupHandler(
         groupName,
         options.consumerType,
         Array.from(eventTypes),
@@ -160,7 +153,7 @@ export class EventBus {
       const eventTypes = getSagaEventTypes(saga);
       const groupName = saga.name;
 
-      await this.busRelay.registerEventHandlerGroup(
+      await this.busRelay.registerEventGroupHandler(
         groupName,
         options.consumerType,
         Array.from(eventTypes),

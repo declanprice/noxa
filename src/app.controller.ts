@@ -1,7 +1,6 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-
-import { CommandBus, EventBus, QueryBus } from '../lib';
+import { CommandBus, QueryBus } from '../lib';
 import {
   ChangeCustomerName,
   RegisterCustomer,

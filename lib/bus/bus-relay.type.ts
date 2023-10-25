@@ -16,7 +16,14 @@ export type BusRelay = {
     onMessage: (message: BusMessage) => Promise<void>,
   ): Promise<void>;
 
-  registerEventHandlerGroup(
+  registerEventHandler(
+    handlerName: string,
+    consumerType: RabbitmqEventConsumerType,
+    eventType: string,
+    onMessage: (message: BusMessage) => Promise<void>,
+  ): Promise<void>;
+
+  registerEventGroupHandler(
     handlerName: string,
     consumerType: RabbitmqEventConsumerType,
     eventTypes: string[],

@@ -4,14 +4,11 @@ import { Pool } from 'pg';
 import {
   getProjectionEventTypesMetadata,
   getProjectionOptionMetadata,
-  PROJECTION_EVENT_TYPES,
-  PROJECTION_HANDLER,
 } from '../handlers/projection/projection.decorators';
 import { StoredProjectionToken } from '../handlers/projection/stored-projection-token';
-import { ProjectionType } from '../handlers/';
 import { StoredEvent } from '../store/event-store/event/stored-event.type';
-import { ProjectionHandlerDocument } from '../handlers/projection/handler/projection-handler-document';
-import { ProjectionHandlerGeneric } from '../handlers/projection/handler/projection-handler-generic';
+import { DocumentProjectionHandler } from '../handlers/projection/handlers/document-projection-handler';
+import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
 
 export class EventPoller {
   logger = new Logger(EventPoller.name);
@@ -22,32 +19,19 @@ export class EventPoller {
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  async start(projection: Type) {
-    const optionMetadata = getProjectionOptionMetadata(projection);
+  async start(projection: Type, type: 'document' | 'event') {
+    const options = getProjectionOptionMetadata(projection);
 
     const eventTypes = getProjectionEventTypesMetadata(projection);
 
-    if (!optionMetadata) {
-      throw Error(`${projection.name} is not a valid @Projection`);
-    }
-
-    if (!eventTypes) {
-      throw Error(`${projection.name} has no @ProjectionEventHandler's`);
-    }
-
     const token = await this.getProjectionToken(projection.name);
 
-    this.pollEvents(
-      projection,
-      optionMetadata.type,
-      Array.from(eventTypes),
-      token,
-    ).then();
+    this.pollEvents(projection, type, Array.from(eventTypes), token).then();
   }
 
   async pollEvents(
     projection: Type,
-    projectionType: ProjectionType,
+    type: 'document' | 'event',
     eventTypes: string[],
     token: StoredProjectionToken,
   ) {
@@ -58,7 +42,7 @@ export class EventPoller {
 
     if (events.rowCount === 0) {
       return setTimeout(() => {
-        this.pollEvents(projection, projectionType, eventTypes, token).then();
+        this.pollEvents(projection, type, eventTypes, token).then();
       }, this.pollTimeInMs);
     }
 
@@ -70,24 +54,22 @@ export class EventPoller {
 
     const beforeDate = Date.now();
 
-    const projectionHandlerDocument = new ProjectionHandlerDocument(
+    const documentProjectionHandler = new DocumentProjectionHandler(
       this.moduleRef,
     );
 
-    const projectionHandlerGeneric = new ProjectionHandlerGeneric(
-      this.moduleRef,
-    );
+    const eventProjectionHandler = new EventProjectionHandler(this.moduleRef);
 
-    switch (projectionType) {
-      case ProjectionType.Document:
-        updatedToken = await projectionHandlerDocument.handleEvents(
+    switch (type) {
+      case 'document':
+        updatedToken = await documentProjectionHandler.handleEvents(
           this.connection,
           projection,
           events.rows as StoredEvent[],
         );
         break;
-      case ProjectionType.Generic:
-        updatedToken = await projectionHandlerGeneric.handleEvents(
+      case 'event':
+        updatedToken = await eventProjectionHandler.handleEvents(
           this.connection,
           projection,
           events.rows as StoredEvent[],
@@ -107,12 +89,7 @@ export class EventPoller {
     );
 
     return setTimeout(() => {
-      this.pollEvents(
-        projection,
-        projectionType,
-        eventTypes,
-        updatedToken,
-      ).then();
+      this.pollEvents(projection, type, eventTypes, updatedToken).then();
     }, this.pollTimeInMs);
   }
 

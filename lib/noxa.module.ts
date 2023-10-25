@@ -1,5 +1,5 @@
 import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
-import { HandlerExplorer, ProjectionType } from './handlers';
+import { HandlerExplorer } from './handlers';
 import {
   BUS_RELAY_TOKEN,
   BusRelay,
@@ -19,7 +19,8 @@ import {
 } from './store';
 import { Pool } from 'pg';
 import { AsyncDaemon } from './async-daemon/async-daemon';
-import { getProjectionOptionMetadata } from './handlers/projection/projection.decorators';
+import { DOCUMENT_PROJECTION_HANDLER } from './handlers/projection/projection.decorators';
+import { getProcessDocumentMetadata } from './handlers/process/process.decorators';
 
 export type NoxaModuleOptions = {
   postgres: {
@@ -95,7 +96,9 @@ export class NoxaModule implements OnApplicationBootstrap {
       commandHandlers,
       queryHandlers,
       eventHandlers,
-      projectionHandlers,
+      eventGroupHandlers,
+      documentProjectionHandlers,
+      eventProjectionHandlers,
       processHandlers,
       sagaHandlers,
     } = this.handlerExplorer.explore();
@@ -111,19 +114,16 @@ export class NoxaModule implements OnApplicationBootstrap {
         await DocumentStore.createResources(documentType, connection);
       }
 
-      if (projectionHandlers) {
-        for (const projection of projectionHandlers) {
-          const optionMetadata = getProjectionOptionMetadata(projection);
-
-          if (optionMetadata.type === ProjectionType.Document) {
-            await DocumentStore.createResources(projection, connection);
-          }
+      if (documentProjectionHandlers) {
+        for (const documentProjection of documentProjectionHandlers) {
+          await DocumentStore.createResources(documentProjection, connection);
         }
       }
 
       if (processHandlers) {
         for (const process of processHandlers) {
-          await DocumentStore.createResources(process, connection);
+          const documentType = getProcessDocumentMetadata(process);
+          await DocumentStore.createResources(documentType, connection);
         }
       }
 
@@ -145,11 +145,17 @@ export class NoxaModule implements OnApplicationBootstrap {
     await this.commandBus.registerCommandHandlers(commandHandlers);
     await this.queryBus.registerQueryHandlers(queryHandlers);
     await this.eventBus.registerEventHandlers(eventHandlers);
+    await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
     await this.eventBus.registerProcessHandlers(processHandlers);
     await this.eventBus.registerSagaHandlers(sagaHandlers);
 
     if (this.config.asyncDaemon.enabled) {
-      this.asyncDaemon.start(projectionHandlers).then();
+      this.asyncDaemon
+        .start({
+          document: documentProjectionHandlers,
+          event: eventProjectionHandlers,
+        })
+        .then();
     }
   }
 }

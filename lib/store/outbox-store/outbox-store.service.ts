@@ -62,7 +62,7 @@ export class OutboxStore {
             "type",
             "published",
             "publishedTimestamp"
-        ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ) values ($1, $2, $3, $4, $5, $6, $7)
        `,
       values: [
         messageId,
@@ -76,13 +76,6 @@ export class OutboxStore {
     });
 
     return messageId;
-  }
-
-  async unpublishCommand(messageId: string) {
-    await this.connection.query({
-      text: `DELETE FROM noxa_outbox WHERE id = $1`,
-      values: [messageId],
-    });
   }
 
   async publishEvent(
@@ -102,7 +95,7 @@ export class OutboxStore {
             "type",
             "published",
             "publishedTimestamp"
-        ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ) values ($1, $2, $3, $4, $5, $6, $7)
        `,
       values: [
         messageId,
@@ -118,7 +111,7 @@ export class OutboxStore {
     return messageId;
   }
 
-  async unpublishEvent(messageId: string) {
+  async unpublish(messageId: string) {
     await this.connection.query({
       text: `DELETE FROM noxa_outbox WHERE id = $1`,
       values: [messageId],

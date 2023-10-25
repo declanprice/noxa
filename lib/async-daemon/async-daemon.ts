@@ -18,15 +18,21 @@ export class AsyncDaemon {
 
   logger = new Logger(AsyncDaemon.name);
 
-  async start(projectionHandlers?: Type[]): Promise<void> {
+  async start(projections: { document: Type[]; event: Type[] }): Promise<void> {
     this.logger.log('starting async daemon.');
 
     new OutboxPoller(this.pool, this.busRelay).start().then();
 
-    if (projectionHandlers) {
-      for (const handler of projectionHandlers) {
-        new EventPoller(this.pool, this.moduleRef).start(handler).then();
-      }
-    }
+    projections.document.forEach((projection) => {
+      new EventPoller(this.pool, this.moduleRef)
+        .start(projection, 'document')
+        .then();
+    });
+
+    projections.event.forEach((projection) => {
+      new EventPoller(this.pool, this.moduleRef)
+        .start(projection, 'event')
+        .then();
+    });
   }
 }

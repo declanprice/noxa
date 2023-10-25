@@ -1,3 +1,5 @@
-export { Projection, ProjectionEventHandler } from './projection.decorators';
-
-export { ProjectionType } from './projection-type.enum';
+export {
+  DocumentProjection,
+  EventProjection,
+  ProjectionEventHandler,
+} from './projection.decorators';

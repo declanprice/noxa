@@ -94,8 +94,11 @@ export class DocumentStore {
         CREATE TABLE IF NOT EXISTS ${tableName} (
         "id" uuid not null constraint ${tableName}_pk primary key,
         "data" jsonb not null,
-        "lastModified" timestamptz default now() not null
-    )`,
+        "lastModified" timestamptz default now() not null)`,
+    });
+
+    await connection.query({
+      text: `CREATE INDEX IF NOT EXISTS ${tableName}_data_index ON ${tableName} USING gin(data jsonb_path_ops)`,
     });
   }
 

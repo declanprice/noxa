@@ -1,6 +1,12 @@
 import * as dayjs from 'dayjs';
 
-import { RabbitmqEventConsumerType, SagaLifeCycle } from '../../../lib';
+import {
+  RabbitmqEventConsumerType,
+  SagaLifeCycle,
+  SagaBuilder,
+  Saga,
+  StartSagaHandler,
+} from '../../lib';
 
 import {
   ChangeCustomerAge,
@@ -8,16 +14,7 @@ import {
   CustomerAgeChanged,
   CustomerNameChanged,
   CustomerRegistered,
-  FailToChangeCustomerAge,
-  FailToChangeCustomerName,
-} from '../../model/streams/customer.stream';
-
-import {
-  Saga,
-  StartSagaHandler,
-} from '../../../lib/handlers/saga/saga.decorators';
-
-import { SagaBuilder } from '../../../lib/handlers/saga/saga-life-cycle';
+} from '../model/streams/customer.stream';
 
 @Saga({ consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER })
 export class CustomerSaga extends SagaLifeCycle {
@@ -26,13 +23,7 @@ export class CustomerSaga extends SagaLifeCycle {
       event: CustomerRegistered,
       associationId: (e) => e.customerId,
     },
-    listenFor: [
-      CustomerRegistered,
-      CustomerNameChanged,
-      CustomerAgeChanged,
-      FailToChangeCustomerName,
-      FailToChangeCustomerAge,
-    ],
+    listenFor: [CustomerRegistered, CustomerNameChanged, CustomerAgeChanged],
   })
   start(event: CustomerRegistered) {
     const { customerId } = event;
@@ -59,8 +50,6 @@ export class CustomerSaga extends SagaLifeCycle {
       .step('ChangeCustomerAge-2')
       .thenPublishCommand(new ChangeCustomerAge(customerId, 100))
       .andExpectEvent(CustomerAgeChanged);
-
-    saga.failOnEvents([FailToChangeCustomerName, FailToChangeCustomerAge]);
 
     saga.failOnTimeout(dayjs().add(1, 'hour').toDate());
 

@@ -1,2 +1,2 @@
 export { DocumentStore } from './document-store.service';
-export { Document } from './document/document.decorators';
+export { Document, DocumentField } from './document/document.decorators';

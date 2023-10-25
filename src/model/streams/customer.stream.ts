@@ -44,14 +44,6 @@ export class CustomerAgeChanged implements Event {
   ) {}
 }
 
-export class FailToChangeCustomerName implements Event {
-  constructor(public customerId: string) {}
-}
-
-export class FailToChangeCustomerAge implements Event {
-  constructor(public customerId: string) {}
-}
-
 @Stream({
   snapshotPeriod: 10,
 })
@@ -62,7 +54,7 @@ export class CustomerStream {
 
   @StreamEventHandler(CustomerRegistered)
   onCustomerRegistered(event: CustomerRegistered) {
-    console.log('event handler called with event', event);
+    console.log('event handlers called with event', event);
     this.customerId = event.customerId;
     this.name = event.name;
     this.age = event.age;
