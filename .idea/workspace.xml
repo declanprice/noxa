@@ -5,50 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/handlers/event/group/event-group.decorator.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/event/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/process/process.document.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/handlers/saga/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/handlers/event/customer-registered.event-handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/handlers/event/customer.events-handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/model/documents/customer-process.document.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/projections/customer.projection.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/bus-relay.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/bus-relay.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/rabbitmq/rabbitmq-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/command/command-metadata.type.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/event-metadata.type.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handler/projection-handler-document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handler/projection-handler-generic.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handler/projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/projection-handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection-type.enum.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/document-store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/event/customer.event-handlers.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/process/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/processes/customer.process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/projection/customer.projection.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/saga/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/sagas/customer.saga.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/documents/customer.document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/documents/customer.document.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/streams/customer.stream.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/streams/customer.stream.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,7 +134,7 @@
       <workItem from="1697624599981" duration="20650000" />
       <workItem from="1697805715927" duration="7178000" />
       <workItem from="1698069507714" duration="10260000" />
-      <workItem from="1698241935185" duration="12844000" />
+      <workItem from="1698241935185" duration="12956000" />
     </task>
     <servers />
   </component>

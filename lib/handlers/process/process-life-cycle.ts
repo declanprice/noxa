@@ -34,7 +34,9 @@ export abstract class ProcessLifeCycle {
 
       const processDocuments: StoredDocument[] =
         await this.session.document.rawQuery({
-          text: `select * from ${this.tableName} where data-> 'associations' @> '["${associationId}"]'`,
+          text: `select * from ${DocumentStore.tableNameFromType(
+            documentType,
+          )} where data-> 'associations' @> '["${associationId}"]'`,
           values: [],
         });
 
