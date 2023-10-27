@@ -1,19 +1,19 @@
-import { Document, DocumentField } from '../../../lib';
+import { Document, DocumentField, DocumentId } from '../../../lib';
 
 @Document()
 export class CustomerDocument {
-  @DocumentField()
-  customerId: string;
+    @DocumentId()
+    customerId: string;
 
-  @DocumentField()
-  name: string;
+    @DocumentField()
+    name: string;
 
-  @DocumentField()
-  age: number;
+    @DocumentField()
+    age: number;
 
-  constructor(data: { customerId: string; name: string; age: number }) {
-    this.customerId = data.customerId;
-    this.name = data.name;
-    this.age = data.age;
-  }
+    constructor(data: { customerId: string; name: string; age: number }) {
+        this.customerId = data.customerId;
+        this.name = data.name;
+        this.age = data.age;
+    }
 }

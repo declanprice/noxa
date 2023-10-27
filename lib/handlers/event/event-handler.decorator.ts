@@ -7,38 +7,45 @@ export const EVENT_HANDLER_METADATA = 'EVENT_HANDLER_METADATA';
 export const EVENT_HANDLER_OPTIONS_METADATA = 'EVENT_HANDLER_OPTIONS_METADATA';
 
 export type EventHandlerOptions = {
-  consumerType?: any;
+    consumerType?: any;
 };
 
 export const EventHandler = (
-  event: Type<Event>,
-  options?: EventHandlerOptions,
+    event: Type<Event>,
+    options?: EventHandlerOptions,
 ): ClassDecorator => {
-  return (target: object) => {
-    Reflect.defineMetadata(EVENT_HANDLER_OPTIONS_METADATA, options, target);
-    Reflect.defineMetadata(EVENT_HANDLER_METADATA, event, target);
-  };
+    return (target: object) => {
+        Reflect.defineMetadata(EVENT_HANDLER_OPTIONS_METADATA, options, target);
+        Reflect.defineMetadata(EVENT_HANDLER_METADATA, event, target);
+    };
 };
 
 export const getEventHandler = (handler: Type<HandleEvent>) => {
-  const event = Reflect.getMetadata(
-    EVENT_HANDLER_METADATA,
-    handler,
-  ) as Type<Event>;
+    const event = Reflect.getMetadata(
+        EVENT_HANDLER_METADATA,
+        handler,
+    ) as Type<Event>;
 
-  if (!event) {
-    throw new Error(`Event handler ${handler} has no @EventHandler decorator`);
-  }
+    if (!event) {
+        throw new Error(
+            `Event handler ${handler.name} has no @EventHandler decorator`,
+        );
+    }
 
-  return event;
+    return event;
 };
 
 export const getEventHandlerOptions = (handler: Type<HandleEvent>) => {
-  const options = Reflect.getMetadata(EVENT_HANDLER_OPTIONS_METADATA, handler);
+    const options = Reflect.getMetadata(
+        EVENT_HANDLER_OPTIONS_METADATA,
+        handler,
+    );
 
-  if (!options) {
-    throw new Error(`Event handler ${handler} has no @EventHandler decorator`);
-  }
+    if (!options) {
+        throw new Error(
+            `Event handler ${handler.name} has no @EventHandler decorator`,
+        );
+    }
 
-  return options;
+    return options;
 };

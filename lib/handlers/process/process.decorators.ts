@@ -1,5 +1,6 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
+import { getDocumentOptionsMetadata } from '../../store/document-store/document/document.decorators';
 
 export const PROCESS_HANDLER_METADATA = 'PROCESS_HANDLER_METADATA';
 

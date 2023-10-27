@@ -2,8 +2,9 @@ import { describe } from 'node:test';
 import { Server } from 'http';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module';
 import * as request from 'supertest';
+import { ApplicationModule } from '../../src/app.module';
+
 describe('AppController', () => {
   let server: Server;
   let app: INestApplication;

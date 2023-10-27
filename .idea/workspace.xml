@@ -5,20 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/handlers/saga/saga.document.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/document-store/errors/document-invalid-id.error.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.prettierrc" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierrc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/event-handler.decorator.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/process/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.document.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/projection-handler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga-life-cycle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/errors/document-id-property-not-configured.error.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/errors/document-not-found.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/errors/document-not-found.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/documents/customer-process.document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/documents/customer-process.document.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/documents/customer.document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/documents/customer.document.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/processes/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/processes/customer.process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sagas/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/sagas/customer.saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/e2e/app.e2e.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/e2e/app.e2e.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/spec/index.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/spec/index.spec.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,28 +57,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src/model/documents",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/jest",
-    "nodejs_package_manager_path": "npm",
-    "prettier.import.notification.dismissed": "true",
-    "prettierjs.PrettierConfiguration.Package": "/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "ts.external.directory.path": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/src/model/documents&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettier.import.notification.dismissed&quot;: &quot;true&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/model/documents" />
@@ -146,7 +161,9 @@
       <workItem from="1697624599981" duration="20650000" />
       <workItem from="1697805715927" duration="7178000" />
       <workItem from="1698069507714" duration="10260000" />
-      <workItem from="1698241935185" duration="13764000" />
+      <workItem from="1698241935185" duration="14441000" />
+      <workItem from="1698313849372" duration="5000" />
+      <workItem from="1698313864031" duration="7043000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,6 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
+import { getDocumentFieldsMetadata } from '../../store/document-store/document/document.decorators';
 
 export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
 
@@ -10,130 +11,130 @@ export const PROJECTION_OPTIONS_METADATA = 'PROJECTION_OPTIONS_METADATA';
 export const PROJECTION_EVENT_TYPES = 'PROJECTION_EVENT_TYPES';
 
 export type ProjectionOptionsMetadata = {
-  fetchEventsSize?: number;
-  batchEventsSize?: number;
+    fetchEventsSize?: number;
+    batchEventsSize?: number;
 };
 
 export type ProjectionHandlerMetadata<E extends Event> = {
-  propertyKey: string;
-  id: (event: E) => string;
+    propertyKey: string;
+    id: (event: E) => string;
 };
 
 export const EventProjection = (
-  options?: ProjectionOptionsMetadata,
+    options?: ProjectionOptionsMetadata,
 ): ClassDecorator => {
-  return (target: object) => {
-    Reflect.defineMetadata(EVENT_PROJECTION_HANDLER, options, target);
-    Reflect.defineMetadata(
-      PROJECTION_OPTIONS_METADATA,
-      options || { batchEventsSize: 100, fetchEventsSize: 1000 },
-      target,
-    );
-  };
+    return (target: object) => {
+        Reflect.defineMetadata(EVENT_PROJECTION_HANDLER, options, target);
+        Reflect.defineMetadata(
+            PROJECTION_OPTIONS_METADATA,
+            options || { batchEventsSize: 100, fetchEventsSize: 1000 },
+            target,
+        );
+    };
 };
 
 export const DocumentProjection = (
-  document: Type,
-  options?: ProjectionOptionsMetadata,
+    document: Type,
+    options?: ProjectionOptionsMetadata,
 ): ClassDecorator => {
-  return (target: object) => {
-    Reflect.defineMetadata(DOCUMENT_PROJECTION_HANDLER, document, target);
-    Reflect.defineMetadata(
-      PROJECTION_OPTIONS_METADATA,
-      options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
-      target,
-    );
-  };
+    return (target: object) => {
+        Reflect.defineMetadata(DOCUMENT_PROJECTION_HANDLER, document, target);
+        Reflect.defineMetadata(
+            PROJECTION_OPTIONS_METADATA,
+            options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
+            target,
+        );
+    };
 };
 
 export const ProjectionEventHandler = <E extends Event>(
-  event: Type<E>,
-  id: (e: E) => string,
+    event: Type<E>,
+    id: (e: E) => string,
 ): MethodDecorator => {
-  return (target: object, propertyKey: string | symbol) => {
-    const eventType = event.name;
+    return (target: object, propertyKey: string | symbol) => {
+        const eventType = event.name;
 
-    let eventTypes = Reflect.getMetadata(
-      PROJECTION_EVENT_TYPES,
-      target.constructor,
-    ) as Set<string> | undefined;
+        let eventTypes = Reflect.getMetadata(
+            PROJECTION_EVENT_TYPES,
+            target.constructor,
+        ) as Set<string> | undefined;
 
-    if (eventTypes) {
-      eventTypes.add(eventType);
-    } else {
-      eventTypes = new Set();
-      eventTypes.add(eventType);
-    }
+        if (eventTypes) {
+            eventTypes.add(eventType);
+        } else {
+            eventTypes = new Set();
+            eventTypes.add(eventType);
+        }
 
-    Reflect.defineMetadata(
-      PROJECTION_EVENT_TYPES,
-      eventTypes,
-      target.constructor,
-    );
+        Reflect.defineMetadata(
+            PROJECTION_EVENT_TYPES,
+            eventTypes,
+            target.constructor,
+        );
 
-    const handlerMetadata: ProjectionHandlerMetadata<E> = {
-      propertyKey: propertyKey as string,
-      id,
+        const handlerMetadata: ProjectionHandlerMetadata<E> = {
+            propertyKey: propertyKey as string,
+            id,
+        };
+
+        Reflect.defineMetadata(eventType, handlerMetadata, target.constructor);
     };
-
-    Reflect.defineMetadata(eventType, handlerMetadata, target.constructor);
-  };
 };
 
 export const getProjectionOptionMetadata = (
-  projection: Type,
+    projection: Type,
 ): ProjectionOptionsMetadata => {
-  const options = Reflect.getMetadata(
-    PROJECTION_OPTIONS_METADATA,
-    projection,
-  ) as ProjectionOptionsMetadata;
+    const options = Reflect.getMetadata(
+        PROJECTION_OPTIONS_METADATA,
+        projection,
+    ) as ProjectionOptionsMetadata;
 
-  if (!options) {
-    throw new Error(`projection ${projection} has no option metadata.`);
-  }
+    if (!options) {
+        throw new Error(`projection ${projection} has no option metadata.`);
+    }
 
-  return options;
+    return options;
 };
 
 export const getProjectionDocumentMetadata = (projection: Type): Type => {
-  const document = Reflect.getMetadata(
-    DOCUMENT_PROJECTION_HANDLER,
-    projection,
-  ) as Type;
+    const document = Reflect.getMetadata(
+        DOCUMENT_PROJECTION_HANDLER,
+        projection,
+    ) as Type;
 
-  if (!document) {
-    throw new Error(`projection ${projection} has no document metadata.`);
-  }
+    if (!document) {
+        throw new Error(`projection ${projection} has no document metadata.`);
+    }
 
-  return document;
+    return document;
 };
 
 export const getProjectionEventTypesMetadata = (
-  projection: Type,
+    projection: Type,
 ): Set<string> => {
-  const eventTypes = Reflect.getMetadata(PROJECTION_EVENT_TYPES, projection);
+    const eventTypes = Reflect.getMetadata(PROJECTION_EVENT_TYPES, projection);
 
-  if (!eventTypes) {
-    throw new Error(`projection ${projection} has no event type metadata.`);
-  }
+    if (!eventTypes) {
+        throw new Error(`projection ${projection} has no event type metadata.`);
+    }
 
-  return eventTypes;
+    return eventTypes;
 };
 
 export const getProjectionEventHandlerMetadata = <E extends Event>(
-  projection: Type,
-  eventType: string,
+    projection: Type,
+    eventType: string,
 ): ProjectionHandlerMetadata<E> => {
-  const handlerMetadata = Reflect.getMetadata(
-    eventType,
-    projection,
-  ) as ProjectionHandlerMetadata<E>;
+    const handlerMetadata = Reflect.getMetadata(
+        eventType,
+        projection,
+    ) as ProjectionHandlerMetadata<E>;
 
-  if (!handlerMetadata) {
-    throw new Error(
-      `projection ${projection} has no handler metadata for event type ${eventType}`,
-    );
-  }
+    if (!handlerMetadata) {
+        throw new Error(
+            `projection ${projection} has no handler metadata for event type ${eventType}`,
+        );
+    }
 
-  return handlerMetadata;
+    return handlerMetadata;
 };

@@ -9,23 +9,25 @@ import {
 } from '../../model/streams/customer.stream';
 
 import { CommandHandler, HandleCommand } from '../../../lib';
+import { CustomerDocument } from '../../model/documents/customer.document';
+import { randomUUID } from 'crypto';
 
 @CommandHandler(RegisterCustomer)
 export class RegisterCustomerHandler extends HandleCommand {
   async handle(command: RegisterCustomer) {
-    const event = new CustomerRegistered(
-      command.customerId,
-      command.name,
-      command.age,
-    );
+      const event = new CustomerRegistered(
+        command.customerId,
+        command.name,
+        command.age,
+      );
 
-    await this.session.event.startStream(
-      CustomerStream,
-      command.customerId,
-      event,
-    );
+      await this.session.event.startStream(
+        CustomerStream,
+        command.customerId,
+        event,
+      );
 
-    await this.session.outbox.publishEvent(event);
+      await this.session.outbox.publishEvent(event);
   }
 }
 

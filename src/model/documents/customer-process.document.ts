@@ -1,9 +1,8 @@
-import { Document, DocumentField } from '../../../lib';
-import { ProcessDocument } from '../../../lib/handlers/process/process.document';
+import { Document, DocumentField, DocumentId,ProcessDocument } from '../../../lib';
 
 @Document()
 export class CustomerProcessDocument extends ProcessDocument {
-  @DocumentField()
+  @DocumentId()
   customerId: string;
 
   @DocumentField()

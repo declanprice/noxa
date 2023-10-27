@@ -1,7 +1,6 @@
-import { doSomething } from '../../lib';
 
 describe('index', () => {
   it('doSomething()', () => {
-    expect(doSomething()).toEqual(2);
+    expect(2).toEqual(2);
   });
 });

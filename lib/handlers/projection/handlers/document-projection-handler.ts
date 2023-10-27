@@ -1,119 +1,122 @@
 import { Type } from '@nestjs/common';
 import { Pool } from 'pg';
-import * as format from 'pg-format';
 import { ProjectionHandler } from './projection-handler';
 import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projection-invalid-id.error';
 import { DocumentStore } from '../../../store';
-import { StoredDocument } from '../../../store/document-store/document/stored-document.type';
 import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
+import { getDocumentIdFieldMetadata } from '../../../store/document-store/document/document.decorators';
 import { getProjectionDocumentMetadata } from '../projection.decorators';
 
 export class DocumentProjectionHandler extends ProjectionHandler {
-  async handleEvents(
-    connection: Pool,
-    projection: Type,
-    events: StoredEvent[],
-  ): Promise<StoredProjectionToken> {
-    const documentType = getProjectionDocumentMetadata(projection);
-
-    const targetDocumentIds: Set<string> = new Set<string>();
-
-    for (const event of events) {
-      const targetEventHandler = Reflect.getMetadata(event.type, projection);
-
-      if (!targetEventHandler) {
-        throw new ProjectionUnsupportedEventError(projection.name, event.type);
-      }
-
-      const id = targetEventHandler.id(event.data);
-
-      if (typeof id !== 'string') {
-        throw new ProjectionInvalidIdError();
-      }
-
-      targetDocumentIds.add(id);
+    constructor(private readonly documentStore: DocumentStore) {
+        super();
     }
 
-    const existingDocumentRows = await connection.query(
-      format(
-        `select * from ${DocumentStore.tableNameFromType(
-          documentType,
-        )} where id IN (%L)`,
-        Array.from(targetDocumentIds),
-      ),
-    );
+    async handleEvents(
+        connection: Pool,
+        projection: any,
+        projectionType: Type,
+        events: StoredEvent[],
+    ): Promise<StoredProjectionToken> {
+        const documentType = getProjectionDocumentMetadata(projectionType);
 
-    // Map<projectionId, projectionData>
-    const existingDocuments = new Map<string, any>();
+        const documentIds = this.getTargetDocumentIds(projectionType, events);
 
-    const handlerInstance = this.moduleRef.get(projection, {
-      strict: false,
-    });
-
-    // add existing projection data to map
-    for (const existingDocument of existingDocumentRows.rows as StoredDocument[]) {
-      existingDocuments.set(existingDocument.id, existingDocument.data);
-    }
-
-    // add new projection data to map
-    for (const targetDocumentId of targetDocumentIds) {
-      if (!existingDocuments.has(targetDocumentId)) {
-        existingDocuments.set(targetDocumentId, {});
-      }
-    }
-
-    // apply all events to projection instances
-    for (const event of events) {
-      const targetEventHandler = Reflect.getMetadata(event.type, projection);
-
-      if (!targetEventHandler) {
-        throw new ProjectionUnsupportedEventError(projection.name, event.type);
-      }
-
-      const targetDocumentId = targetEventHandler.id(event.data);
-
-      const existingDocument: any = existingDocuments.get(targetDocumentId);
-
-      const updatedDocument = handlerInstance[targetEventHandler.propertyKey](
-        event.data,
-        existingDocument,
-      );
-
-      existingDocuments.set(targetDocumentId, updatedDocument);
-    }
-
-    // commit projection document and token updates within one transaction
-    let transaction = await connection.connect();
-
-    try {
-      await transaction.query(
-        format(
-          `insert into ${DocumentStore.tableNameFromType(
+        const documents = await this.documentStore.findMany(
             documentType,
-          )} (id, data, "lastModified") values %L 
-            on conflict (id) do update set
-            data = excluded.data,
-            "lastModified" = excluded."lastModified"`,
-          Array.from(existingDocuments).map((v) => [
-            v[0],
-            v[1],
-            new Date().toISOString(),
-          ]),
-        ),
-      );
+            documentIds,
+        );
 
-      return await this.updateTokenPosition(
-        transaction,
-        projection,
-        events[events.length - 1].sequenceId,
-      );
-    } catch (error) {
-      await transaction.query('ROLLBACK');
-      throw error;
-    } finally {
-      transaction.release();
+        const transaction = await connection.connect();
+
+        try {
+            this.applyEvents(projection, documentType, documents, events);
+
+            await this.documentStore.storeMany(documents, { transaction });
+
+            return await this.updateTokenPosition(
+                transaction,
+                projectionType,
+                events[events.length - 1].sequenceId,
+            );
+        } catch (error) {
+            await transaction.query('ROLLBACK');
+            throw error;
+        } finally {
+            transaction.release();
+        }
     }
-  }
+
+    private applyEvents(
+        projection: any,
+        documentType: Type,
+        documents: any[],
+        events: StoredEvent[],
+    ) {
+        const documentIdProperty = getDocumentIdFieldMetadata(documentType);
+
+        for (const event of events) {
+            const targetEventHandler = Reflect.getMetadata(
+                event.type,
+                projection.constructor,
+            );
+
+            if (!targetEventHandler) {
+                throw new ProjectionUnsupportedEventError(
+                    projection.constructor.name,
+                    event.type,
+                );
+            }
+
+            const targetDocumentId = targetEventHandler.id(event.data);
+
+            const existingDocumentIndex: any = documents.findIndex(
+                (d) => d[documentIdProperty] === targetDocumentId,
+            );
+
+            const updatedDocument = projection[targetEventHandler.propertyKey](
+                event.data,
+                documents[existingDocumentIndex],
+            );
+
+            if (existingDocumentIndex !== -1) {
+                documents[existingDocumentIndex] = updatedDocument;
+            } else {
+                documents.push(updatedDocument);
+            }
+        }
+    }
+
+    private getTargetDocumentIds(
+        projectionType: Type,
+        events: StoredEvent[],
+    ): string[] {
+        const documentIds: Set<string> = new Set<string>();
+
+        for (const event of events) {
+            const targetEventHandler = Reflect.getMetadata(
+                event.type,
+                projectionType,
+            );
+
+            if (!targetEventHandler) {
+                throw new ProjectionUnsupportedEventError(
+                    projectionType.name,
+                    event.type,
+                );
+            }
+
+            const id = targetEventHandler.id(event.data);
+
+            if (typeof id !== 'string') {
+                throw new ProjectionInvalidIdError();
+            }
+
+            documentIds.add(id);
+        }
+
+        return Array.from(documentIds);
+    }
 }

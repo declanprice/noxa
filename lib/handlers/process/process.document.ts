@@ -1,6 +1,7 @@
 import { DocumentField } from '../../store';
 
 export abstract class ProcessDocument {
+
   @DocumentField()
   private processEnded: boolean = false;
 

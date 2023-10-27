@@ -19,7 +19,7 @@ class CustomerProcessDeadlineEvent implements Event {
   constructor(public readonly customerId: string) {}
 }
 
-@Process(CustomerProcess, {
+@Process(CustomerProcessDocument, {
   consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
 })
 export class CustomerProcess extends HandleProcess {
@@ -30,20 +30,23 @@ export class CustomerProcess extends HandleProcess {
   })
   async onRegister(
     event: CustomerRegistered,
-    process: CustomerProcessDocument,
   ) {
     console.log('onRegister', event);
 
-    const in60Seconds = dayjs().add(60, 'seconds').toISOString();
+    const deadlineId = await this.session.outbox.publishEvent(
+      new CustomerProcessDeadlineEvent(event.customerId),
+      { timestamp: dayjs().add(60, 'seconds').toISOString() },
+    );
+
+    const process = new CustomerProcessDocument({
+      customerId: event.customerId,
+      age: event.age,
+      name: event.name,
+      deadlineId
+    });
+
     process.associateWith('1');
     process.associateWith('2');
-    process.customerId = event.customerId;
-    process.age = event.age;
-    process.name = event.name;
-    process.deadlineId = await this.session.outbox.publishEvent(
-      new CustomerProcessDeadlineEvent(event.customerId),
-      { timestamp: in60Seconds },
-    );
 
     return process;
   }
