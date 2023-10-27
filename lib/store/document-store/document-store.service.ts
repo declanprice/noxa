@@ -38,11 +38,7 @@ export class DocumentStore {
             throw new DocumentNotFoundError();
         }
 
-        const _document: T = new document();
-
-        Object.assign(_document as any, documentResult.rows[0].data);
-
-        return _document;
+        return new document(documentResult.rows[0].data);
     }
 
     async find<T>(document: Type<T>, documentId: string): Promise<T | null> {
@@ -57,11 +53,7 @@ export class DocumentStore {
             return null;
         }
 
-        const _document: T = new document();
-
-        Object.assign(_document as any, documentResult.rows[0].data);
-
-        return _document;
+        return new document(documentResult.rows[0].data);
     }
 
     async findMany<T>(document: Type<T>, documentIds: string[]): Promise<T[]> {
