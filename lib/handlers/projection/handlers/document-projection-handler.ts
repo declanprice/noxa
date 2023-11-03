@@ -5,8 +5,8 @@ import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projection-invalid-id.error';
 import { DocumentStore } from '../../../store';
-import { StoredEvent } from '../../../store/event-store/event/stored-event.type';
-import { getDocumentIdFieldMetadata } from '../../../store/document-store/document/document.decorators';
+import { StoredEvent } from '../../../store/event/event/stored-event.type';
+import { getDocumentIdFieldMetadata } from '../../../store/document/document/document.decorators';
 import { getProjectionDocumentMetadata } from '../projection.decorators';
 
 export class DocumentProjectionHandler extends ProjectionHandler {

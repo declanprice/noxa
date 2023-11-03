@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from 'pg';
+import format = require('pg-format');
 import { Injectable, Type } from '@nestjs/common';
 import { toSnakeCase } from '../../util/to-snake-case';
 import { InjectStoreConnection } from '../store-connection.token';
@@ -9,7 +10,6 @@ import {
 } from './document/document.decorators';
 import { DocumentInvalidIdError } from './errors/document-invalid-id.error';
 import { DocumentNotFoundError } from './errors/document-not-found.error';
-import format = require('pg-format');
 
 @Injectable()
 export class DocumentStore {
@@ -77,7 +77,7 @@ export class DocumentStore {
     ): Promise<void> {
         const { transaction } = options;
 
-        const { id, data, lastModified } = this.getStoredDocument(document);
+        const { id, data, lastModified } = this.toStoredDocument(document);
 
         const connection = transaction ? transaction : this.connection;
 
@@ -121,7 +121,7 @@ export class DocumentStore {
         }
 
         const storedDocuments: StoredDocument[] = documents.map(
-            this.getStoredDocument,
+            this.toStoredDocument,
         );
 
         await connection.query(
@@ -159,10 +159,11 @@ export class DocumentStore {
 
         await connection.query({
             text: `
-        CREATE TABLE IF NOT EXISTS ${tableName} (
-        "id" uuid not null constraint ${tableName}_pk primary key,
-        "data" jsonb not null,
-        "lastModified" timestamptz default now() not null)`,
+                CREATE TABLE IF NOT EXISTS ${tableName} (
+                "id" uuid not null constraint ${tableName}_pk primary key,
+                "data" jsonb not null,
+                "lastModified" timestamptz default now() not null)
+            `,
         });
 
         await connection.query({
@@ -178,7 +179,7 @@ export class DocumentStore {
         return `noxa_docs_${toSnakeCase(document.constructor.name)}`;
     };
 
-    private getStoredDocument = (document: any): StoredDocument => {
+    private toStoredDocument = (document: any): StoredDocument => {
         const documentIdField = getDocumentIdFieldMetadata(
             document.constructor,
         );

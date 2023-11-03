@@ -6,6 +6,13 @@ services:
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=postgres
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongodb
+      - MONGO_INITDB_ROOT_PASSWORD=mongodb
   rabbitmq:
     image: rabbitmq:3.9.29-management
     ports:

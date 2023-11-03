@@ -8,7 +8,7 @@ import {
     InvalidSagaDefinitionError,
     InvalidSagaStepDefinitionError,
 } from './errors/invalid-saga-definition.error';
-import { Session } from '../../store/store-session/store-session.service';
+import { Session } from '../../store/session/store-session.service';
 import { SagaDocument } from './saga.document';
 
 export type SagaStepDefinition = {

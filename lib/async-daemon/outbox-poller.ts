@@ -1,65 +1,65 @@
 import * as format from 'pg-format';
 import { Pool } from 'pg';
 import { Logger } from '@nestjs/common';
-import { StoredOutboxMessage } from '../store/outbox-store/outbox-message/stored-outbox-message.type';
+import { StoredOutboxMessage } from '../store/outbox/outbox-message/stored-outbox-message.type';
 import { BusRelay } from '../bus';
 
 export class OutboxPoller {
-  constructor(
-    private readonly client: Pool,
-    private busRelay: BusRelay,
-  ) {}
+    constructor(
+        private readonly client: Pool,
+        private busRelay: BusRelay,
+    ) {}
 
-  logger = new Logger(OutboxPoller.name);
+    logger = new Logger(OutboxPoller.name);
 
-  pollTimeInMs = 100;
+    pollTimeInMs = 100;
 
-  async start(): Promise<any> {
-    const result = await this.client.query({
-      text: `select * from noxa_outbox where published = false and timestamp <= now() order by timestamp ASC`,
-    });
-
-    if (result.rowCount === 0) {
-      return setTimeout(() => {
-        this.start().then();
-      }, this.pollTimeInMs);
-    }
-
-    let messageIds: string[] = [];
-
-    for (const row of result.rows as StoredOutboxMessage[]) {
-      if (row.toBus === 'command') {
-        await this.busRelay.sendCommand({
-          type: row.type,
-          timestamp: row.timestamp,
-          data: row.data,
+    async start(): Promise<any> {
+        const result = await this.client.query({
+            text: `select * from noxa_outbox where published = false and timestamp <= now() order by timestamp ASC`,
         });
-      }
 
-      if (row.toBus === 'event') {
-        await this.busRelay.sendEvent({
-          type: row.type,
-          timestamp: row.timestamp,
-          data: row.data,
-        });
-      }
+        if (result.rowCount === 0) {
+            return setTimeout(() => {
+                this.start().then();
+            }, this.pollTimeInMs);
+        }
 
-      messageIds.push(row.id);
+        let messageIds: string[] = [];
+
+        for (const row of result.rows as StoredOutboxMessage[]) {
+            if (row.toBus === 'command') {
+                await this.busRelay.sendCommand({
+                    type: row.type,
+                    timestamp: row.timestamp,
+                    data: row.data,
+                });
+            }
+
+            if (row.toBus === 'event') {
+                await this.busRelay.sendEvent({
+                    type: row.type,
+                    timestamp: row.timestamp,
+                    data: row.data,
+                });
+            }
+
+            messageIds.push(row.id);
+        }
+
+        await this.client.query(
+            format(
+                `UPDATE noxa_outbox SET published = true, "publishedTimestamp" = now() WHERE id IN (%L)`,
+                messageIds,
+            ),
+        );
+
+        this.logger.log(
+            `successfully published ${result.rowCount} messages, checking for more in 1 second.`,
+        );
+
+        return setTimeout(() => {
+            this.start().then();
+        }, 0);
     }
-
-    await this.client.query(
-      format(
-        `UPDATE noxa_outbox SET published = true, "publishedTimestamp" = now() WHERE id IN (%L)`,
-        messageIds,
-      ),
-    );
-
-    this.logger.log(
-      `successfully published ${result.rowCount} messages, checking for more in 1 second.`,
-    );
-
-    return setTimeout(() => {
-      this.start().then();
-    }, 0);
-  }
 }

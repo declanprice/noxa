@@ -5,12 +5,51 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/store/document/document/document-indexes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/document/document/document-query-builder.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/document/document/document-query-builder.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/store/document/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sagas/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/sagas/customer.saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/command/handle-command.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/command/handle-command.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/event/handle-event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/handle-event.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document/document-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document/document.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document/document/document.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/document/stored-document.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document/document/stored-document.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/errors/document-invalid-id.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document/errors/document-invalid-id.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/errors/document-not-found.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/document/errors/document-not-found.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/document-store/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/errors/stream-event-handler-not-available.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/errors/stream-event-handler-not-available.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/errors/stream-no-events-found.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/errors/stream-no-events-found.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/errors/stream-not-found.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/errors/stream-not-found.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/event-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/event/stored-event.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/event/stored-event.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/stream/stored-stream.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/stream/stored-stream.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event-store/stream/stream.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/stream/stream.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-message/stored-outbox-message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox/outbox-message/stored-outbox-message.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox-store/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox/outbox-store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/store-session/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/session/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/store-session/store-session.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/session/store-session.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/command/customer.command-handlers.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model/documents/customer.document.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/documents/customer.document.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/jest-spec.json" beforeDir="false" afterPath="$PROJECT_DIR$/jest.config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/spec/index.spec.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,45 +73,109 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/src/model/documents&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;prettier.import.notification.dismissed&quot;: &quot;true&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/lib/store/document/document",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/jest",
+    "nodejs_package_manager_path": "npm",
+    "prettier.import.notification.dismissed": "true",
+    "prettierjs.PrettierConfiguration.Package": "/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/store/document/document" />
       <recent name="$PROJECT_DIR$/src/model/documents" />
       <recent name="$PROJECT_DIR$/lib/handlers/event/group" />
       <recent name="$PROJECT_DIR$/lib/projection/handlers" />
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/lib/async-daemon/errors" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/sagas" />
       <recent name="$PROJECT_DIR$/src/processes" />
       <recent name="$PROJECT_DIR$/src/projections" />
       <recent name="$PROJECT_DIR$/src/model" />
-      <recent name="$PROJECT_DIR$/lib/bus/rabbitmq" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.Tests in spec/">
+  <component name="RunManager" selected="Jest.DocumentQueryBuilder.should build sql statement">
+    <configuration name="DocumentQueryBuilder" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/tests/spec/store/document/document-query-builder.spec.ts" />
+      <test-names>
+        <test-name value="DocumentQueryBuilder" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="DocumentQueryBuilder.should build query" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/lib/store/document/document/document-query-builder.spec.ts" />
+      <test-names>
+        <test-name value="DocumentQueryBuilder" />
+        <test-name value="should build query" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="DocumentQueryBuilder.should build sql statement" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/lib/store/document/document/document-query-builder.spec.ts" />
+      <test-names>
+        <test-name value="DocumentQueryBuilder" />
+        <test-name value="should build sql statement" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="DocumentQueryBuilder.should do something (1)" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/lib/store/document/document/document-query-builder.spec.ts" />
+      <test-names>
+        <test-name value="DocumentQueryBuilder" />
+        <test-name value="should do something" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="DocumentQueryBuilder.should do something" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/tests/spec/store/document/document-query-builder.spec.ts" />
+      <test-names>
+        <test-name value="DocumentQueryBuilder" />
+        <test-name value="should do something" />
+      </test-names>
+      <method v="2" />
+    </configuration>
     <configuration name="Tests in e2e/" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
       <config-file value="$PROJECT_DIR$/tests/jest-e2e.json" />
       <node-interpreter value="project" />
@@ -83,23 +186,21 @@
       <test-directory value="$PROJECT_DIR$/tests/e2e" />
       <method v="2" />
     </configuration>
-    <configuration name="Tests in spec/" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <config-file value="$PROJECT_DIR$/tests/jest-spec.json" />
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$" />
-      <envs />
-      <scope-kind value="DIRECTORY" />
-      <test-directory value="$PROJECT_DIR$/tests/spec" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Jest.Tests in e2e/" />
-      <item itemvalue="Jest.Tests in spec/" />
+      <item itemvalue="Jest.DocumentQueryBuilder" />
+      <item itemvalue="Jest.DocumentQueryBuilder.should build query" />
+      <item itemvalue="Jest.DocumentQueryBuilder.should build sql statement" />
+      <item itemvalue="Jest.DocumentQueryBuilder.should do something" />
+      <item itemvalue="Jest.DocumentQueryBuilder.should do something (1)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Jest.Tests in spec/" />
+        <item itemvalue="Jest.DocumentQueryBuilder.should build sql statement" />
+        <item itemvalue="Jest.DocumentQueryBuilder.should build query" />
+        <item itemvalue="Jest.DocumentQueryBuilder.should do something (1)" />
+        <item itemvalue="Jest.DocumentQueryBuilder" />
+        <item itemvalue="Jest.DocumentQueryBuilder.should do something" />
       </list>
     </recent_temporary>
   </component>
@@ -140,7 +241,8 @@
       <workItem from="1698069507714" duration="10260000" />
       <workItem from="1698241935185" duration="14441000" />
       <workItem from="1698313849372" duration="5000" />
-      <workItem from="1698313864031" duration="7311000" />
+      <workItem from="1698313864031" duration="8590000" />
+      <workItem from="1698833293583" duration="24969000" />
     </task>
     <servers />
   </component>

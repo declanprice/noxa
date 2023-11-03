@@ -6,7 +6,7 @@ import {
     getProjectionOptionMetadata,
 } from '../handlers/projection/projection.decorators';
 import { StoredProjectionToken } from '../handlers/projection/stored-projection-token';
-import { StoredEvent } from '../store/event-store/event/stored-event.type';
+import { StoredEvent } from '../store/event/event/stored-event.type';
 import { DocumentProjectionHandler } from '../handlers/projection/handlers/document-projection-handler';
 import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
 import { DocumentStore } from '../store';

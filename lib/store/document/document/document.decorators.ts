@@ -5,9 +5,24 @@ export const DOCUMENT_ID_FIELD_METADATA = 'DOCUMENT_ID_FIELD_METADATA';
 export const DOCUMENT_FIELD_METADATA = 'DOCUMENT_FIELD_METADATA';
 export const DOCUMENT_FIELDS_METADATA = 'DOCUMENT_FIELDS_METADATA';
 
+export enum DocumentFieldType {
+    String,
+    Number,
+    Boolean,
+    Array,
+    Object,
+}
+
+export type DocumentFieldOptions = {
+    type?: DocumentFieldType;
+};
+
 export type DocumentFields = Set<string>;
 
-export type DocumentOptions = {};
+export type DocumentOptions = {
+    optimistic?: boolean;
+    indexes?: any[];
+};
 
 export const Document = (options?: DocumentOptions): ClassDecorator => {
     return (target: object) => {
@@ -15,7 +30,9 @@ export const Document = (options?: DocumentOptions): ClassDecorator => {
     };
 };
 
-export const DocumentId = (): PropertyDecorator => {
+export const DocumentId = (
+    options?: DocumentFieldOptions,
+): PropertyDecorator => {
     return (target: object, propertyKey: string | symbol) => {
         Reflect.defineMetadata(
             DOCUMENT_ID_FIELD_METADATA,
@@ -29,7 +46,9 @@ export const DocumentId = (): PropertyDecorator => {
     };
 };
 
-export const DocumentField = (): PropertyDecorator => {
+export const DocumentField = (
+    options?: DocumentFieldOptions,
+): PropertyDecorator => {
     return (target: object, propertyKey: string | symbol) => {
         addDocumentFieldMetadata(
             target.constructor as Type,
@@ -48,10 +67,7 @@ const addDocumentFieldMetadata = (target: Type, propertyKey: string) => {
 };
 
 export const getDocumentOptionsMetadata = (target: Type): DocumentOptions => {
-    const metadata: Set<string> = Reflect.getMetadata(
-        DOCUMENT_OPTIONS_METADATA,
-        target,
-    );
+    const metadata = Reflect.getMetadata(DOCUMENT_OPTIONS_METADATA, target);
 
     if (!metadata) {
         throw new Error(

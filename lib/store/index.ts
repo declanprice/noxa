@@ -1,9 +1,9 @@
-export * from './event-store';
-export * from './document-store';
-export * from './outbox-store';
-export * from './store-session';
+export * from './event';
+export * from './document';
+export * from './outbox';
+export * from './session';
 
 export {
-  STORE_CONNECTION_TOKEN,
-  InjectStoreConnection,
+    STORE_CONNECTION_TOKEN,
+    InjectStoreConnection,
 } from './store-connection.token';

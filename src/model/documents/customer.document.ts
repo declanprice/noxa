@@ -1,14 +1,37 @@
-import { Document, DocumentField, DocumentId } from '../../../lib';
+import {
+    Document,
+    DocumentField,
+    DocumentId,
+    DocumentFieldType,
+    uniqueIndex,
+    computedIndex,
+} from '../../../lib';
 
-@Document()
+@Document({
+    optimistic: true,
+    indexes: [
+        uniqueIndex({
+            fields: ['customerId'],
+        }),
+        computedIndex({
+            fields: ['name', 'age'],
+        }),
+    ],
+})
 export class CustomerDocument {
-    @DocumentId()
+    @DocumentId({
+        type: DocumentFieldType.String,
+    })
     customerId: string;
 
-    @DocumentField()
+    @DocumentField({
+        type: DocumentFieldType.String,
+    })
     name: string;
 
-    @DocumentField()
+    @DocumentField({
+        type: DocumentFieldType.Number,
+    })
     age: number;
 
     constructor(data: { customerId: string; name: string; age: number }) {
