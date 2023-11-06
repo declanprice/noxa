@@ -7,7 +7,7 @@ import { DocumentStore, StoreSession } from '../../store';
 import { BusMessage } from '../../bus';
 import { Session } from '../../store/session/store-session.service';
 import { ProcessDocument } from './process.document';
-import { getDocumentIdFieldMetadata } from '../../store/document/document/document.decorators';
+import { getDocumentIdFieldMetadata } from '../../store/document/document.decorators';
 import { DocumentInvalidIdError } from '../../store/document/errors/document-invalid-id.error';
 
 export abstract class HandleProcess {

@@ -3,13 +3,14 @@ import format = require('pg-format');
 import { Injectable, Type } from '@nestjs/common';
 import { toSnakeCase } from '../../util/to-snake-case';
 import { InjectStoreConnection } from '../store-connection.token';
-import { StoredDocument } from './document/stored-document.type';
+import { DocumentRow } from './document-row.type';
 import {
     getDocumentFieldsMetadata,
     getDocumentIdFieldMetadata,
-} from './document/document.decorators';
+} from './document.decorators';
 import { DocumentInvalidIdError } from './errors/document-invalid-id.error';
 import { DocumentNotFoundError } from './errors/document-not-found.error';
+import { DocumentQueryBuilder } from './document-query-builder';
 
 @Injectable()
 export class DocumentStore {
@@ -21,9 +22,13 @@ export class DocumentStore {
     async rawQuery<T>(query: {
         text: string;
         values: any[];
-    }): Promise<StoredDocument[]> {
+    }): Promise<DocumentRow[]> {
         const { rows } = await this.connection.query(query);
         return rows;
+    }
+
+    query<T>(document: Type<T>): DocumentQueryBuilder<Type<T>> {
+        return new DocumentQueryBuilder(document, this.connection as Pool);
     }
 
     async get<T>(document: Type<T>, documentId: string): Promise<T> {
@@ -66,7 +71,7 @@ export class DocumentStore {
             ),
         );
 
-        return rows.map((r: StoredDocument) => {
+        return rows.map((r: DocumentRow) => {
             return new document(r.data);
         });
     }
@@ -106,7 +111,7 @@ export class DocumentStore {
 
         if (!documents.length) {
             throw new Error(
-                'you must provide atleast one valid document to store',
+                'you must provide at least one valid document to store',
             );
         }
 
@@ -120,7 +125,7 @@ export class DocumentStore {
             throw new Error('all documents must be the same type of ${}');
         }
 
-        const storedDocuments: StoredDocument[] = documents.map(
+        const storedDocuments: DocumentRow[] = documents.map(
             this.toStoredDocument,
         );
 
@@ -179,7 +184,7 @@ export class DocumentStore {
         return `noxa_docs_${toSnakeCase(document.constructor.name)}`;
     };
 
-    private toStoredDocument = (document: any): StoredDocument => {
+    private toStoredDocument = (document: any): DocumentRow => {
         const documentIdField = getDocumentIdFieldMetadata(
             document.constructor,
         );

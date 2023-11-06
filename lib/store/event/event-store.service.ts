@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
 import { Pool, PoolClient } from 'pg';
-import { Injectable, Optional, Type } from '@nestjs/common';
-import { StoredStream } from './stream/stored-stream.type';
-import { StoredEvent } from './event/stored-event.type';
+import { Injectable, Type } from '@nestjs/common';
+import { StreamRow } from './stream/stream-row.type';
+import { EventRow } from './event/event-row.type';
 import { Event } from '../../handlers';
 import { StreamNotFoundError } from './errors/stream-not-found.error';
 import { StreamNoEventsFoundError } from './errors/stream-no-events-found.error';
@@ -21,7 +21,7 @@ export class EventStore {
         const eventType = event.constructor.name;
         const now = new Date().toISOString();
 
-        const storedStream: StoredStream = {
+        const storedStream: StreamRow = {
             id: streamId,
             type: steamType,
             version: 0,
@@ -32,7 +32,7 @@ export class EventStore {
             isArchived: false,
         };
 
-        const storedEvent: Partial<StoredEvent> = {
+        const storedEvent: Partial<EventRow> = {
             id: randomUUID(),
             type: eventType,
             data: event,
@@ -111,7 +111,7 @@ export class EventStore {
 
         let hydratedStream: T = new stream();
 
-        for (const eventRow of eventsResult.rows as StoredEvent[]) {
+        for (const eventRow of eventsResult.rows as EventRow[]) {
             const streamEventHandler = Reflect.getMetadata(
                 eventRow.type,
                 stream,
@@ -148,11 +148,11 @@ export class EventStore {
             throw new StreamNotFoundError(streamType, streamId);
         }
 
-        const streamRow = streamResult.rows[0] as StoredStream;
+        const streamRow = streamResult.rows[0] as StreamRow;
 
         const newVersion = Number(streamRow.version) + 1;
 
-        const storedEvent: Partial<StoredEvent> = {
+        const storedEvent: Partial<EventRow> = {
             id: randomUUID(),
             type: eventType,
             data: event,
@@ -162,7 +162,7 @@ export class EventStore {
             isArchived: false,
         };
 
-        const storedStream: Partial<StoredStream> = {
+        const storedStream: Partial<StreamRow> = {
             id: streamId,
             type: streamType,
             timestamp: new Date().toISOString(),

@@ -3,14 +3,14 @@ import { Pool, PoolClient } from 'pg';
 import { Type } from '@nestjs/common';
 import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
-import { StoredEvent } from '../../../store/event/event/stored-event.type';
+import { EventRow } from '../../../store/event/event/event-row.type';
 
 export class EventProjectionHandler extends ProjectionHandler {
     async handleEvents(
         connection: Pool | PoolClient,
         projection: any,
         projectionType: Type,
-        events: StoredEvent[],
+        events: EventRow[],
     ): Promise<StoredProjectionToken> {
         for (const event of events) {
             const targetEventHandler = Reflect.getMetadata(

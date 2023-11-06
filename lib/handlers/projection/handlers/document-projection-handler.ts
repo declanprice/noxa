@@ -5,8 +5,8 @@ import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projection-invalid-id.error';
 import { DocumentStore } from '../../../store';
-import { StoredEvent } from '../../../store/event/event/stored-event.type';
-import { getDocumentIdFieldMetadata } from '../../../store/document/document/document.decorators';
+import { EventRow } from '../../../store/event/event/event-row.type';
+import { getDocumentIdFieldMetadata } from '../../../store/document/document.decorators';
 import { getProjectionDocumentMetadata } from '../projection.decorators';
 
 export class DocumentProjectionHandler extends ProjectionHandler {
@@ -18,7 +18,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
         connection: Pool,
         projection: any,
         projectionType: Type,
-        events: StoredEvent[],
+        events: EventRow[],
     ): Promise<StoredProjectionToken> {
         const documentType = getProjectionDocumentMetadata(projectionType);
 
@@ -53,7 +53,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
         projection: any,
         documentType: Type,
         documents: any[],
-        events: StoredEvent[],
+        events: EventRow[],
     ) {
         const documentIdProperty = getDocumentIdFieldMetadata(documentType);
 
@@ -91,7 +91,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
 
     private getTargetDocumentIds(
         projectionType: Type,
-        events: StoredEvent[],
+        events: EventRow[],
     ): string[] {
         const documentIds: Set<string> = new Set<string>();
 

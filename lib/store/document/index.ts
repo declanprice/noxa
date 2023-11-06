@@ -5,15 +5,13 @@ export {
     DocumentField,
     DocumentId,
     DocumentFieldType,
-} from './document/document.decorators';
+} from './document.decorators';
 
 export {
-    uniqueIndex,
     computedIndex,
-    externalIndex,
-    foreignKeyIndex,
+    containsIndex,
     fullTextSearchIndex,
-} from './document/document-indexes';
+} from './document-indexes';
 
 export {
     eq,
@@ -28,4 +26,4 @@ export {
     OR,
     AND,
     DocumentQueryBuilder,
-} from './document/document-query-builder';
+} from './document-query-builder';

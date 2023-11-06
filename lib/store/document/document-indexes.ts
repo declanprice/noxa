@@ -1,25 +1,17 @@
 export type IndexOptions = {
     fields: string[];
+    unique?: boolean;
 };
 
 export enum IndexType {
-    Unique,
     Computed,
-    External,
-    ForeignKey,
+    Contains,
     FullTextSearch,
 }
 
 export type DocumentIndex = {
     type: IndexType;
     options: IndexOptions;
-};
-
-export const uniqueIndex = (options: IndexOptions): DocumentIndex => {
-    return {
-        type: IndexType.Unique,
-        options,
-    };
 };
 
 export const computedIndex = (options: IndexOptions): DocumentIndex => {
@@ -29,16 +21,9 @@ export const computedIndex = (options: IndexOptions): DocumentIndex => {
     };
 };
 
-export const externalIndex = (options: IndexOptions): DocumentIndex => {
+export const containsIndex = (options: IndexOptions): DocumentIndex => {
     return {
-        type: IndexType.External,
-        options,
-    };
-};
-
-export const foreignKeyIndex = (options: IndexOptions): DocumentIndex => {
-    return {
-        type: IndexType.ForeignKey,
+        type: IndexType.FullTextSearch,
         options,
     };
 };

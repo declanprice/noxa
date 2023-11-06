@@ -1,42 +1,72 @@
 import {
+    computedIndex,
     Document,
     DocumentField,
     DocumentId,
-    DocumentFieldType,
-    uniqueIndex,
-    computedIndex,
+    fullTextSearchIndex,
+    containsIndex,
 } from '../../../lib';
 
 @Document({
     optimistic: true,
     indexes: [
-        uniqueIndex({
-            fields: ['customerId'],
+        computedIndex({
+            fields: ['name'],
         }),
         computedIndex({
-            fields: ['name', 'age'],
+            fields: ['age'],
+        }),
+        computedIndex({
+            fields: ['hobbies'],
+        }),
+        computedIndex({
+            fields: ['address'],
+        }),
+        containsIndex({
+            fields: ['name'],
+        }),
+        fullTextSearchIndex({
+            fields: ['name'],
         }),
     ],
 })
 export class CustomerDocument {
-    @DocumentId({
-        type: DocumentFieldType.String,
-    })
+    @DocumentId()
     customerId: string;
 
-    @DocumentField({
-        type: DocumentFieldType.String,
-    })
+    @DocumentField()
     name: string;
 
-    @DocumentField({
-        type: DocumentFieldType.Number,
-    })
+    @DocumentField()
     age: number;
 
-    constructor(data: { customerId: string; name: string; age: number }) {
+    @DocumentField()
+    hobbies: string[];
+
+    @DocumentField()
+    address: {
+        addressLine1: string;
+        addressLine2: string;
+        postcode: string;
+        city: string;
+    };
+
+    constructor(data: {
+        customerId: string;
+        name: string;
+        age: number;
+        hobbies: string[];
+        address: {
+            addressLine1: string;
+            addressLine2: string;
+            postcode: string;
+            city: string;
+        };
+    }) {
         this.customerId = data.customerId;
         this.name = data.name;
         this.age = data.age;
+        this.hobbies = data.hobbies;
+        this.address = data.address;
     }
 }
