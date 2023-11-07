@@ -1,31 +1,23 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { and, CommandBus, DocumentStore, eq, QueryBus } from '../lib';
+import { CommandBus, DataStore, QueryBus } from '../lib';
 import {
     ChangeCustomerName,
     RegisterCustomer,
-} from './model/streams/customer.stream';
+} from './command/customer.stream';
 import { faker } from '@faker-js/faker';
-import { CustomerDocument } from './model/documents/customer.document';
+import { GetCustomersQuery } from './query/handlers/get-customers.handler';
+
 @Controller()
 export class AppController {
     constructor(
         public commandBus: CommandBus,
         public queryBus: QueryBus,
-        public documentStore: DocumentStore,
     ) {}
 
     @Get('/')
     async get() {
-        return this.documentStore
-            .query(CustomerDocument)
-            .condition(eq('name', 'tim'))
-            .or()
-            .condition(eq('name', 'declan'), and(), eq('age', 25))
-            .from(0)
-            .size(10)
-            .debug()
-            .execute();
+        return await this.queryBus.invoke(new GetCustomersQuery());
     }
 
     @Post('/')
@@ -38,13 +30,13 @@ export class AppController {
             faker.number.int({ min: 10, max: 80 }),
         );
 
-        await this.commandBus.invoke(command);
+        return await this.commandBus.invoke(command);
     }
 
     @Post('/name')
     async updateName() {
         const command = new ChangeCustomerName('', 'bob');
 
-        await this.commandBus.invoke(command);
+        return await this.commandBus.invoke(command);
     }
 }

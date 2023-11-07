@@ -1,6 +1,5 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
-import { getDocumentFieldsMetadata } from '../../store/document/document.decorators';
 
 export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
 

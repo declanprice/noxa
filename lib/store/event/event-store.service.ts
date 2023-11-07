@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import { Pool, PoolClient } from 'pg';
 import { Injectable, Type } from '@nestjs/common';
 import { StreamRow } from './stream/stream-row.type';
 import { EventRow } from './event/event-row.type';
@@ -7,111 +6,88 @@ import { Event } from '../../handlers';
 import { StreamNotFoundError } from './errors/stream-not-found.error';
 import { StreamNoEventsFoundError } from './errors/stream-no-events-found.error';
 import { StreamEventHandlerNotAvailableError } from './errors/stream-event-handler-not-available.error';
-import { InjectStoreConnection } from '../store-connection.token';
+import { InjectDatabase } from '../database.token';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgTransaction } from 'drizzle-orm/pg-core/session';
+import { events, streams } from '../../schema/schema';
+import { and, asc, eq } from 'drizzle-orm';
 
 @Injectable()
 export class EventStore {
     constructor(
-        @InjectStoreConnection()
-        private readonly connection: PoolClient | Pool,
+        @InjectDatabase()
+        private readonly db: NodePgDatabase<any> | PgTransaction<any>,
     ) {}
 
-    async startStream(steam: Type, streamId: string, event: Event) {
-        const steamType = steam.name;
-        const eventType = event.constructor.name;
-        const now = new Date().toISOString();
+    async startStream(
+        steam: Type,
+        streamId: string,
+        event: Event,
+        options?: { tx?: PgTransaction<any> },
+    ) {
+        const { tx } = options || {};
 
-        const storedStream: StreamRow = {
+        const db = tx ?? this.db;
+
+        const now = new Date();
+
+        await db.insert(streams).values({
             id: streamId,
-            type: steamType,
+            type: steam.name,
             version: 0,
             snapshot: null,
             snapshotVersion: null,
-            created: now,
             timestamp: now,
             isArchived: false,
-        };
-
-        const storedEvent: Partial<EventRow> = {
-            id: randomUUID(),
-            type: eventType,
-            data: event,
-            version: 0,
-            streamId,
-            timestamp: now,
-            isArchived: false,
-        };
-
-        await this.connection.query({
-            text: `insert into noxa_event_streams (
-        "id",
-        "type",
-        "version",
-        "snapshot",
-        "snapshotVersion",
-        "created",
-        "timestamp",
-        "isArchived"
-      ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
-            values: [
-                storedStream.id,
-                storedStream.type,
-                storedStream.version,
-                storedStream.snapshot,
-                storedStream.snapshotVersion,
-                storedStream.created,
-                storedStream.timestamp,
-                storedStream.isArchived,
-            ],
         });
 
-        await this.connection.query({
-            text: `insert into noxa_events (
-        "id",
-        "streamId",
-        "version",
-        "timestamp",
-        "data",
-        "type",
-        "isArchived" 
-      ) values ($1, $2, $3, $4, $5, $6, $7)`,
-            values: [
-                storedEvent.id,
-                storedEvent.streamId,
-                storedEvent.version,
-                storedEvent.timestamp,
-                storedEvent.data,
-                storedEvent.type,
-                storedEvent.isArchived,
-            ],
+        await db.insert(events).values({
+            id: randomUUID(),
+            streamId,
+            version: 0,
+            data: event,
+            type: event.constructor.name,
+            timestamp: now,
+            isArchived: false,
         });
     }
 
-    async hydrateStream<T>(stream: Type<T>, streamId: string): Promise<T> {
+    async hydrateStream<T>(
+        stream: Type<T>,
+        streamId: string,
+        options?: { tx?: PgTransaction<any> },
+    ): Promise<T> {
+        const { tx } = options || {};
+
+        const db = tx ?? this.db;
+
         const streamType = stream.name;
 
-        const [streamResult, eventsResult] = await Promise.all([
-            this.connection.query({
-                text: `select * from noxa_event_streams where type = $1 and id = $2`,
-                values: [streamType, streamId],
-            }),
-            this.connection.query({
-                text: `select * from noxa_events where "streamId" = $1 order by version ASC`,
-                values: [streamId],
-            }),
+        const [streamRows, eventRows] = await Promise.all([
+            db
+                .select()
+                .from(streams)
+                .where(
+                    and(eq(streams.id, streamId), eq(streams.type, streamType)),
+                ),
+            db
+                .select()
+                .from(events)
+                .where(and(eq(events.streamId, streamId)))
+                .orderBy(asc(events.version)),
         ]);
 
-        if (streamResult.rowCount === 0) {
+        if (streamRows.length === 0) {
             throw new StreamNotFoundError(streamType, streamId);
         }
 
-        if (eventsResult.rowCount === 0) {
+        if (eventRows.length === 0) {
             throw new StreamNoEventsFoundError(streamType, streamId);
         }
 
         let hydratedStream: T = new stream();
 
-        for (const eventRow of eventsResult.rows as EventRow[]) {
+        for (const eventRow of eventRows) {
             const streamEventHandler = Reflect.getMetadata(
                 eventRow.type,
                 stream,
@@ -134,112 +110,44 @@ export class EventStore {
         stream: Type,
         streamId: string,
         event: Event,
+        options?: { tx?: PgTransaction<any> },
     ): Promise<void> {
+        const { tx } = options || {};
+
+        const db = tx ?? this.db;
+
         const streamType = stream.name;
-        const eventType = event.constructor.name;
-        const now = new Date().toISOString();
 
-        const streamResult = await this.connection.query({
-            text: `select * from noxa_event_streams where type = $1 and id = $2 for update`,
-            values: [streamType, streamId],
-        });
+        const streamRows = await db
+            .select()
+            .from(streams)
+            .where(and(eq(streams.id, streamId), eq(streams.type, streamType)));
 
-        if (streamResult.rowCount === 0) {
+        if (streamRows.length === 0) {
             throw new StreamNotFoundError(streamType, streamId);
         }
 
-        const streamRow = streamResult.rows[0] as StreamRow;
+        const streamRow = streamRows[0];
 
         const newVersion = Number(streamRow.version) + 1;
 
-        const storedEvent: Partial<EventRow> = {
+        await db
+            .update(streams)
+            .set({
+                id: streamId,
+                version: newVersion,
+                timestamp: new Date(),
+            })
+            .where(eq(streams.id, streamId));
+
+        await db.insert(events).values({
             id: randomUUID(),
-            type: eventType,
+            type: event.constructor.name,
             data: event,
             version: newVersion,
             streamId,
-            timestamp: now,
+            timestamp: new Date(),
             isArchived: false,
-        };
-
-        const storedStream: Partial<StreamRow> = {
-            id: streamId,
-            type: streamType,
-            timestamp: new Date().toISOString(),
-            version: newVersion,
-        };
-
-        await this.connection.query({
-            text: `insert into noxa_events (
-        "id",
-        "streamId",
-        "version",
-        "timestamp",
-        "data",
-        "type",
-        "isArchived"
-      ) values ($1, $2, $3, $4, $5, $6, $7)`,
-            values: [
-                storedEvent.id,
-                storedEvent.streamId,
-                storedEvent.version,
-                storedEvent.timestamp,
-                storedEvent.data,
-                storedEvent.type,
-                storedEvent.isArchived,
-            ],
-        });
-
-        await this.connection.query({
-            text: `update noxa_event_streams set version = $1, timestamp = $2 where type = $3 and id = $4`,
-            values: [
-                storedStream.version,
-                storedStream.timestamp,
-                storedStream.type,
-                storedStream.id,
-            ],
-        });
-    }
-
-    static async createResources(connection: PoolClient) {
-        await connection.query({
-            text: `
-        CREATE TABLE IF NOT EXISTS noxa_event_streams (
-            "id" uuid not null constraint noxa_event_streams_pk primary key,
-            "type" varchar(500) not null,
-            "version" bigint not null,
-            "snapshot" jsonb null,
-            "snapshotVersion" bigint null,
-            "created" timestamp with time zone not null,
-            "timestamp" timestamp with time zone not null,
-            "isArchived" boolean default false not null
-      )`,
-            values: [],
-        });
-
-        await connection.query({
-            text: `
-        CREATE TABLE IF NOT EXISTS noxa_events (
-            "sequenceId" bigserial not null constraint noxa_events_pk primary key,
-            "id" uuid not null,
-            "streamId" uuid not null,
-            "version" bigint not null,
-            "timestamp" timestamp with time zone not null,
-            "data" jsonb not null,
-            "type" varchar(500) not null,
-            "isArchived" boolean default false not null
-      )`,
-            values: [],
-        });
-
-        await connection.query({
-            text: `
-        CREATE TABLE IF NOT EXISTS noxa_projection_tokens (
-            "name" varchar(250) not null constraint noxa_projection_tokens_pk primary key,
-            "lastSequenceId" bigserial not null,
-            "lastUpdated" timestamp with time zone not null
-      )`,
-            values: [],
         });
     }
 }

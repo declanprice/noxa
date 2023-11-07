@@ -4,13 +4,12 @@ import { ProjectionHandler } from './projection-handler';
 import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projection-invalid-id.error';
-import { DocumentStore } from '../../../store';
+import { DataStore } from '../../../store';
 import { EventRow } from '../../../store/event/event/event-row.type';
-import { getDocumentIdFieldMetadata } from '../../../store/document/document.decorators';
 import { getProjectionDocumentMetadata } from '../projection.decorators';
 
 export class DocumentProjectionHandler extends ProjectionHandler {
-    constructor(private readonly documentStore: DocumentStore) {
+    constructor(private readonly documentStore: DataStore) {
         super();
     }
 
@@ -24,17 +23,19 @@ export class DocumentProjectionHandler extends ProjectionHandler {
 
         const documentIds = this.getTargetDocumentIds(projectionType, events);
 
-        const documents = await this.documentStore.findMany(
-            documentType,
-            documentIds,
-        );
+        const documents: any[] = [];
+
+        // const documents = await this.documentStore.findMany(
+        //     documentType,
+        //     documentIds,
+        // );
 
         const transaction = await connection.connect();
 
         try {
             this.applyEvents(projection, documentType, documents, events);
 
-            await this.documentStore.storeMany(documents, { transaction });
+            // await this.documentStore.storeMany(documents, { transaction });
 
             return await this.updateTokenPosition(
                 transaction,
@@ -55,7 +56,7 @@ export class DocumentProjectionHandler extends ProjectionHandler {
         documents: any[],
         events: EventRow[],
     ) {
-        const documentIdProperty = getDocumentIdFieldMetadata(documentType);
+        const documentIdProperty = 'id';
 
         for (const event of events) {
             const targetEventHandler = Reflect.getMetadata(

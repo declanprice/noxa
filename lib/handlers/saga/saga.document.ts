@@ -1,15 +1,8 @@
-import { Document, DocumentId, DocumentField } from '../../store';
 import { SagaDefinition } from './handle-saga';
 
-@Document()
-export class SagaDocument {
-    @DocumentId()
+export class SagaData {
     sagaId: string;
-
-    @DocumentField()
     definition: SagaDefinition;
-
-    @DocumentField()
     currentStepIndex: number;
 
     constructor(data: {

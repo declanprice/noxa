@@ -9,7 +9,7 @@ import { StoredProjectionToken } from '../handlers/projection/stored-projection-
 import { EventRow } from '../store/event/event/event-row.type';
 import { DocumentProjectionHandler } from '../handlers/projection/handlers/document-projection-handler';
 import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
-import { DocumentStore } from '../store';
+import { DataStore } from '../store';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
@@ -18,7 +18,7 @@ export class EventPoller {
     constructor(
         private readonly connection: Pool,
         private readonly moduleRef: ModuleRef,
-        private readonly documentStore: DocumentStore,
+        private readonly documentStore: DataStore,
     ) {}
 
     async start(projectionType: Type, type: 'document' | 'event') {

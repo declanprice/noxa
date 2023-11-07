@@ -20,6 +20,7 @@
     "@types/pg-format": "^1.0.3",
     "@types/supertest": "^2.0.14",
     "@types/uuid": "^9.0.4",
+    "drizzle-kit": "^0.19.13",
     "jest": "^29.7.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
@@ -36,12 +37,13 @@
     "@nestjs/testing": "^10.2.6",
     "amqplib": "^0.10.3",
     "dayjs": "^1.11.10",
+    "drizzle-orm": "^0.28.6",
     "nestjs-pino": "^3.5.0",
     "pg": "^8.11.3",
     "pg-format": "^1.0.4",
     "pg-logical-replication": "^2.0.3",
     "pino-pretty": "^10.2.3",
-    "postgres": "^3.3.5",
+    "postgres": "^3.4.3",
     "uuid": "^9.0.1"
   }
 }

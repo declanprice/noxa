@@ -9,7 +9,8 @@ import {
     InvalidSagaStepDefinitionError,
 } from './errors/invalid-saga-definition.error';
 import { Session } from '../../store/session/store-session.service';
-import { SagaDocument } from './saga.document';
+import { SagaData } from './saga.document';
+import { sagas } from '../../schema/schema';
 
 export type SagaStepDefinition = {
     name: string;
@@ -56,14 +57,14 @@ export abstract class HandleSaga {
             return;
         }
 
-        const session = await this.storeSession.start();
+        const session: any = {};
 
         try {
             const sagaId = startEvent.associationId(message.data);
 
             if (startEvent.event.name === message.type) {
                 await session.document.store(
-                    new SagaDocument({
+                    new SagaData({
                         sagaId,
                         definition: builder.definition,
                         currentStepIndex: 0,
@@ -91,10 +92,7 @@ export abstract class HandleSaga {
                 return;
             }
 
-            const sagaDocument = await session.document.find(
-                SagaDocument,
-                sagaId,
-            );
+            const sagaDocument = await session.document.find(sagas, sagaId);
 
             if (!sagaDocument) {
                 console.log(
@@ -103,7 +101,9 @@ export abstract class HandleSaga {
                 return await session.commit();
             }
 
-            const steps = sagaDocument.definition.steps.sort((s) => s.position);
+            const steps = sagaDocument.definition.steps.sort(
+                (s: any) => s.position,
+            );
 
             if (this.isSagaFail(sagaDocument, message)) {
                 await this.publishCompensatingCommands(
@@ -111,7 +111,7 @@ export abstract class HandleSaga {
                     sagaDocument.currentStepIndex,
                     session,
                 );
-                await session.document.delete(SagaDocument, sagaId);
+                await session.document.delete(sagas, sagaId);
                 await session.commit();
                 console.log(
                     `saga of type ${this.sagaType.name}:${sagaId} has ended with failure.`,
@@ -123,7 +123,7 @@ export abstract class HandleSaga {
                 console.log(
                     `saga ${this.sagaType.name}:${sagaId} has successfully complete.`,
                 );
-                await session.document.delete(SagaDocument, sagaId);
+                await session.document.delete(sagas, sagaId);
                 await session.commit();
                 return;
             }
@@ -169,12 +169,12 @@ export abstract class HandleSaga {
         }
     }
 
-    private isSagaFail = (saga: SagaDocument, message: BusMessage) => {
+    private isSagaFail = (saga: SagaData, message: BusMessage) => {
         return saga.definition.failOnEvents?.includes(message.type);
     };
 
-    private isSagaComplete = (saga: SagaDocument, message: BusMessage) => {
-        const steps = saga.definition.steps.sort((s) => s.position);
+    private isSagaComplete = (saga: SagaData, message: BusMessage) => {
+        const steps = saga.definition.steps.sort((s: any) => s.position);
         const totalSteps = steps.length;
         const currentStep = steps[saga.currentStepIndex];
 

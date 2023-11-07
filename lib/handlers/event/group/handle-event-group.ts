@@ -23,16 +23,16 @@ export abstract class HandleEventGroup {
             );
         }
 
-        this.session = await this.storeSession.start();
+        // this.session = await this.storeSession.start();
 
-        try {
-            await (this as any)[handler](message.data);
-            await this.session.commit();
-        } catch (error) {
-            await this.session.rollback();
-            throw error;
-        } finally {
-            this.session.release();
-        }
+        // try {
+        await (this as any)[handler](message.data);
+        //     await this.session.commit();
+        // } catch (error) {
+        //     await this.session.rollback();
+        //     throw error;
+        // } finally {
+        //     this.session.release();
+        // }
     }
 }

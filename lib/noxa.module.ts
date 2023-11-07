@@ -10,26 +10,17 @@ import {
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
 import {
-    DocumentStore,
+    DataStore,
     EventStore,
-    InjectStoreConnection,
     OutboxStore,
-    STORE_CONNECTION_TOKEN,
+    DATABASE_TOKEN,
     StoreSession,
 } from './store';
-import { Pool } from 'pg';
 import { AsyncDaemon } from './async-daemon/async-daemon';
-import {
-    DOCUMENT_PROJECTION_HANDLER,
-    getProjectionDocumentMetadata,
-} from './handlers/projection/projection.decorators';
-import { getProcessDocumentMetadata } from './handlers/process/process.decorators';
-import { SagaDocument } from './handlers/saga/saga.document';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export type NoxaModuleOptions = {
-    postgres: {
-        connectionUrl: string;
-    };
+    database: NodePgDatabase<any>;
     bus: BusRelay;
 } & Config;
 
@@ -38,7 +29,7 @@ export type NoxaModuleOptions = {
         CommandBus,
         QueryBus,
         EventBus,
-        DocumentStore,
+        DataStore,
         EventStore,
         OutboxStore,
         StoreSession,
@@ -47,7 +38,7 @@ export type NoxaModuleOptions = {
         CommandBus,
         QueryBus,
         EventBus,
-        DocumentStore,
+        DataStore,
         EventStore,
         OutboxStore,
         StoreSession,
@@ -64,19 +55,16 @@ export class NoxaModule implements OnApplicationBootstrap {
         private readonly asyncDaemon: AsyncDaemon,
         @InjectBusRelay() private readonly busRelay: BusRelay,
         @InjectConfig() private readonly config: Config,
-        @InjectStoreConnection() private readonly pool: Pool,
     ) {}
 
     public static forRoot(options: NoxaModuleOptions): DynamicModule {
         return {
             module: NoxaModule,
-            exports: [STORE_CONNECTION_TOKEN],
+            exports: [DATABASE_TOKEN],
             providers: [
                 {
-                    provide: STORE_CONNECTION_TOKEN,
-                    useValue: new Pool({
-                        connectionString: options.postgres.connectionUrl,
-                    }),
+                    provide: DATABASE_TOKEN,
+                    useValue: options.database,
                 },
                 {
                     provide: BUS_RELAY_TOKEN,
@@ -101,72 +89,26 @@ export class NoxaModule implements OnApplicationBootstrap {
             queryHandlers,
             eventHandlers,
             eventGroupHandlers,
-            documentProjectionHandlers,
-            eventProjectionHandlers,
             processHandlers,
             sagaHandlers,
         } = this.handlerExplorer.explore();
 
-        const connection = await this.pool.connect();
-
-        try {
-            await connection.query('BEGIN');
-            await EventStore.createResources(connection);
-            await OutboxStore.createResources(connection);
-
-            for (const documentType of this.config.documents || []) {
-                await DocumentStore.createResources(documentType, connection);
-            }
-
-            if (documentProjectionHandlers) {
-                for (const documentProjection of documentProjectionHandlers) {
-                    const documentType =
-                        getProjectionDocumentMetadata(documentProjection);
-
-                    await DocumentStore.createResources(
-                        documentType,
-                        connection,
-                    );
-                }
-            }
-
-            if (processHandlers) {
-                for (const process of processHandlers) {
-                    const documentType = getProcessDocumentMetadata(process);
-                    await DocumentStore.createResources(
-                        documentType,
-                        connection,
-                    );
-                }
-            }
-
-            if (sagaHandlers) {
-                await DocumentStore.createResources(SagaDocument, connection);
-            }
-
-            await connection.query('COMMIT');
-        } catch (error) {
-            await connection.query('ROLLBACK');
-            throw error;
-        } finally {
-            connection.release();
-        }
-
         await this.busRelay.init(this.config);
+
         await this.commandBus.registerCommandHandlers(commandHandlers);
         await this.queryBus.registerQueryHandlers(queryHandlers);
-        await this.eventBus.registerEventHandlers(eventHandlers);
-        await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
-        await this.eventBus.registerProcessHandlers(processHandlers);
-        await this.eventBus.registerSagaHandlers(sagaHandlers);
+        // await this.eventBus.registerEventHandlers(eventHandlers);
+        // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
+        // await this.eventBus.registerProcessHandlers(processHandlers);
+        // await this.eventBus.registerSagaHandlers(sagaHandlers);
 
-        if (this.config.asyncDaemon.enabled) {
-            this.asyncDaemon
-                .start({
-                    document: documentProjectionHandlers,
-                    event: eventProjectionHandlers,
-                })
-                .then();
-        }
+        // if (this.config.asyncDaemon.enabled) {
+        //     this.asyncDaemon
+        //         .start({
+        //             data: documentProjectionHandlers,
+        //             event: eventProjectionHandlers,
+        //         })
+        //         .then();
+        // }
     }
 }

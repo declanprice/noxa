@@ -2,52 +2,36 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { NoxaModule, RabbitmqBus } from '../lib';
 import { AppController } from './app.controller';
-import {
-    ChangeCustomerAgeCommandHandler,
-    ChangeCustomerNameHandler,
-    RegisterCustomerHandler,
-} from './handlers/command/customer.command-handlers';
-import { CustomerEventsHandler } from './handlers/event/customer.events-handler';
-import { CustomerRegisteredEventHandler } from './handlers/event/customer-registered.event-handler';
-import { CustomerProjection } from './projections/customer.projection';
-import { CustomerSaga } from './sagas/customer.saga';
+import { RegisterCustomerHandler } from './command/handlers/register-customer.handlers';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
+import { GetCustomersHandler } from './query/handlers/get-customers.handler';
+
+const database = drizzle(
+    new Pool({
+        connectionString: 'postgres://postgres:postgres@localhost:5432',
+    }),
+    { schema },
+);
+
+const bus = new RabbitmqBus({
+    connectionUrl: 'amqp://localhost:5672',
+});
 
 @Module({
     controllers: [AppController],
-    providers: [
-        RegisterCustomerHandler,
-        ChangeCustomerNameHandler,
-        CustomerEventsHandler,
-        CustomerRegisteredEventHandler,
-        ChangeCustomerAgeCommandHandler,
-        CustomerProjection,
-        CustomerSaga,
-    ],
+    providers: [RegisterCustomerHandler, GetCustomersHandler],
     imports: [
         NoxaModule.forRoot({
             serviceName: 'Restaurant',
-            postgres: {
-                connectionUrl: 'postgres://postgres:postgres@localhost:5432',
-            },
-            bus: new RabbitmqBus({
-                connectionUrl: 'amqp://localhost:5672',
-            }),
+            database,
+            bus,
             asyncDaemon: {
                 enabled: true,
             },
         }),
-        LoggerModule.forRoot({
-            // pinoHttp: {
-            //   transport: {
-            //     target: 'pino-pretty',
-            //     options: {
-            //       levelFirst: true,
-            //       colorize: true,
-            //       ignore: 'pid,res',
-            //     },
-            //   },
-            // },
-        }),
+        LoggerModule.forRoot({}),
     ],
 })
 export class ApplicationModule {}

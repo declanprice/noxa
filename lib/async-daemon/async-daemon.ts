@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
-import { DocumentStore, InjectStoreConnection } from '../store';
+import { DataStore, InjectDatabase } from '../store';
 import { BusRelay, InjectBusRelay } from '../bus';
 import { EventPoller } from './event.poller';
 import { OutboxPoller } from './outbox-poller';
@@ -10,9 +10,9 @@ import { OutboxPoller } from './outbox-poller';
 @Injectable()
 export class AsyncDaemon {
     constructor(
-        @InjectStoreConnection() private readonly pool: Pool,
+        @InjectDatabase() private readonly pool: Pool,
         @InjectBusRelay() private readonly busRelay: BusRelay,
-        private readonly documentStore: DocumentStore,
+        private readonly documentStore: DataStore,
         private readonly moduleRef: ModuleRef,
     ) {}
 

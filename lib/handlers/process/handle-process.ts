@@ -3,12 +3,12 @@ import {
     getProcessDocumentMetadata,
     getProcessEventHandlerMetadata,
 } from './process.decorators';
-import { DocumentStore, StoreSession } from '../../store';
+import { DataStore, StoreSession } from '../../store';
 import { BusMessage } from '../../bus';
 import { Session } from '../../store/session/store-session.service';
-import { ProcessDocument } from './process.document';
-import { getDocumentIdFieldMetadata } from '../../store/document/document.decorators';
-import { DocumentInvalidIdError } from '../../store/document/errors/document-invalid-id.error';
+import { DocumentInvalidIdError } from '../../store/data/errors/document-invalid-id.error';
+import { processes } from '../../schema/schema';
+import { ProcessData } from './process.data';
 
 export abstract class HandleProcess {
     session!: Session;
@@ -22,57 +22,48 @@ export abstract class HandleProcess {
             this.constructor as Type,
         );
 
-        this.session = await this.storeSession.start();
+        // this.session = await this.storeSession.start();
 
-        try {
-            const handlerMetadata = getProcessEventHandlerMetadata(
-                this.constructor,
-                message.type,
-            );
+        // try {
+        const handlerMetadata = getProcessEventHandlerMetadata(
+            this.constructor,
+            message.type,
+        );
 
-            const associationId = handlerMetadata.associationId(message.data);
+        const associationId = handlerMetadata.associationId(message.data);
 
-            const processDocuments: ProcessDocument[] = [];
+        const processData: ProcessData[] = [];
 
-            const processDocumentRows = await this.session.document.rawQuery({
-                text: `select * from ${DocumentStore.tableNameFromType(
-                    processDocumentType,
-                )} where data -> 'associations' @> '["${associationId}"]'`,
-                values: [],
-            });
+        // const processDocumentRows = await this.session.data.rawQuery({
+        //     text: `select * from ${DocumentStore.tableNameFromType(
+        //         processDocumentType,
+        //     )} where data -> 'associations' @> '["${associationId}"]'`,
+        //     values: [],
+        // });
 
-            for (const row of processDocumentRows) {
-                processDocuments.push(new processDocumentType(row.data));
-            }
+        // for (const row of processDocumentRows) {
+        //     processDocuments.push(new processDocumentType(row.data));
+        // }
 
-            if (!processDocuments.length && handlerMetadata.start === true) {
-                await this.handleProcessMessage(
-                    processDocumentType,
-                    undefined,
-                    message,
-                );
-            }
-
-            for (const processDocument of processDocuments) {
-                await this.handleProcessMessage(
-                    processDocumentType,
-                    processDocument,
-                    message,
-                );
-            }
-
-            await this.session.commit();
-        } catch (error) {
-            await this.session.rollback();
-            throw error;
-        } finally {
-            this.session.release();
+        if (!processData.length && handlerMetadata.start === true) {
+            await this.handleProcessMessage(undefined, message);
         }
+
+        for (const data of processData) {
+            await this.handleProcessMessage(data, message);
+        }
+
+        //     await this.session.commit();
+        // } catch (error) {
+        //     await this.session.rollback();
+        //     throw error;
+        // } finally {
+        //     this.session.release();
+        // }
     }
 
     private async handleProcessMessage(
-        processDocumentType: Type,
-        processDocument: ProcessDocument | undefined,
+        data: ProcessData | undefined,
         message: BusMessage,
     ): Promise<void> {
         if (!this.session) {
@@ -85,20 +76,27 @@ export abstract class HandleProcess {
         );
 
         // apply event over projection instance
-        const updatedDocument = await (this as any)[
-            targetEventHandler.propertyKey
-        ](message.data, processDocument);
+        const updatedData = await (this as any)[targetEventHandler.propertyKey](
+            message.data,
+            data,
+        );
 
-        if (updatedDocument?.processEnded) {
-            const documentIdProperty =
-                getDocumentIdFieldMetadata(updatedDocument);
-            const documentId = (processDocument as any)[documentIdProperty];
-            if (!documentId) {
-                throw new DocumentInvalidIdError();
-            }
-            await this.session.document.delete(processDocumentType, documentId);
+        if (!(updatedData instanceof ProcessData)) {
+            throw new Error(
+                'must return valid process data from process handler',
+            );
+        }
+
+        if (updatedData?.hasEnded) {
+            await this.session.data.delete(processes, updatedData.id);
         } else {
-            await this.session.document.store(updatedDocument);
+            await this.session.data.store(processes, {
+                id: updatedData.id,
+                data: updatedData,
+                type: this.constructor.name,
+                associations: updatedData.associations,
+                hasEnded: updatedData.hasEnded,
+            });
         }
     }
 }

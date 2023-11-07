@@ -1,58 +1,43 @@
-import { Pool } from 'pg';
 import { Injectable } from '@nestjs/common';
-import { DocumentStore } from '../document/document-store.service';
+import { DataStore } from '../data/data-store.service';
 import { EventStore } from '../event/event-store.service';
 import { OutboxStore } from '../outbox/outbox-store.service';
-import { InjectStoreConnection } from '../store-connection.token';
+import { InjectDatabase } from '../database.token';
 import { Config, InjectConfig } from '../../config';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgTransaction } from 'drizzle-orm/pg-core/session';
 
 export type Session = {
-    document: DocumentStore;
+    data: DataStore;
     event: EventStore;
     outbox: OutboxStore;
-    commit: () => Promise<void>;
-    rollback: () => Promise<void>;
-    release: () => void;
 };
 
 @Injectable()
 export class StoreSession {
     constructor(
-        @InjectStoreConnection() private readonly pool: Pool,
+        @InjectDatabase() private readonly db: NodePgDatabase<any>,
         @InjectConfig() private readonly config: Config,
     ) {}
 
-    async start(): Promise<Session> {
-        const client = await this.pool.connect();
+    async start(tx: PgTransaction<any>): Promise<Session> {
+        return {} as any;
 
-        try {
-            await client.query('BEGIN');
-            const documentStore = new DocumentStore(client);
-            const eventStore = new EventStore(client);
-            const outboxStore = new OutboxStore(client, this.config);
+        //
+        // return {
+        //     data: documentStore,
+        //     event: eventStore,
+        //     outbox: outboxStore,
+        // };
 
-            return {
-                document: documentStore,
-                event: eventStore,
-                outbox: outboxStore,
-                commit: async () => {
-                    await client.query('COMMIT');
-                },
-                rollback: async () => {
-                    await client.query('ROLLBACK');
-                },
-                release: async () => {
-                    client.release();
-                },
-            };
-        } catch (error) {
-            try {
-                await client.query('ROLLBACK');
-            } finally {
-                client.release();
-            }
-
-            throw error;
-        }
+        // } catch (error) {
+        //     try {
+        //         await client.query('ROLLBACK');
+        //     } finally {
+        //         client.release();
+        //     }
+        //
+        //     throw error;
+        // }
     }
 }
