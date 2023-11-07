@@ -1,43 +1,40 @@
-// import { DocumentProjection, ProjectionEventHandler } from '../../lib';
-//
-// import {
-//     CustomerNameChanged,
-//     CustomerRegistered,
-// } from '../model/streams/customer.stream';
-//
-// import { CustomerDocument } from '../model/documents/customer.data';
-//
-// @DocumentProjection(CustomerDocument)
-// export class CustomerProjection {
-//     @ProjectionEventHandler(CustomerRegistered, (e) => e.customerId)
-//     onRegistered(event: CustomerRegistered) {
-//         return new CustomerDocument({
-//             customerId: event.customerId,
-//             name: event.name,
-//             age: event.age,
-//             hobbies: [],
-//             address: {
-//                 city: '',
-//                 postcode: '',
-//                 addressLine1: '',
-//                 addressLine2: '',
-//             },
-//         });
-//     }
-//
-//     @ProjectionEventHandler(CustomerNameChanged, (e) => e.customerId)
-//     onNameChanged(event: CustomerNameChanged, data: CustomerDocument) {
-//         return new CustomerDocument({
-//             customerId: data.customerId,
-//             name: event.name,
-//             age: data.age,
-//             hobbies: [],
-//             address: {
-//                 city: '',
-//                 postcode: '',
-//                 addressLine1: '',
-//                 addressLine2: '',
-//             },
-//         });
-//     }
-// }
+import { DataProjection, ProjectionEventHandler } from '../../../lib';
+
+import { customersTable } from '../../schema';
+
+import {
+    CustomerNameChanged,
+    CustomerRegistered,
+} from '../../command/customer.stream';
+
+import { InferInsertModel } from 'drizzle-orm';
+
+type CustomerData = InferInsertModel<typeof customersTable>;
+
+@DataProjection(customersTable)
+export class CustomerProjection {
+    @ProjectionEventHandler(CustomerRegistered, (e) => e.customerId)
+    onRegistered(event: CustomerRegistered): CustomerData {
+        return {
+            id: event.customerId,
+            firstName: event.firstName,
+            lastName: event.lastName,
+            hobbies: event.hobbies,
+            dateOfBirth: event.dateOfBirth,
+        };
+    }
+
+    @ProjectionEventHandler(CustomerNameChanged, (e) => e.customerId)
+    onNameChanged(
+        event: CustomerNameChanged,
+        existing: CustomerData,
+    ): CustomerData {
+        return {
+            id: existing.id,
+            firstName: event.firstName,
+            lastName: event.lastName,
+            dateOfBirth: existing.dateOfBirth,
+            hobbies: existing.hobbies,
+        };
+    }
+}

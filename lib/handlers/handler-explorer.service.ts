@@ -7,7 +7,7 @@ import { HandleCommand } from './command/handle-command';
 import { HandleEvent } from './event/handle-event';
 import { HandleQuery } from './query/handle-query';
 import {
-    DOCUMENT_PROJECTION_HANDLER,
+    DATA_PROJECTION_HANDLER,
     EVENT_PROJECTION_HANDLER,
 } from './projection/projection.decorators';
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
@@ -25,7 +25,7 @@ export type HandlerOptions = {
     queryHandlers: Type<HandleQuery>[];
     eventHandlers: Type<HandleEvent>[];
     eventGroupHandlers: Type<HandleEventGroup>[];
-    documentProjectionHandlers: Type[];
+    dataProjectionHandlers: Type[];
     eventProjectionHandlers: Type[];
     processHandlers: Type<HandleProcess>[];
     sagaHandlers: Type<HandleSaga>[];
@@ -58,10 +58,8 @@ export class HandlerExplorer {
                 this.filterProvider(instance, EVENT_GROUP_HANDLER_METADATA),
         );
 
-        const documentProjectionHandlers = this.flatMap<any>(
-            modules,
-            (instance) =>
-                this.filterProvider(instance, DOCUMENT_PROJECTION_HANDLER),
+        const dataProjectionHandlers = this.flatMap<any>(modules, (instance) =>
+            this.filterProvider(instance, DATA_PROJECTION_HANDLER),
         );
 
         const eventProjectionHandlers = this.flatMap<any>(modules, (instance) =>
@@ -83,7 +81,7 @@ export class HandlerExplorer {
             queryHandlers,
             eventHandlers,
             eventGroupHandlers,
-            documentProjectionHandlers,
+            dataProjectionHandlers,
             eventProjectionHandlers,
             processHandlers,
             sagaHandlers,

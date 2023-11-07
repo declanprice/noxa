@@ -1,9 +1,6 @@
-import { Session } from '../../store/session/store-session.service';
 import { Event } from './event.type';
-import { BusMessage } from '../../bus';
+import { DatabaseSession } from '../../store';
 
 export abstract class HandleEvent {
-    session!: Session;
-
-    abstract handle(command: Event, busMessage?: BusMessage): Promise<void>;
+    abstract handle(command: Event, session: DatabaseSession): Promise<void>;
 }

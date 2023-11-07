@@ -1,7 +1,5 @@
 import { randomUUID } from 'crypto';
 import { Injectable, Type } from '@nestjs/common';
-import { StreamRow } from './stream/stream-row.type';
-import { EventRow } from './event/event-row.type';
 import { Event } from '../../handlers';
 import { StreamNotFoundError } from './errors/stream-not-found.error';
 import { StreamNoEventsFoundError } from './errors/stream-no-events-found.error';
@@ -9,7 +7,7 @@ import { StreamEventHandlerNotAvailableError } from './errors/stream-event-handl
 import { InjectDatabase } from '../database.token';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PgTransaction } from 'drizzle-orm/pg-core/session';
-import { events, streams } from '../../schema/schema';
+import { eventsTable, streamsTable } from '../../schema/schema';
 import { and, asc, eq } from 'drizzle-orm';
 
 @Injectable()
@@ -23,7 +21,7 @@ export class EventStore {
         steam: Type,
         streamId: string,
         event: Event,
-        options?: { tx?: PgTransaction<any> },
+        options?: { tx?: PgTransaction<any, any, any> },
     ) {
         const { tx } = options || {};
 
@@ -31,7 +29,7 @@ export class EventStore {
 
         const now = new Date();
 
-        await db.insert(streams).values({
+        await db.insert(streamsTable).values({
             id: streamId,
             type: steam.name,
             version: 0,
@@ -41,7 +39,7 @@ export class EventStore {
             isArchived: false,
         });
 
-        await db.insert(events).values({
+        await db.insert(eventsTable).values({
             id: randomUUID(),
             streamId,
             version: 0,
@@ -55,7 +53,7 @@ export class EventStore {
     async hydrateStream<T>(
         stream: Type<T>,
         streamId: string,
-        options?: { tx?: PgTransaction<any> },
+        options?: { tx?: PgTransaction<any, any, any> },
     ): Promise<T> {
         const { tx } = options || {};
 
@@ -66,15 +64,18 @@ export class EventStore {
         const [streamRows, eventRows] = await Promise.all([
             db
                 .select()
-                .from(streams)
+                .from(streamsTable)
                 .where(
-                    and(eq(streams.id, streamId), eq(streams.type, streamType)),
+                    and(
+                        eq(streamsTable.id, streamId),
+                        eq(streamsTable.type, streamType),
+                    ),
                 ),
             db
                 .select()
-                .from(events)
-                .where(and(eq(events.streamId, streamId)))
-                .orderBy(asc(events.version)),
+                .from(eventsTable)
+                .where(and(eq(eventsTable.streamId, streamId)))
+                .orderBy(asc(eventsTable.version)),
         ]);
 
         if (streamRows.length === 0) {
@@ -110,7 +111,7 @@ export class EventStore {
         stream: Type,
         streamId: string,
         event: Event,
-        options?: { tx?: PgTransaction<any> },
+        options?: { tx?: PgTransaction<any, any, any> },
     ): Promise<void> {
         const { tx } = options || {};
 
@@ -120,8 +121,13 @@ export class EventStore {
 
         const streamRows = await db
             .select()
-            .from(streams)
-            .where(and(eq(streams.id, streamId), eq(streams.type, streamType)));
+            .from(streamsTable)
+            .where(
+                and(
+                    eq(streamsTable.id, streamId),
+                    eq(streamsTable.type, streamType),
+                ),
+            );
 
         if (streamRows.length === 0) {
             throw new StreamNotFoundError(streamType, streamId);
@@ -132,15 +138,15 @@ export class EventStore {
         const newVersion = Number(streamRow.version) + 1;
 
         await db
-            .update(streams)
+            .update(streamsTable)
             .set({
                 id: streamId,
                 version: newVersion,
                 timestamp: new Date(),
             })
-            .where(eq(streams.id, streamId));
+            .where(eq(streamsTable.id, streamId));
 
-        await db.insert(events).values({
+        await db.insert(eventsTable).values({
             id: randomUUID(),
             type: event.constructor.name,
             data: event,

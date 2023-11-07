@@ -1,16 +1,19 @@
 import { Inject, Type } from '@nestjs/common';
 import { Command } from '../command/command.type';
 import { Event } from '../event/event.type';
-import { StoreSession } from '../../store';
 import { BusMessage } from '../../bus';
 import { getSagaStartEvent, getSagaStartHandler } from './saga.decorators';
 import {
     InvalidSagaDefinitionError,
     InvalidSagaStepDefinitionError,
 } from './errors/invalid-saga-definition.error';
-import { Session } from '../../store/session/store-session.service';
+import { DatabaseSession } from '../../store/database-session.type';
 import { SagaData } from './saga.document';
-import { sagas } from '../../schema/schema';
+import { sagasTable } from '../../schema/schema';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DataStore, InjectDatabase, OutboxStore } from '../../store';
+import { InferSelectModel } from 'drizzle-orm';
+import { PgTransaction } from 'drizzle-orm/pg-core/session';
 
 export type SagaStepDefinition = {
     name: string;
@@ -31,13 +34,16 @@ export type SagaDefinition = {
     failOnEvents?: string[];
     failOnTimeout?: Date;
     completeOnStep?: number;
+    currentStepIndex: number;
 };
 
 export abstract class HandleSaga {
     private sagaType = this.constructor as Type;
 
     constructor(
-        @Inject(StoreSession) private readonly storeSession: StoreSession,
+        @InjectDatabase() private readonly db: NodePgDatabase,
+        @Inject(DataStore) private readonly dataStore: DataStore,
+        @Inject(OutboxStore) private readonly outboxStore: OutboxStore,
     ) {}
 
     async handle(message: BusMessage): Promise<void> {
@@ -57,18 +63,21 @@ export abstract class HandleSaga {
             return;
         }
 
-        const session: any = {};
-
-        try {
+        await this.db.transaction(async (tx) => {
             const sagaId = startEvent.associationId(message.data);
 
             if (startEvent.event.name === message.type) {
-                await session.document.store(
-                    new SagaData({
-                        sagaId,
+                await this.dataStore.store(
+                    sagasTable,
+                    {
+                        id: sagaId,
+                        timestamp: new Date(),
+                        type: this.constructor.name,
                         definition: builder.definition,
-                        currentStepIndex: 0,
-                    }),
+                    },
+                    {
+                        tx,
+                    },
                 );
 
                 const firstStep = builder.definition.steps.sort(
@@ -76,64 +85,59 @@ export abstract class HandleSaga {
                 )[0];
 
                 if (firstStep.publishCommand) {
-                    await session.outbox.publishMessage(
+                    await this.outboxStore.publishMessage(
                         'command',
                         firstStep.publishCommand.type,
                         firstStep.publishCommand.data,
+                        { tx },
                     );
                 }
 
-                await session.commit();
-
-                console.log(
+                return console.log(
                     `started new saga instance ${this.sagaType.name}:${sagaId}.`,
                 );
-
-                return;
             }
 
-            const sagaDocument = await session.document.find(sagas, sagaId);
+            const saga = await this.dataStore.find(sagasTable, sagaId, {
+                tx,
+            });
 
-            if (!sagaDocument) {
-                console.log(
+            if (!saga) {
+                return console.log(
                     `saga of type ${this.sagaType.name}:${sagaId} has already completed.`,
                 );
-                return await session.commit();
             }
 
-            const steps = sagaDocument.definition.steps.sort(
-                (s: any) => s.position,
-            );
+            const steps = saga.definition.steps.sort((s: any) => s.position);
 
-            if (this.isSagaFail(sagaDocument, message)) {
+            if (this.isSagaFail(saga, message)) {
                 await this.publishCompensatingCommands(
                     steps,
-                    sagaDocument.currentStepIndex,
-                    session,
+                    saga.definition.currentStepIndex,
+                    tx,
                 );
-                await session.document.delete(sagas, sagaId);
-                await session.commit();
-                console.log(
+
+                await this.dataStore.delete(sagasTable, sagaId, { tx });
+
+                return console.log(
                     `saga of type ${this.sagaType.name}:${sagaId} has ended with failure.`,
                 );
-                return;
             }
 
-            if (this.isSagaComplete(sagaDocument, message)) {
-                console.log(
+            if (this.isSagaComplete(saga, message)) {
+                await this.dataStore.delete(sagasTable, sagaId, { tx });
+
+                return console.log(
                     `saga ${this.sagaType.name}:${sagaId} has successfully complete.`,
                 );
-                await session.document.delete(sagas, sagaId);
-                await session.commit();
-                return;
             }
 
-            const currentStep = steps[sagaDocument.currentStepIndex];
+            const currentStep = steps[saga.definition.currentStepIndex];
 
             if (currentStep.andExpectEvent === message.type) {
-                sagaDocument.currentStepIndex += 1;
+                saga.definition.currentStepIndex += 1;
 
-                const nextStep = steps[sagaDocument.currentStepIndex];
+                const nextStep = steps[saga.definition.currentStepIndex];
 
                 console.log(
                     `saga ${this.sagaType.name}:${sagaId} is moving onto step ${nextStep.name}.`,
@@ -142,7 +146,7 @@ export abstract class HandleSaga {
                 if (!nextStep.publishCommand) {
                     throw new InvalidSagaStepDefinitionError(
                         this.sagaType,
-                        sagaDocument.currentStepIndex,
+                        saga.definition.currentStepIndex,
                     );
                 }
 
@@ -150,36 +154,35 @@ export abstract class HandleSaga {
                     `saga ${this.sagaType.name}:${sagaId} publishing command ${nextStep.publishCommand.type}.`,
                 );
 
-                await session.outbox.publishMessage(
+                await this.outboxStore.publishMessage(
                     'command',
                     nextStep.publishCommand.type,
                     nextStep.publishCommand.data,
+                    { tx },
                 );
 
-                await session.document.store(sagaDocument);
-
-                await session.commit();
+                await this.dataStore.store(sagasTable, saga, { tx });
             }
-        } catch (error) {
-            console.log(error);
-            await session.rollback();
-            throw error;
-        } finally {
-            session.release();
-        }
+        });
     }
 
-    private isSagaFail = (saga: SagaData, message: BusMessage) => {
+    private isSagaFail = (
+        saga: InferSelectModel<typeof sagasTable>,
+        message: BusMessage,
+    ) => {
         return saga.definition.failOnEvents?.includes(message.type);
     };
 
-    private isSagaComplete = (saga: SagaData, message: BusMessage) => {
+    private isSagaComplete = (
+        saga: InferSelectModel<typeof sagasTable>,
+        message: BusMessage,
+    ) => {
         const steps = saga.definition.steps.sort((s: any) => s.position);
         const totalSteps = steps.length;
-        const currentStep = steps[saga.currentStepIndex];
+        const currentStep = steps[saga.definition.currentStepIndex];
 
         return (
-            totalSteps - 1 === saga.currentStepIndex &&
+            totalSteps - 1 === saga.definition.currentStepIndex &&
             currentStep.andExpectEvent === message.type
         );
     };
@@ -187,7 +190,7 @@ export abstract class HandleSaga {
     private async publishCompensatingCommands(
         steps: SagaStepDefinition[],
         failedAtStepIndex: number,
-        session: Session,
+        tx: PgTransaction<any, any, any>,
     ): Promise<void> {
         for (const step of steps) {
             if (step.position === failedAtStepIndex) break;
@@ -199,10 +202,11 @@ export abstract class HandleSaga {
                     `sending compensation command for step ${step.name}.`,
                 );
 
-                await session.outbox.publishMessage(
+                await this.outboxStore.publishMessage(
                     'command',
                     compensateCommand.type,
                     compensateCommand.data,
+                    { tx },
                 );
             }
         }
@@ -210,7 +214,7 @@ export abstract class HandleSaga {
 }
 
 export class SagaBuilder {
-    public definition: SagaDefinition = { steps: [] };
+    public definition: SagaDefinition = { steps: [], currentStepIndex: 0 };
 
     step(name: string): SagaStepBuilder {
         return new SagaStepBuilder(name, this.definition);

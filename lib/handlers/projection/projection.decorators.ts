@@ -1,9 +1,10 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
+import { PgTable } from 'drizzle-orm/pg-core';
 
 export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
 
-export const DOCUMENT_PROJECTION_HANDLER = 'DOCUMENT_PROJECTION_HANDLER';
+export const DATA_PROJECTION_HANDLER = 'DATA_PROJECTION_HANDLER';
 
 export const PROJECTION_OPTIONS_METADATA = 'PROJECTION_OPTIONS_METADATA';
 
@@ -32,12 +33,12 @@ export const EventProjection = (
     };
 };
 
-export const DocumentProjection = (
-    document: Type,
+export const DataProjection = (
+    table: PgTable,
     options?: ProjectionOptionsMetadata,
 ): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(DOCUMENT_PROJECTION_HANDLER, document, target);
+        Reflect.defineMetadata(DATA_PROJECTION_HANDLER, table, target);
         Reflect.defineMetadata(
             PROJECTION_OPTIONS_METADATA,
             options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
@@ -95,17 +96,14 @@ export const getProjectionOptionMetadata = (
     return options;
 };
 
-export const getProjectionDocumentMetadata = (projection: Type): Type => {
-    const document = Reflect.getMetadata(
-        DOCUMENT_PROJECTION_HANDLER,
-        projection,
-    ) as Type;
+export const getProjectionDataMetadata = (projection: Type): PgTable => {
+    const table = Reflect.getMetadata(DATA_PROJECTION_HANDLER, projection);
 
-    if (!document) {
-        throw new Error(`projection ${projection} has no document metadata.`);
+    if (!table) {
+        throw new Error(`projection ${projection} has no data metadata.`);
     }
 
-    return document;
+    return table;
 };
 
 export const getProjectionEventTypesMetadata = (

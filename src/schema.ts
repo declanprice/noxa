@@ -1,18 +1,20 @@
 import { jsonb, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export {
-    events,
-    streams,
-    outbox,
-    tokens,
-    processes,
-    sagas,
+    eventsTable,
+    streamsTable,
+    outboxTable,
+    tokensTable,
+    processesTable,
+    sagasTable,
 } from '../lib/schema/schema';
 
-export const customers = pgTable('customers', {
+export const customersTable = pgTable('customers', {
     id: uuid('id').primaryKey(),
     firstName: varchar('first_name').notNull(),
     lastName: varchar('last_name').notNull(),
-    dateOfBirth: timestamp('date_of_birth').notNull(),
+    dateOfBirth: timestamp('date_of_birth', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
     hobbies: jsonb('hobbies').notNull().default([]).$type<string[]>(),
 });

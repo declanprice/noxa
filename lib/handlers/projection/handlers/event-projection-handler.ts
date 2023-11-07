@@ -4,14 +4,18 @@ import { Type } from '@nestjs/common';
 import { StoredProjectionToken } from '../stored-projection-token';
 import { ProjectionUnsupportedEventError } from '../../../async-daemon/errors/projection-unsupported-event.error';
 import { EventRow } from '../../../store/event/event/event-row.type';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgTransaction } from 'drizzle-orm/pg-core/session';
+import { InferSelectModel } from 'drizzle-orm';
+import { eventsTable } from '../../../schema/schema';
 
 export class EventProjectionHandler extends ProjectionHandler {
     async handleEvents(
-        connection: Pool | PoolClient,
+        db: NodePgDatabase<any> | PgTransaction<any>,
         projection: any,
         projectionType: Type,
-        events: EventRow[],
-    ): Promise<StoredProjectionToken> {
+        events: InferSelectModel<typeof eventsTable>[],
+    ) {
         for (const event of events) {
             const targetEventHandler = Reflect.getMetadata(
                 event.type,
@@ -29,7 +33,7 @@ export class EventProjectionHandler extends ProjectionHandler {
         }
 
         return await this.updateTokenPosition(
-            connection,
+            db,
             projectionType,
             events[events.length - 1].sequenceId,
         );

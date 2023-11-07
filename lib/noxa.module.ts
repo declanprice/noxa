@@ -9,13 +9,7 @@ import {
     QueryBus,
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
-import {
-    DataStore,
-    EventStore,
-    OutboxStore,
-    DATABASE_TOKEN,
-    StoreSession,
-} from './store';
+import { DataStore, EventStore, OutboxStore, DATABASE_TOKEN } from './store';
 import { AsyncDaemon } from './async-daemon/async-daemon';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
@@ -32,7 +26,6 @@ export type NoxaModuleOptions = {
         DataStore,
         EventStore,
         OutboxStore,
-        StoreSession,
     ],
     providers: [
         CommandBus,
@@ -41,7 +34,6 @@ export type NoxaModuleOptions = {
         DataStore,
         EventStore,
         OutboxStore,
-        StoreSession,
         AsyncDaemon,
         HandlerExplorer,
     ],
@@ -87,6 +79,8 @@ export class NoxaModule implements OnApplicationBootstrap {
         const {
             commandHandlers,
             queryHandlers,
+            dataProjectionHandlers,
+            eventProjectionHandlers,
             eventHandlers,
             eventGroupHandlers,
             processHandlers,
@@ -97,18 +91,19 @@ export class NoxaModule implements OnApplicationBootstrap {
 
         await this.commandBus.registerCommandHandlers(commandHandlers);
         await this.queryBus.registerQueryHandlers(queryHandlers);
+
         // await this.eventBus.registerEventHandlers(eventHandlers);
         // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
         // await this.eventBus.registerProcessHandlers(processHandlers);
         // await this.eventBus.registerSagaHandlers(sagaHandlers);
 
-        // if (this.config.asyncDaemon.enabled) {
-        //     this.asyncDaemon
-        //         .start({
-        //             data: documentProjectionHandlers,
-        //             event: eventProjectionHandlers,
-        //         })
-        //         .then();
-        // }
+        if (this.config.asyncDaemon.enabled) {
+            this.asyncDaemon
+                .start({
+                    data: dataProjectionHandlers,
+                    event: eventProjectionHandlers,
+                })
+                .then();
+        }
     }
 }

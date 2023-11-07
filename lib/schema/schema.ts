@@ -9,8 +9,12 @@ import {
     uuid,
     varchar,
 } from 'drizzle-orm/pg-core';
+import {
+    SagaDefinition,
+    SagaStepDefinition,
+} from '../handlers/saga/handle-saga';
 
-export const streams = pgTable('streams', {
+export const streamsTable = pgTable('streams', {
     id: uuid('id').primaryKey(),
     type: varchar('type').notNull(),
     version: bigint('version', { mode: 'number' }).notNull(),
@@ -20,12 +24,12 @@ export const streams = pgTable('streams', {
     isArchived: boolean('is_archive').notNull().default(false),
 });
 
-export const events = pgTable('events', {
+export const eventsTable = pgTable('events', {
     sequenceId: serial('sequence_id').primaryKey(),
     id: uuid('id').unique(),
     streamId: uuid('stream_id')
         .notNull()
-        .references(() => streams.id),
+        .references(() => streamsTable.id),
     version: bigint('version', { mode: 'number' }).notNull(),
     data: jsonb('data').notNull().default({}),
     type: varchar('type').notNull(),
@@ -33,25 +37,25 @@ export const events = pgTable('events', {
     isArchived: boolean('is_archived').notNull().default(false),
 });
 
-export const outbox = pgTable('outbox', {
+export const outboxTable = pgTable('outbox', {
     id: uuid('id').primaryKey(),
-    toBus: pgEnum('toBusEnum', ['command', 'event'])('to_bus')
-        .notNull()
-        .$type<'command' | 'event'>(),
-    timestamp: timestamp('timestamp').defaultNow(),
+    toBus: varchar('to_bus').notNull().$type<'command' | 'event'>(),
+    timestamp: timestamp('timestamp').notNull().defaultNow(),
     type: varchar('type').notNull(),
     data: jsonb('data').notNull().default({}),
     published: boolean('published').notNull().default(false),
     publishedTimestamp: timestamp('published_timestamp'),
 });
 
-export const tokens = pgTable('tokens', {
+export const tokensTable = pgTable('tokens', {
     name: varchar('name').notNull().primaryKey(),
-    lastSequenceId: bigint('last_sequence_id', { mode: 'number' }).default(0),
-    timestamp: timestamp('timestamp').defaultNow(),
+    lastSequenceId: bigint('last_sequence_id', { mode: 'number' })
+        .notNull()
+        .default(0),
+    timestamp: timestamp('timestamp').notNull().defaultNow(),
 });
 
-export const processes = pgTable('processes', {
+export const processesTable = pgTable('processes', {
     id: uuid('id').primaryKey(),
     type: varchar('type').notNull(),
     data: jsonb('data').notNull().default({}),
@@ -60,9 +64,9 @@ export const processes = pgTable('processes', {
     timestamp: timestamp('timestamp').defaultNow(),
 });
 
-export const sagas = pgTable('sagas', {
+export const sagasTable = pgTable('sagas', {
     id: uuid('id').primaryKey(),
     type: varchar('type').notNull(),
-    data: jsonb('data').notNull().default({}),
+    definition: jsonb('definition').$type<SagaDefinition>().notNull(),
     timestamp: timestamp('timestamp').notNull().defaultNow(),
 });

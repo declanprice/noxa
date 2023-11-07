@@ -5,8 +5,7 @@ import { PgTable } from 'drizzle-orm/pg-core';
 import { PgTransaction } from 'drizzle-orm/pg-core/session';
 
 import { InjectDatabase } from '../database.token';
-import { DocumentNotFoundError } from './errors/document-not-found.error';
-import { customers } from '../../../src/schema';
+import { DataNotFoundError } from './errors/data-not-found.error';
 
 @Injectable()
 export class DataStore {
@@ -15,7 +14,7 @@ export class DataStore {
         private readonly db: NodePgDatabase<any>,
     ) {}
 
-    query(table: PgTable, options: { tx?: PgTransaction<any> } = {}) {
+    query(table: PgTable, options: { tx?: PgTransaction<any, any, any> } = {}) {
         const { tx } = options;
 
         let db = tx ?? this.db;
@@ -26,7 +25,7 @@ export class DataStore {
     async get<T extends PgTable>(
         table: T,
         documentId: string,
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
 
@@ -38,7 +37,7 @@ export class DataStore {
             .where(eq((table as any).id, documentId));
 
         if (results.length === 0) {
-            throw new DocumentNotFoundError();
+            throw new DataNotFoundError();
         }
 
         return results[0];
@@ -47,7 +46,7 @@ export class DataStore {
     async find<T extends PgTable>(
         table: T,
         documentId: string,
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
 
@@ -68,7 +67,7 @@ export class DataStore {
     async findMany<T extends PgTable>(
         table: T,
         documentIds: string[],
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
 
@@ -83,7 +82,7 @@ export class DataStore {
     async store<T extends PgTable>(
         table: T,
         values: InferInsertModel<T>,
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ): Promise<void> {
         const { tx } = options;
 
@@ -101,7 +100,7 @@ export class DataStore {
     async storeMany<T extends PgTable>(
         table: T,
         values: InferInsertModel<T>[],
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ): Promise<void> {
         const { tx } = options;
 
@@ -120,16 +119,19 @@ export class DataStore {
             onConflictSet[key] = sql.raw(`excluded.${column.name}`);
         }
 
-        await db.insert(table).values(values).onConflictDoUpdate({
-            target: customers.id,
-            set: onConflictSet,
-        });
+        await db
+            .insert(table)
+            .values(values)
+            .onConflictDoUpdate({
+                target: (table as any).id,
+                set: onConflictSet,
+            });
     }
 
     async delete(
         table: PgTable,
         id: string,
-        options: { tx?: PgTransaction<any> } = {},
+        options: { tx?: PgTransaction<any, any, any> } = {},
     ): Promise<void> {
         const { tx } = options;
 

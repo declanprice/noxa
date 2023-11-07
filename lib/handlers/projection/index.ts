@@ -1,5 +1,5 @@
 export {
-  DocumentProjection,
-  EventProjection,
-  ProjectionEventHandler,
+    DataProjection,
+    EventProjection,
+    ProjectionEventHandler,
 } from './projection.decorators';

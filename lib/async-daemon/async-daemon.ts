@@ -6,34 +6,32 @@ import { DataStore, InjectDatabase } from '../store';
 import { BusRelay, InjectBusRelay } from '../bus';
 import { EventPoller } from './event.poller';
 import { OutboxPoller } from './outbox-poller';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 @Injectable()
 export class AsyncDaemon {
     constructor(
-        @InjectDatabase() private readonly pool: Pool,
+        @InjectDatabase() private readonly db: NodePgDatabase<any>,
         @InjectBusRelay() private readonly busRelay: BusRelay,
-        private readonly documentStore: DataStore,
+        private readonly dataStore: DataStore,
         private readonly moduleRef: ModuleRef,
     ) {}
 
     logger = new Logger(AsyncDaemon.name);
 
-    async start(projections: {
-        document: Type[];
-        event: Type[];
-    }): Promise<void> {
+    async start(projections: { data: Type[]; event: Type[] }): Promise<void> {
         this.logger.log('starting async daemon.');
 
-        new OutboxPoller(this.pool, this.busRelay).start().then();
+        new OutboxPoller(this.db, this.busRelay).start().then();
 
-        projections.document.forEach((projection) => {
-            new EventPoller(this.pool, this.moduleRef, this.documentStore)
+        projections.data.forEach((projection) => {
+            new EventPoller(this.db, this.moduleRef, this.dataStore)
                 .start(projection, 'document')
                 .then();
         });
 
         projections.event.forEach((projection) => {
-            new EventPoller(this.pool, this.moduleRef, this.documentStore)
+            new EventPoller(this.db, this.moduleRef, this.dataStore)
                 .start(projection, 'event')
                 .then();
         });

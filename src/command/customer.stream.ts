@@ -3,44 +3,36 @@ import { Command, Event, Stream, StreamEventHandler } from '../../lib';
 export class RegisterCustomer implements Command {
     constructor(
         public customerId: string,
-        public name: string,
-        public age: number,
+        public firstName: string,
+        public lastName: string,
+        public dateOfBirth: string,
+        public hobbies: string[],
     ) {}
 }
 
 export class ChangeCustomerName implements Command {
     constructor(
         public customerId: string,
-        public name: string,
-    ) {}
-}
-
-export class ChangeCustomerAge implements Command {
-    constructor(
-        public customerId: string,
-        public age: number,
+        public firstName: string,
+        public lastName: string,
     ) {}
 }
 
 export class CustomerRegistered implements Event {
     constructor(
         public customerId: string,
-        public name: string,
-        public age: number,
+        public firstName: string,
+        public lastName: string,
+        public dateOfBirth: string,
+        public hobbies: string[],
     ) {}
 }
 
 export class CustomerNameChanged implements Event {
     constructor(
         public customerId: string,
-        public name: string,
-    ) {}
-}
-
-export class CustomerAgeChanged implements Event {
-    constructor(
-        public customerId: string,
-        public age: number,
+        public firstName: string,
+        public lastName: string,
     ) {}
 }
 
@@ -48,25 +40,24 @@ export class CustomerAgeChanged implements Event {
     snapshotPeriod: 10,
 })
 export class CustomerStream {
-    customerId?: string;
-    name?: string;
-    age?: number;
+    customerId!: string;
+    firstName!: string;
+    lastName!: string;
+    dateOfBirth!: string;
+    hobbies!: string[];
 
     @StreamEventHandler(CustomerRegistered)
     onCustomerRegistered(event: CustomerRegistered) {
-        console.log('event handlers called with event', event);
         this.customerId = event.customerId;
-        this.name = event.name;
-        this.age = event.age;
+        this.firstName = event.firstName;
+        this.lastName = event.lastName;
+        this.dateOfBirth = event.dateOfBirth;
+        this.hobbies = event.hobbies;
     }
 
     @StreamEventHandler(CustomerNameChanged)
     onCustomerNameChanged(event: CustomerNameChanged) {
-        this.name = event.name;
-    }
-
-    @StreamEventHandler(CustomerAgeChanged)
-    onAgeChange(event: CustomerAgeChanged) {
-        this.age = event.age;
+        this.firstName = event.firstName;
+        this.lastName = event.lastName;
     }
 }

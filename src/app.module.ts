@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { NoxaModule, RabbitmqBus } from '../lib';
 import { AppController } from './app.controller';
-import { RegisterCustomerHandler } from './command/handlers/register-customer.handlers';
+import { RegisterCustomerHandler } from './command/handlers/register-customer.handler';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 import { GetCustomersHandler } from './query/handlers/get-customers.handler';
+import { ChangeCustomerNameHandler } from './command/handlers/change-customer-name.handler';
+import { CustomerProjection } from './query/projections/customer.projection';
 
 const database = drizzle(
     new Pool({
@@ -21,7 +23,12 @@ const bus = new RabbitmqBus({
 
 @Module({
     controllers: [AppController],
-    providers: [RegisterCustomerHandler, GetCustomersHandler],
+    providers: [
+        RegisterCustomerHandler,
+        ChangeCustomerNameHandler,
+        GetCustomersHandler,
+        CustomerProjection,
+    ],
     imports: [
         NoxaModule.forRoot({
             serviceName: 'Restaurant',

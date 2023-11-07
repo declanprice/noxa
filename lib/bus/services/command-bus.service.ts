@@ -90,18 +90,12 @@ export class CommandBus {
             throw new Error(`command handler not found for ${type}`);
         }
 
-        let result;
-
-        await this.db.transaction(async (tx) => {
-            handler.session = {
+        return await this.db.transaction(async (tx) => {
+            return await handler.handle(data, {
                 data: new DataStore(tx),
                 event: new EventStore(tx),
                 outbox: new OutboxStore(tx),
-            };
-
-            result = await handler.handle(data, originalMessage);
+            });
         });
-
-        return result;
     }
 }

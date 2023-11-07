@@ -1,24 +1,25 @@
 import { Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Pool } from 'pg';
 import {
     getProjectionEventTypesMetadata,
     getProjectionOptionMetadata,
 } from '../handlers/projection/projection.decorators';
-import { StoredProjectionToken } from '../handlers/projection/stored-projection-token';
-import { EventRow } from '../store/event/event/event-row.type';
-import { DocumentProjectionHandler } from '../handlers/projection/handlers/document-projection-handler';
+import { DataProjectionHandler } from '../handlers/projection/handlers/data-projection-handler';
 import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
 import { DataStore } from '../store';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { and, asc, eq, gt, inArray, InferSelectModel } from 'drizzle-orm';
+import { eventsTable, tokensTable } from '../schema/schema';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
+
     pollTimeInMs = 500;
 
     constructor(
-        private readonly connection: Pool,
+        private readonly db: NodePgDatabase<any>,
         private readonly moduleRef: ModuleRef,
-        private readonly documentStore: DataStore,
+        private readonly dataStore: DataStore,
     ) {}
 
     async start(projectionType: Type, type: 'document' | 'event') {
@@ -40,14 +41,21 @@ export class EventPoller {
         projectionType: Type,
         handlerType: 'document' | 'event',
         eventTypes: string[],
-        token: StoredProjectionToken,
+        token: InferSelectModel<typeof tokensTable>,
     ) {
-        const events = await this.connection.query({
-            text: `select * from noxa_events where "type" = ANY ($1) AND "sequenceId" > $2 order by "sequenceId" asc limit $3`,
-            values: [eventTypes, token.lastSequenceId, 25000],
-        });
+        const events = await this.db
+            .select()
+            .from(eventsTable)
+            .where(
+                and(
+                    inArray(eventsTable.type, eventTypes),
+                    gt(eventsTable.sequenceId, token.lastSequenceId),
+                ),
+            )
+            .orderBy(asc(eventsTable.sequenceId))
+            .limit(25000);
 
-        if (events.rowCount === 0) {
+        if (events.length === 0) {
             return setTimeout(() => {
                 this.pollEvents(
                     projectionType,
@@ -59,15 +67,15 @@ export class EventPoller {
         }
 
         this.logger.log(
-            `${events.rowCount} events available, processing batch now.`,
+            `${events.length} events available, processing batch now.`,
         );
 
-        let updatedToken: StoredProjectionToken;
+        let updatedToken: InferSelectModel<typeof tokensTable>;
 
         const beforeDate = Date.now();
 
-        const documentProjectionHandler = new DocumentProjectionHandler(
-            this.documentStore,
+        const documentProjectionHandler = new DataProjectionHandler(
+            this.dataStore,
         );
 
         const eventProjectionHandler = new EventProjectionHandler();
@@ -79,18 +87,18 @@ export class EventPoller {
         switch (handlerType) {
             case 'document':
                 updatedToken = await documentProjectionHandler.handleEvents(
-                    this.connection,
+                    this.db,
                     projection,
                     projectionType,
-                    events.rows as EventRow[],
+                    events,
                 );
                 break;
             case 'event':
                 updatedToken = await eventProjectionHandler.handleEvents(
-                    this.connection,
+                    this.db,
                     projection,
                     projectionType,
-                    events.rows as EventRow[],
+                    events,
                 );
                 break;
             default:
@@ -101,7 +109,7 @@ export class EventPoller {
         }
 
         this.logger.log(
-            `successfully processed batch of ${events.rowCount} in ${Math.abs(
+            `successfully processed batch of ${events} in ${Math.abs(
                 (beforeDate - Date.now()) / 1000,
             )} seconds., checking for more events in 1 second.`,
         );
@@ -116,25 +124,27 @@ export class EventPoller {
         }, this.pollTimeInMs);
     }
 
-    async getProjectionToken(name: string): Promise<StoredProjectionToken> {
-        let storedToken!: StoredProjectionToken;
+    async getProjectionToken(
+        name: string,
+    ): Promise<InferSelectModel<typeof tokensTable>> {
+        const tokens = await this.db
+            .select()
+            .from(tokensTable)
+            .where(eq(tokensTable.name, name));
 
-        const result = await this.connection.query({
-            text: 'select * from noxa_projection_tokens where name = $1',
-            values: [name],
-        });
-
-        if (result.rowCount === 0) {
-            const { rows } = await this.connection.query({
-                text: `insert into noxa_projection_tokens ("name", "lastSequenceId", "lastUpdated") values ($1, $2, $3) returning *`,
-                values: [name, -1, new Date().toISOString()],
-            });
-
-            storedToken = rows[0];
-        } else {
-            storedToken = result.rows[0];
+        if (tokens.length) {
+            return tokens[0];
         }
 
-        return storedToken;
+        const newTokens = await this.db
+            .insert(tokensTable)
+            .values({
+                name,
+                lastSequenceId: -1,
+                timestamp: new Date(),
+            })
+            .returning();
+
+        return newTokens[0];
     }
 }

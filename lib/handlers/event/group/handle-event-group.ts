@@ -1,17 +1,17 @@
-import { Inject } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
-import { StoreSession } from '../../../store';
-import { Session } from '../../../store/session/store-session.service';
+import {
+    DataStore,
+    EventStore,
+    InjectDatabase,
+    OutboxStore,
+} from '../../../store';
 import { BusMessage } from '../../../bus';
 import { getEventGroupHandler } from './event-group.decorator';
 import { GroupCannotHandleEventTypeError } from '../../../bus/services/errors/group-cannot-handle-event-type.error';
 
 export abstract class HandleEventGroup {
-    session!: Session;
-
-    constructor(
-        @Inject(StoreSession) public readonly storeSession: StoreSession,
-    ) {}
+    constructor(@InjectDatabase() public readonly db: NodePgDatabase) {}
 
     async handle(message: BusMessage): Promise<void> {
         const handler = getEventGroupHandler(this.constructor, message.type);
@@ -23,16 +23,12 @@ export abstract class HandleEventGroup {
             );
         }
 
-        // this.session = await this.storeSession.start();
-
-        // try {
-        await (this as any)[handler](message.data);
-        //     await this.session.commit();
-        // } catch (error) {
-        //     await this.session.rollback();
-        //     throw error;
-        // } finally {
-        //     this.session.release();
-        // }
+        await this.db.transaction(async (tx) => {
+            await (this as any)[handler](message.data, {
+                data: new DataStore(tx),
+                event: new EventStore(tx),
+                outbox: new OutboxStore(tx),
+            });
+        });
     }
 }

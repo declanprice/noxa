@@ -4,7 +4,7 @@ import { Command, Event } from '../../handlers';
 import { InjectDatabase } from '../database.token';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PgTransaction } from 'drizzle-orm/pg-core/session';
-import { outbox } from '../../schema/schema';
+import { outboxTable } from '../../schema/schema';
 import { eq } from 'drizzle-orm';
 
 @Injectable()
@@ -18,13 +18,13 @@ export class OutboxStore {
         bus: 'command' | 'event',
         type: string,
         data: any,
-        options?: { timestamp?: string; tx?: PgTransaction<any> },
+        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
     ): Promise<void> {
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.insert(outbox).values({
+        await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: bus,
             timestamp: timestamp ? new Date(timestamp) : new Date(),
@@ -37,7 +37,7 @@ export class OutboxStore {
 
     async publishCommand(
         command: Command,
-        options?: { timestamp?: string; tx?: PgTransaction<any> },
+        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -45,7 +45,7 @@ export class OutboxStore {
 
         const db = tx ?? this.db;
 
-        await db.insert(outbox).values({
+        await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: 'command',
             timestamp: timestamp ? new Date(timestamp) : new Date(),
@@ -60,7 +60,7 @@ export class OutboxStore {
 
     async publishEvent(
         event: Event,
-        options?: { timestamp?: string; tx?: PgTransaction<any> },
+        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -68,7 +68,7 @@ export class OutboxStore {
 
         const db = tx ?? this.db;
 
-        await db.insert(outbox).values({
+        await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: 'event',
             timestamp: timestamp ? new Date(timestamp) : new Date(),
@@ -81,11 +81,14 @@ export class OutboxStore {
         return messageId;
     }
 
-    async unpublish(messageId: string, options?: { tx?: PgTransaction<any> }) {
+    async unpublish(
+        messageId: string,
+        options?: { tx?: PgTransaction<any, any, any> },
+    ) {
         const { tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.delete(outbox).where(eq(outbox.id, messageId));
+        await db.delete(outboxTable).where(eq(outboxTable.id, messageId));
     }
 }

@@ -1,12 +1,12 @@
-import * as format from 'pg-format';
-import { Pool } from 'pg';
 import { Logger } from '@nestjs/common';
-import { StoredOutboxMessage } from '../store/outbox/outbox-message/stored-outbox-message.type';
 import { BusRelay } from '../bus';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { outboxTable } from '../schema/schema';
+import { and, asc, eq, inArray, lte, sql } from 'drizzle-orm';
 
 export class OutboxPoller {
     constructor(
-        private readonly client: Pool,
+        private readonly db: NodePgDatabase<any>,
         private busRelay: BusRelay,
     ) {}
 
@@ -15,11 +15,18 @@ export class OutboxPoller {
     pollTimeInMs = 100;
 
     async start(): Promise<any> {
-        const result = await this.client.query({
-            text: `select * from noxa_outbox where published = false and timestamp <= now() order by timestamp ASC`,
-        });
+        const messages = await this.db
+            .select()
+            .from(outboxTable)
+            .where(
+                and(
+                    eq(outboxTable.published, false),
+                    lte(outboxTable.timestamp, sql`now()`),
+                ),
+            )
+            .orderBy(asc(outboxTable.timestamp));
 
-        if (result.rowCount === 0) {
+        if (messages.length === 0) {
             return setTimeout(() => {
                 this.start().then();
             }, this.pollTimeInMs);
@@ -27,35 +34,36 @@ export class OutboxPoller {
 
         let messageIds: string[] = [];
 
-        for (const row of result.rows as StoredOutboxMessage[]) {
-            if (row.toBus === 'command') {
+        for (const message of messages) {
+            if (message.toBus === 'command') {
                 await this.busRelay.sendCommand({
-                    type: row.type,
-                    timestamp: row.timestamp,
-                    data: row.data,
+                    type: message.type,
+                    timestamp: message.timestamp.toISOString(),
+                    data: message.data,
                 });
             }
 
-            if (row.toBus === 'event') {
+            if (message.toBus === 'event') {
                 await this.busRelay.sendEvent({
-                    type: row.type,
-                    timestamp: row.timestamp,
-                    data: row.data,
+                    type: message.type,
+                    timestamp: message.timestamp.toISOString(),
+                    data: message.data,
                 });
             }
 
-            messageIds.push(row.id);
+            messageIds.push(message.id);
         }
 
-        await this.client.query(
-            format(
-                `UPDATE noxa_outbox SET published = true, "publishedTimestamp" = now() WHERE id IN (%L)`,
-                messageIds,
-            ),
-        );
+        await this.db
+            .update(outboxTable)
+            .set({
+                published: true,
+                publishedTimestamp: sql`now()`,
+            })
+            .where(inArray(outboxTable.id, messageIds));
 
         this.logger.log(
-            `successfully published ${result.rowCount} messages, checking for more in 1 second.`,
+            `successfully published ${messages.length} messages, checking for more in 1 second.`,
         );
 
         return setTimeout(() => {

@@ -1,65 +1,66 @@
-import { Inject, Type } from '@nestjs/common';
+import { Type } from '@nestjs/common';
 import {
     getProcessDocumentMetadata,
     getProcessEventHandlerMetadata,
 } from './process.decorators';
-import { DataStore, StoreSession } from '../../store';
 import { BusMessage } from '../../bus';
-import { Session } from '../../store/session/store-session.service';
-import { DocumentInvalidIdError } from '../../store/data/errors/document-invalid-id.error';
-import { processes } from '../../schema/schema';
 import { ProcessData } from './process.data';
+import {
+    InjectDatabase,
+    DatabaseSession,
+    DataStore,
+    EventStore,
+    OutboxStore,
+} from '../../store';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export abstract class HandleProcess {
-    session!: Session;
+    session!: DatabaseSession;
 
-    constructor(
-        @Inject(StoreSession) private readonly storeSession: StoreSession,
-    ) {}
+    constructor(@InjectDatabase() private readonly db: NodePgDatabase<any>) {}
 
     async handle(message: BusMessage): Promise<void> {
         const processDocumentType = getProcessDocumentMetadata(
             this.constructor as Type,
         );
 
-        // this.session = await this.storeSession.start();
+        await this.db.transaction(async (tx) => {
+            this.session = {
+                data: new DataStore(tx),
+                event: new EventStore(tx),
+                outbox: new OutboxStore(tx),
+            };
 
-        // try {
-        const handlerMetadata = getProcessEventHandlerMetadata(
-            this.constructor,
-            message.type,
-        );
+            const handlerMetadata = getProcessEventHandlerMetadata(
+                this.constructor,
+                message.type,
+            );
 
-        const associationId = handlerMetadata.associationId(message.data);
+            const associationId = handlerMetadata.associationId(message.data);
 
-        const processData: ProcessData[] = [];
+            const processData: ProcessData[] = [];
 
-        // const processDocumentRows = await this.session.data.rawQuery({
-        //     text: `select * from ${DocumentStore.tableNameFromType(
-        //         processDocumentType,
-        //     )} where data -> 'associations' @> '["${associationId}"]'`,
-        //     values: [],
-        // });
+            // const processRows = await t;
 
-        // for (const row of processDocumentRows) {
-        //     processDocuments.push(new processDocumentType(row.data));
-        // }
+            // const processDocumentRows = await this.session.data.rawQuery({
+            //     text: `select * from ${DocumentStore.tableNameFromType(
+            //         processDocumentType,
+            //     )} where data -> 'associations' @> '["${associationId}"]'`,
+            //     values: [],
+            // });
 
-        if (!processData.length && handlerMetadata.start === true) {
-            await this.handleProcessMessage(undefined, message);
-        }
+            // for (const row of processDocumentRows) {
+            //     processDocuments.push(new processDocumentType(row.data));
+            // }
 
-        for (const data of processData) {
-            await this.handleProcessMessage(data, message);
-        }
+            if (!processData.length && handlerMetadata.start === true) {
+                await this.handleProcessMessage(undefined, message);
+            }
 
-        //     await this.session.commit();
-        // } catch (error) {
-        //     await this.session.rollback();
-        //     throw error;
-        // } finally {
-        //     this.session.release();
-        // }
+            for (const data of processData) {
+                await this.handleProcessMessage(data, message);
+            }
+        });
     }
 
     private async handleProcessMessage(
@@ -87,16 +88,16 @@ export abstract class HandleProcess {
             );
         }
 
-        if (updatedData?.hasEnded) {
-            await this.session.data.delete(processes, updatedData.id);
-        } else {
-            await this.session.data.store(processes, {
-                id: updatedData.id,
-                data: updatedData,
-                type: this.constructor.name,
-                associations: updatedData.associations,
-                hasEnded: updatedData.hasEnded,
-            });
-        }
+        // if (updatedData?.hasEnded) {
+        //     await this.session.data.delete(processes, updatedData.id);
+        // } else {
+        //     await this.session.data.store(processes, {
+        //         id: updatedData.id,
+        //         data: updatedData,
+        //         type: this.constructor.name,
+        //         associations: updatedData.associations,
+        //         hasEnded: updatedData.hasEnded,
+        //     });
+        // }
     }
 }
