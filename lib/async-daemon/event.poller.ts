@@ -8,8 +8,19 @@ import { DataProjectionHandler } from '../handlers/projection/handlers/data-proj
 import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
 import { DataStore } from '../store';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, eq, gt, inArray, InferSelectModel } from 'drizzle-orm';
+import {
+    and,
+    asc,
+    between,
+    eq,
+    gt,
+    inArray,
+    InferSelectModel,
+    lt,
+    lte,
+} from 'drizzle-orm';
 import { eventsTable, tokensTable } from '../schema/schema';
+import { HighWaterMarkAgent } from './high-water-mark-agent';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
@@ -20,6 +31,7 @@ export class EventPoller {
         private readonly db: NodePgDatabase<any>,
         private readonly moduleRef: ModuleRef,
         private readonly dataStore: DataStore,
+        private readonly highWaterMarkAgent: HighWaterMarkAgent,
     ) {}
 
     async start(projectionType: Type, type: 'document' | 'event') {
@@ -49,7 +61,13 @@ export class EventPoller {
             .where(
                 and(
                     inArray(eventsTable.type, eventTypes),
-                    gt(eventsTable.sequenceId, token.lastSequenceId),
+                    and(
+                        gt(eventsTable.sequenceId, token.lastSequenceId),
+                        lte(
+                            eventsTable.sequenceId,
+                            this.highWaterMarkAgent.highWaterMark,
+                        ),
+                    ),
                 ),
             )
             .orderBy(asc(eventsTable.sequenceId))
@@ -109,7 +127,7 @@ export class EventPoller {
         }
 
         this.logger.log(
-            `successfully processed batch of ${events} in ${Math.abs(
+            `successfully processed batch of ${events.length} in ${Math.abs(
                 (beforeDate - Date.now()) / 1000,
             )} seconds., checking for more events in 1 second.`,
         );

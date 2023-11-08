@@ -20,7 +20,7 @@ export class HighWaterMarkAgent {
 
     constructor(@InjectDatabase() private readonly db: NodePgDatabase<any>) {}
 
-    private highWaterMark: number = 1;
+    public highWaterMark: number = 1;
 
     private slowPollDurationInMs: number = 1000;
 
@@ -33,7 +33,7 @@ export class HighWaterMarkAgent {
 
         this.highWaterMark = trackingToken.lastSequenceId;
 
-        this.poll(trackingToken).then();
+        await this.poll(trackingToken);
     }
 
     async poll(trackingToken: SelectToken) {

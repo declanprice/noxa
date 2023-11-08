@@ -16,7 +16,7 @@ export class AsyncDaemon {
         @InjectBusRelay() private readonly busRelay: BusRelay,
         private readonly dataStore: DataStore,
         private readonly moduleRef: ModuleRef,
-        private readonly highWaterMark: HighWaterMarkAgent,
+        private readonly highWaterMarkAgent: HighWaterMarkAgent,
     ) {}
 
     logger = new Logger(AsyncDaemon.name);
@@ -24,20 +24,30 @@ export class AsyncDaemon {
     async start(projections: { data: Type[]; event: Type[] }): Promise<void> {
         this.logger.log('starting async daemon.');
 
-        await this.highWaterMark.start();
+        await this.highWaterMarkAgent.start();
 
-        // new OutboxPoller(this.db, this.busRelay).start().then();
-        //
-        // projections.data.forEach((projection) => {
-        //     new EventPoller(this.db, this.moduleRef, this.dataStore)
-        //         .start(projection, 'document')
-        //         .then();
-        // });
-        //
-        // projections.event.forEach((projection) => {
-        //     new EventPoller(this.db, this.moduleRef, this.dataStore)
-        //         .start(projection, 'event')
-        //         .then();
-        // });
+        new OutboxPoller(this.db, this.busRelay).start().then();
+
+        projections.data.forEach((projection) => {
+            new EventPoller(
+                this.db,
+                this.moduleRef,
+                this.dataStore,
+                this.highWaterMarkAgent,
+            )
+                .start(projection, 'document')
+                .then();
+        });
+
+        projections.event.forEach((projection) => {
+            new EventPoller(
+                this.db,
+                this.moduleRef,
+                this.dataStore,
+                this.highWaterMarkAgent,
+            )
+                .start(projection, 'event')
+                .then();
+        });
     }
 }
