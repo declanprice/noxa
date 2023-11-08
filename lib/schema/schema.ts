@@ -6,6 +6,7 @@ import {
     pgTable,
     serial,
     timestamp,
+    unique,
     uuid,
     varchar,
 } from 'drizzle-orm/pg-core';
@@ -26,20 +27,30 @@ export const streamsTable = pgTable('streams', {
     isArchived: boolean('is_archive').notNull().default(false),
 });
 
-export const eventsTable = pgTable('events', {
-    sequenceId: serial('sequence_id').primaryKey(),
-    id: uuid('id').unique(),
-    streamId: uuid('stream_id')
-        .notNull()
-        .references(() => streamsTable.id),
-    version: bigint('version', { mode: 'number' }).notNull(),
-    data: jsonb('data').notNull().default({}),
-    type: varchar('type').notNull(),
-    timestamp: timestamp('timestamp', { mode: 'string' })
-        .notNull()
-        .defaultNow(),
-    isArchived: boolean('is_archived').notNull().default(false),
-});
+export const eventsTable = pgTable(
+    'events',
+    {
+        sequenceId: serial('sequence_id').primaryKey(),
+        id: uuid('id').unique(),
+        streamId: uuid('stream_id')
+            .notNull()
+            .references(() => streamsTable.id),
+        version: bigint('version', { mode: 'number' }).notNull(),
+        data: jsonb('data').notNull().default({}),
+        type: varchar('type').notNull(),
+        timestamp: timestamp('timestamp', { mode: 'string' })
+            .notNull()
+            .defaultNow(),
+        isArchived: boolean('is_archived').notNull().default(false),
+    },
+    (table) => ({
+        streamIdVersion: unique().on(table.streamId, table.version),
+    }),
+);
+
+export type SelectEvent = typeof eventsTable.$inferSelect;
+
+export type InsertEvent = typeof eventsTable.$inferInsert;
 
 export const outboxTable = pgTable('outbox', {
     id: uuid('id').primaryKey(),
@@ -62,6 +73,10 @@ export const tokensTable = pgTable('tokens', {
         .notNull()
         .defaultNow(),
 });
+
+export type SelectToken = typeof tokensTable.$inferSelect;
+
+export type InsertToken = typeof tokensTable.$inferInsert;
 
 export const processesTable = pgTable('processes', {
     id: uuid('id').primaryKey(),

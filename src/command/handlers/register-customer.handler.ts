@@ -3,6 +3,7 @@ import {
     CustomerStream,
     RegisterCustomer,
 } from '../customer.stream';
+
 import { CommandHandler, DatabaseSession, HandleCommand } from '../../../lib';
 
 @CommandHandler(RegisterCustomer)

@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="" />
+    <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/generic-event.poller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/schema/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/schema/schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,8 +42,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "drizzle-impl",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src/command/handlers",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/lib/async-daemon",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -51,11 +59,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/async-daemon" />
       <recent name="$PROJECT_DIR$/src/command/handlers" />
       <recent name="$PROJECT_DIR$/lib/store/document/document" />
       <recent name="$PROJECT_DIR$/src/model/documents" />
       <recent name="$PROJECT_DIR$/lib/handlers/event/group" />
-      <recent name="$PROJECT_DIR$/lib/projection/handlers" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/store" />
@@ -199,6 +207,7 @@
       <workItem from="1698833293583" duration="24969000" />
       <workItem from="1699271697694" duration="5335000" />
       <workItem from="1699357260005" duration="31247000" />
+      <workItem from="1699440261128" duration="14411000" />
     </task>
     <servers />
   </component>

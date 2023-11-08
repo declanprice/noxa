@@ -1,4 +1,9 @@
-import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    DynamicModule,
+    Injectable,
+    Module,
+    OnApplicationBootstrap,
+} from '@nestjs/common';
 import { HandlerExplorer } from './handlers';
 import {
     BUS_RELAY_TOKEN,
@@ -12,6 +17,7 @@ import { Config, CONFIG_TOKEN, InjectConfig } from './config';
 import { DataStore, EventStore, OutboxStore, DATABASE_TOKEN } from './store';
 import { AsyncDaemon } from './async-daemon/async-daemon';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { HighWaterMarkAgent } from './async-daemon/high-water-mark-agent';
 
 export type NoxaModuleOptions = {
     database: NodePgDatabase<any>;
@@ -36,6 +42,7 @@ export type NoxaModuleOptions = {
         OutboxStore,
         AsyncDaemon,
         HandlerExplorer,
+        HighWaterMarkAgent,
     ],
 })
 export class NoxaModule implements OnApplicationBootstrap {
