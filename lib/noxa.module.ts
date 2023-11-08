@@ -88,12 +88,10 @@ export class NoxaModule implements OnApplicationBootstrap {
         } = this.handlerExplorer.explore();
 
         await this.busRelay.init(this.config);
-
         await this.commandBus.registerCommandHandlers(commandHandlers);
         await this.queryBus.registerQueryHandlers(queryHandlers);
-
-        // await this.eventBus.registerEventHandlers(eventHandlers);
-        // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
+        await this.eventBus.registerEventHandlers(eventHandlers);
+        await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
         await this.eventBus.registerProcessHandlers(processHandlers);
         await this.eventBus.registerSagaHandlers(sagaHandlers);
 

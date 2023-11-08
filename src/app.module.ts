@@ -11,6 +11,7 @@ import { ChangeCustomerNameHandler } from './command/handlers/change-customer-na
 import { CustomerProjection } from './query/projections/customer.projection';
 import { CustomerProcess } from './event/processes/customer.process';
 import { CustomerSaga } from './event/sagas/customer.saga';
+import { CustomerRegisteredHandler } from './event/handlers/customer-registered.handler';
 
 const database = drizzle(
     new Pool({
@@ -28,10 +29,9 @@ const bus = new RabbitmqBus({
     providers: [
         RegisterCustomerHandler,
         ChangeCustomerNameHandler,
+        CustomerRegisteredHandler,
         GetCustomersHandler,
         CustomerProjection,
-        // CustomerProcess,
-        CustomerSaga,
     ],
     imports: [
         NoxaModule.forRoot({
