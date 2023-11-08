@@ -1,5 +1,4 @@
-1. async daemon hot/cold implementation.
-2. async daemon projection high watermark mvp production ready implementation. 
-3. ensure optimistic concurrency is applied correctly across the board. 
-4. aws sns/sqs bus implementation.
-5. unit & integration testing
+1. async daemon hot/cold implementation with postgres advisory locks.
+2. ensure optimistic concurrency is applied correctly across the board. 
+3. aws sns/sqs bus implementation.
+4. unit & integration testing

@@ -1,14 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import { sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
-import {
-    eventsTable,
-    SelectToken,
-    streamsTable,
-    tokensTable,
-} from '../schema/schema';
+import { eventsTable, SelectToken, tokensTable } from '../schema/schema';
 import { InjectDatabase } from '../store';
 import * as dayjs from 'dayjs';
 
@@ -24,7 +18,7 @@ export class HighWaterMarkAgent {
 
     private slowPollDurationInMs: number = 1000;
 
-    private fastPollDurationInMs: number = 250;
+    private fastPollDurationInMs: number = 500;
 
     private staleDurationInSeconds: number = 3;
 

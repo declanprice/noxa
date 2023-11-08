@@ -1,4 +1,3 @@
-import { Pool } from 'pg';
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
