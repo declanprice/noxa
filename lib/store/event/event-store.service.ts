@@ -27,7 +27,7 @@ export class EventStore {
 
         const db = tx ?? this.db;
 
-        const now = new Date();
+        const now = new Date().toISOString();
 
         await db.insert(streamsTable).values({
             id: streamId,
@@ -142,7 +142,7 @@ export class EventStore {
             .set({
                 id: streamId,
                 version: newVersion,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
             })
             .where(eq(streamsTable.id, streamId));
 
@@ -152,7 +152,7 @@ export class EventStore {
             data: event,
             version: newVersion,
             streamId,
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
             isArchived: false,
         });
     }

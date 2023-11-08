@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq, inArray, InferInsertModel, sql } from 'drizzle-orm';
+import {
+    eq,
+    inArray,
+    InferInsertModel,
+    InferSelectModel,
+    sql,
+} from 'drizzle-orm';
 import { PgTable } from 'drizzle-orm/pg-core';
 import { PgTransaction } from 'drizzle-orm/pg-core/session';
 
@@ -14,7 +20,10 @@ export class DataStore {
         private readonly db: NodePgDatabase<any>,
     ) {}
 
-    query(table: PgTable, options: { tx?: PgTransaction<any, any, any> } = {}) {
+    query<T extends PgTable>(
+        table: T,
+        options: { tx?: PgTransaction<any, any, any> } = {},
+    ) {
         const { tx } = options;
 
         let db = tx ?? this.db;
@@ -83,18 +92,19 @@ export class DataStore {
         table: T,
         values: InferInsertModel<T>,
         options: { tx?: PgTransaction<any, any, any> } = {},
-    ): Promise<void> {
+    ) {
         const { tx } = options;
 
         let db = tx ?? this.db;
 
-        await db
+        return db
             .insert(table)
             .values(values)
             .onConflictDoUpdate({
                 target: (table as any).id,
                 set: values as any,
-            });
+            })
+            .returning();
     }
 
     async storeMany<T extends PgTable>(

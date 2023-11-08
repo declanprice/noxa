@@ -71,7 +71,7 @@ export abstract class HandleSaga {
                     sagasTable,
                     {
                         id: sagaId,
-                        timestamp: new Date(),
+                        timestamp: new Date().toISOString(),
                         type: this.constructor.name,
                         definition: builder.definition,
                     },

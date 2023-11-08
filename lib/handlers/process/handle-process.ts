@@ -1,36 +1,23 @@
-import { Type } from '@nestjs/common';
-import {
-    getProcessDocumentMetadata,
-    getProcessEventHandlerMetadata,
-} from './process.decorators';
+import { getProcessEventHandlerMetadata } from './process.decorators';
 import { BusMessage } from '../../bus';
-import { ProcessData } from './process.data';
 import {
     InjectDatabase,
-    DatabaseSession,
     DataStore,
     EventStore,
     OutboxStore,
+    DatabaseSession,
 } from '../../store';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { processesTable } from '../../schema/schema';
+import { arrayContains } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
+import { ProcessSession } from './process.session';
 
-export abstract class HandleProcess {
-    session!: DatabaseSession;
-
+export abstract class HandleProcess<Data> {
     constructor(@InjectDatabase() private readonly db: NodePgDatabase<any>) {}
 
     async handle(message: BusMessage): Promise<void> {
-        const processDocumentType = getProcessDocumentMetadata(
-            this.constructor as Type,
-        );
-
         await this.db.transaction(async (tx) => {
-            this.session = {
-                data: new DataStore(tx),
-                event: new EventStore(tx),
-                outbox: new OutboxStore(tx),
-            };
-
             const handlerMetadata = getProcessEventHandlerMetadata(
                 this.constructor,
                 message.type,
@@ -38,66 +25,87 @@ export abstract class HandleProcess {
 
             const associationId = handlerMetadata.associationId(message.data);
 
-            const processData: ProcessData[] = [];
+            const processSessions: ProcessSession<Data>[] = [];
 
-            // const processRows = await t;
+            const databaseSession: DatabaseSession = {
+                data: new DataStore(tx),
+                event: new EventStore(tx),
+                outbox: new OutboxStore(tx),
+            };
 
-            // const processDocumentRows = await this.session.data.rawQuery({
-            //     text: `select * from ${DocumentStore.tableNameFromType(
-            //         processDocumentType,
-            //     )} where data -> 'associations' @> '["${associationId}"]'`,
-            //     values: [],
-            // });
+            const processes = await databaseSession.data
+                .query(processesTable)
+                .where(
+                    arrayContains(processesTable.associations, [associationId]),
+                );
 
-            // for (const row of processDocumentRows) {
-            //     processDocuments.push(new processDocumentType(row.data));
-            // }
+            if (!processes.length && handlerMetadata.start === true) {
+                const newProcessSession = new ProcessSession<Data>(
+                    {
+                        id: randomUUID(),
+                        data: {} as any,
+                        associations: [],
+                        hasEnded: false,
+                    },
+                    databaseSession.data,
+                    databaseSession.event,
+                    databaseSession.outbox,
+                );
 
-            if (!processData.length && handlerMetadata.start === true) {
-                await this.handleProcessMessage(undefined, message);
+                newProcessSession.associateWith(associationId);
+
+                processSessions.push(newProcessSession);
             }
 
-            for (const data of processData) {
-                await this.handleProcessMessage(data, message);
+            for (const process of processes) {
+                processSessions.push(
+                    new ProcessSession<Data>(
+                        process,
+                        databaseSession.data,
+                        databaseSession.event,
+                        databaseSession.outbox,
+                    ),
+                );
+            }
+
+            for (const processSession of processSessions) {
+                await this.handleProcessMessage(
+                    databaseSession,
+                    processSession,
+                    message,
+                );
             }
         });
     }
 
     private async handleProcessMessage(
-        data: ProcessData | undefined,
+        databaseSession: DatabaseSession,
+        processSession: ProcessSession<Data>,
         message: BusMessage,
     ): Promise<void> {
-        if (!this.session) {
-            throw new Error('invalid process session, cannot handle message');
-        }
-
         const targetEventHandler = getProcessEventHandlerMetadata(
             this.constructor as any,
             message.type,
         );
 
-        // apply event over projection instance
-        const updatedData = await (this as any)[targetEventHandler.propertyKey](
+        await (this as any)[targetEventHandler.propertyKey](
             message.data,
-            data,
+            processSession,
         );
 
-        if (!(updatedData instanceof ProcessData)) {
-            throw new Error(
-                'must return valid process data from process handler',
+        if (processSession.hasEnded) {
+            await databaseSession.data.delete(
+                processesTable,
+                processSession.id,
             );
+        } else {
+            await databaseSession.data.store(processesTable, {
+                id: processSession.id,
+                type: this.constructor.name,
+                data: processSession.data,
+                hasEnded: processSession.hasEnded,
+                associations: processSession.associations,
+            });
         }
-
-        // if (updatedData?.hasEnded) {
-        //     await this.session.data.delete(processes, updatedData.id);
-        // } else {
-        //     await this.session.data.store(processes, {
-        //         id: updatedData.id,
-        //         data: updatedData,
-        //         type: this.constructor.name,
-        //         associations: updatedData.associations,
-        //         hasEnded: updatedData.hasEnded,
-        //     });
-        // }
     }
 }

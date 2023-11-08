@@ -27,7 +27,9 @@ export class OutboxStore {
         await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: bus,
-            timestamp: timestamp ? new Date(timestamp) : new Date(),
+            timestamp: timestamp
+                ? new Date(timestamp).toISOString()
+                : new Date().toISOString(),
             data,
             type,
             published: false,
@@ -48,7 +50,9 @@ export class OutboxStore {
         await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: 'command',
-            timestamp: timestamp ? new Date(timestamp) : new Date(),
+            timestamp: timestamp
+                ? new Date(timestamp).toISOString()
+                : new Date().toISOString(),
             data: command,
             type: command.constructor.name,
             published: false,
@@ -71,7 +75,9 @@ export class OutboxStore {
         await db.insert(outboxTable).values({
             id: randomUUID(),
             toBus: 'event',
-            timestamp: timestamp ? new Date(timestamp) : new Date(),
+            timestamp: timestamp
+                ? new Date(timestamp).toISOString()
+                : new Date().toISOString(),
             data: event,
             type: event.constructor.name,
             published: false,

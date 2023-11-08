@@ -23,7 +23,7 @@ export abstract class ProjectionHandler {
             .set({
                 name: projectionType.name,
                 lastSequenceId,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
             })
             .where(eq(tokensTable.name, projectionType.name))
             .returning();

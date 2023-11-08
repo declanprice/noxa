@@ -38,7 +38,7 @@ export class OutboxPoller {
             if (message.toBus === 'command') {
                 await this.busRelay.sendCommand({
                     type: message.type,
-                    timestamp: message.timestamp.toISOString(),
+                    timestamp: message.timestamp,
                     data: message.data,
                 });
             }
@@ -46,7 +46,7 @@ export class OutboxPoller {
             if (message.toBus === 'event') {
                 await this.busRelay.sendEvent({
                     type: message.type,
-                    timestamp: message.timestamp.toISOString(),
+                    timestamp: message.timestamp,
                     data: message.data,
                 });
             }

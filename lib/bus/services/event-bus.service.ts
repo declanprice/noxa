@@ -113,7 +113,7 @@ export class EventBus {
         }
     }
 
-    async registerProcessHandlers(processes: Type<HandleProcess>[] = []) {
+    async registerProcessHandlers(processes: Type<HandleProcess<any>>[] = []) {
         for (const process of processes) {
             const instance = this.moduleRef.get(process, { strict: false });
 

@@ -27,7 +27,7 @@ export type HandlerOptions = {
     eventGroupHandlers: Type<HandleEventGroup>[];
     dataProjectionHandlers: Type[];
     eventProjectionHandlers: Type[];
-    processHandlers: Type<HandleProcess>[];
+    processHandlers: Type<HandleProcess<any>>[];
     sagaHandlers: Type<HandleSaga>[];
 };
 
@@ -66,7 +66,7 @@ export class HandlerExplorer {
             this.filterProvider(instance, EVENT_PROJECTION_HANDLER),
         );
 
-        const processHandlers = this.flatMap<HandleProcess>(
+        const processHandlers = this.flatMap<HandleProcess<any>>(
             modules,
             (instance) =>
                 this.filterProvider(instance, PROCESS_HANDLER_METADATA),

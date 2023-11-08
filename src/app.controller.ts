@@ -24,25 +24,25 @@ export class AppController {
     async create() {
         const customerId = randomUUID();
 
-        const command = new RegisterCustomer(
-            customerId,
-            faker.person.firstName(),
-            faker.person.lastName(),
-            faker.date.birthdate().toDateString(),
-            ['snowboarding', 'climbing', 'software development'],
+        return await this.commandBus.invoke(
+            new RegisterCustomer(
+                customerId,
+                faker.person.firstName(),
+                faker.person.lastName(),
+                faker.date.birthdate().toDateString(),
+                ['snowboarding', 'climbing', 'software development'],
+            ),
         );
-
-        return await this.commandBus.invoke(command);
     }
 
     @Post('/name')
     async updateName() {
-        const command = new ChangeCustomerName(
-            'b1b5f9e6-fe03-4ad7-9dd8-df622989b28e',
-            'Deshaun',
-            'Been Changed',
+        return await this.commandBus.invoke(
+            new ChangeCustomerName(
+                'b1b5f9e6-fe03-4ad7-9dd8-df622989b28e',
+                'Deshaun',
+                'Been Changed',
+            ),
         );
-
-        return await this.commandBus.invoke(command);
     }
 }

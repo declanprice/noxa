@@ -20,7 +20,9 @@ export const streamsTable = pgTable('streams', {
     version: bigint('version', { mode: 'number' }).notNull(),
     snapshot: jsonb('snapshot'),
     snapshotVersion: bigint('snapshot_version', { mode: 'number' }),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
     isArchived: boolean('is_archive').notNull().default(false),
 });
 
@@ -33,18 +35,22 @@ export const eventsTable = pgTable('events', {
     version: bigint('version', { mode: 'number' }).notNull(),
     data: jsonb('data').notNull().default({}),
     type: varchar('type').notNull(),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
     isArchived: boolean('is_archived').notNull().default(false),
 });
 
 export const outboxTable = pgTable('outbox', {
     id: uuid('id').primaryKey(),
     toBus: varchar('to_bus').notNull().$type<'command' | 'event'>(),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
     type: varchar('type').notNull(),
     data: jsonb('data').notNull().default({}),
     published: boolean('published').notNull().default(false),
-    publishedTimestamp: timestamp('published_timestamp'),
+    publishedTimestamp: timestamp('published_timestamp', { mode: 'string' }),
 });
 
 export const tokensTable = pgTable('tokens', {
@@ -52,7 +58,9 @@ export const tokensTable = pgTable('tokens', {
     lastSequenceId: bigint('last_sequence_id', { mode: 'number' })
         .notNull()
         .default(0),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
 });
 
 export const processesTable = pgTable('processes', {
@@ -61,12 +69,14 @@ export const processesTable = pgTable('processes', {
     data: jsonb('data').notNull().default({}),
     associations: jsonb('associations').notNull().default([]).$type<string[]>(),
     hasEnded: boolean('has_ended').notNull().default(false),
-    timestamp: timestamp('timestamp').defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' }).defaultNow(),
 });
 
 export const sagasTable = pgTable('sagas', {
     id: uuid('id').primaryKey(),
     type: varchar('type').notNull(),
     definition: jsonb('definition').$type<SagaDefinition>().notNull(),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    timestamp: timestamp('timestamp', { mode: 'string' })
+        .notNull()
+        .defaultNow(),
 });

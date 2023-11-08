@@ -141,7 +141,7 @@ export class EventPoller {
             .values({
                 name,
                 lastSequenceId: -1,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
             })
             .returning();
 

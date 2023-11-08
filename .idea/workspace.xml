@@ -5,44 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/store/database-session.type.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/command/handle-command.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/command/handle-command.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/event/handle-event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/handle-event.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/document-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/data-projection-handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/event-projection-handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handlers/projection-handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handlers/projection-handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/schema/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/schema/schema.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/store/data/data-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/data/data-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/data/errors/document-invalid-id.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/data/errors/data-invalid-id.error.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/data/errors/document-not-found.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/data/errors/data-not-found.error.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/store/event/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/event-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/store/outbox/outbox-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/outbox/outbox-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/session/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/session/store-session.service.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/customer.stream.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/customer.stream.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/handlers/change-customer-age.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/handlers/change-customer-name.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/handlers/change-customer-name.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/handlers/register-customer.handlers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/event/processes/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/event/processes/customer.process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/query/handlers/get-customers.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/query/handlers/get-customers.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/query/projections/customer.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/query/projections/customer.projection.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schema.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -237,7 +218,7 @@
       <workItem from="1698313864031" duration="8590000" />
       <workItem from="1698833293583" duration="24969000" />
       <workItem from="1699271697694" duration="5335000" />
-      <workItem from="1699357260005" duration="25711000" />
+      <workItem from="1699357260005" duration="30014000" />
     </task>
     <servers />
   </component>

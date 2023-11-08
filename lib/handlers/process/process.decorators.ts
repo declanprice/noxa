@@ -6,9 +6,6 @@ export const PROCESS_HANDLER_METADATA = 'PROCESS_HANDLER_METADATA';
 export const PROCESS_HANDLER_OPTIONS_METADATA =
     'PROCESS_HANDLER_OPTIONS_METADATA';
 
-export const PROCESS_HANDLER_DOCUMENT_METADATA =
-    'PROCESS_HANDLER_DOCUMENT_METADATA';
-
 export const PROCESS_FIELDS_METADATA = 'PROCESS_FIELDS_METADATA';
 
 export const PROCESS_EVENT_TYPES_METADATA = 'PROCESS_EVENT_TYPES_METADATA';
@@ -23,16 +20,8 @@ export type ProcessHandlerMetadata<E extends Event> = {
     start?: boolean;
 };
 
-export const Process = (
-    document: Type,
-    options: ProcessOptionsMetadata,
-): ClassDecorator => {
+export const Process = (options: ProcessOptionsMetadata): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(
-            PROCESS_HANDLER_DOCUMENT_METADATA,
-            document,
-            target,
-        );
         Reflect.defineMetadata(
             PROCESS_HANDLER_OPTIONS_METADATA,
             options,
@@ -90,19 +79,6 @@ export const getProcessOptionMetadata = (
     }
 
     return options;
-};
-
-export const getProcessDocumentMetadata = (process: Type): Type => {
-    const document = Reflect.getMetadata(
-        PROCESS_HANDLER_DOCUMENT_METADATA,
-        process,
-    );
-
-    if (!document) {
-        throw new Error(`process ${process} has no document type metadata.`);
-    }
-
-    return document;
 };
 
 export const getProcessEventTypesMetadata = (process: Type): Set<string> => {

@@ -9,6 +9,7 @@ import * as schema from './schema';
 import { GetCustomersHandler } from './query/handlers/get-customers.handler';
 import { ChangeCustomerNameHandler } from './command/handlers/change-customer-name.handler';
 import { CustomerProjection } from './query/projections/customer.projection';
+import { CustomerProcess } from './event/processes/customer.process';
 
 const database = drizzle(
     new Pool({
@@ -28,6 +29,7 @@ const bus = new RabbitmqBus({
         ChangeCustomerNameHandler,
         GetCustomersHandler,
         CustomerProjection,
+        CustomerProcess,
     ],
     imports: [
         NoxaModule.forRoot({
