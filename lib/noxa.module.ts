@@ -95,7 +95,7 @@ export class NoxaModule implements OnApplicationBootstrap {
         // await this.eventBus.registerEventHandlers(eventHandlers);
         // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
         await this.eventBus.registerProcessHandlers(processHandlers);
-        // await this.eventBus.registerSagaHandlers(sagaHandlers);
+        await this.eventBus.registerSagaHandlers(sagaHandlers);
 
         if (this.config.asyncDaemon.enabled) {
             this.asyncDaemon
