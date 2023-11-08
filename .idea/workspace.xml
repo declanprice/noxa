@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,7 +202,7 @@
       <workItem from="1698833293583" duration="24969000" />
       <workItem from="1699271697694" duration="5335000" />
       <workItem from="1699357260005" duration="31247000" />
-      <workItem from="1699440261128" duration="18277000" />
+      <workItem from="1699440261128" duration="18397000" />
     </task>
     <servers />
   </component>

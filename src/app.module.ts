@@ -9,20 +9,7 @@ import * as schema from './schema';
 import { GetCustomersHandler } from './query/handlers/get-customers.handler';
 import { ChangeCustomerNameHandler } from './command/handlers/change-customer-name.handler';
 import { CustomerProjection } from './query/projections/customer.projection';
-import { CustomerProcess } from './event/processes/customer.process';
-import { CustomerSaga } from './event/sagas/customer.saga';
 import { CustomerRegisteredHandler } from './event/handlers/customer-registered.handler';
-
-const database = drizzle(
-    new Pool({
-        connectionString: 'postgres://postgres:postgres@localhost:5432',
-    }),
-    { schema },
-);
-
-const bus = new RabbitmqBus({
-    connectionUrl: 'amqp://localhost:5672',
-});
 
 @Module({
     controllers: [AppController],
@@ -36,8 +23,16 @@ const bus = new RabbitmqBus({
     imports: [
         NoxaModule.forRoot({
             serviceName: 'Restaurant',
-            database,
-            bus,
+            database: drizzle(
+                new Pool({
+                    connectionString:
+                        'postgres://postgres:postgres@localhost:5432',
+                }),
+                { schema },
+            ),
+            bus: new RabbitmqBus({
+                connectionUrl: 'amqp://localhost:5672',
+            }),
             asyncDaemon: {
                 enabled: true,
             },
