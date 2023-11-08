@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/event/sagas/customer.saga.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/event/sagas/customer.saga.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,7 +201,7 @@
       <workItem from="1698313864031" duration="8590000" />
       <workItem from="1698833293583" duration="24969000" />
       <workItem from="1699271697694" duration="5335000" />
-      <workItem from="1699357260005" duration="30338000" />
+      <workItem from="1699357260005" duration="30935000" />
     </task>
     <servers />
   </component>
