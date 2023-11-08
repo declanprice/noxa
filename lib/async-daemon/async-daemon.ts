@@ -1,12 +1,14 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
-import { DataStore, InjectDatabase } from '../store';
-import { BusRelay, InjectBusRelay } from '../bus';
 import { EventPoller } from './event.poller';
 import { OutboxPoller } from './outbox-poller';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
+import { Client } from 'pg';
+
+import { DataStore, InjectDatabase } from '../store';
+import { BusRelay, InjectBusRelay } from '../bus';
 
 @Injectable()
 export class AsyncDaemon {
@@ -20,9 +22,40 @@ export class AsyncDaemon {
 
     logger = new Logger(AsyncDaemon.name);
 
-    async start(projections: { data: Type[]; event: Type[] }): Promise<void> {
-        this.logger.log('starting async daemon.');
+    async start(projections: { data: Type[]; event: Type[] }) {
+        // needs singular client to keep the connection open
 
+        this.logger.log('trying to obtain advisory lock.');
+
+        const client = new Client({
+            connectionString: 'postgres://postgres:postgres@localhost:5432',
+        });
+
+        await client.connect();
+
+        const result = await client.query(`SELECT pg_try_advisory_lock(4545)`);
+
+        console.log(result);
+
+        if (
+            result.rows.length &&
+            result.rows[0].pg_try_advisory_lock === false
+        ) {
+            this.logger.log(
+                'lock is already claimed, checking again in 5 seconds',
+            );
+
+            return setInterval(() => {
+                this.start(projections).then();
+            }, 5000);
+        }
+
+        await this.startPollers(projections);
+
+        this.logger.log('lock obtained, async daemon has started.');
+    }
+
+    async startPollers(projections: { data: Type[]; event: Type[] }) {
         await this.highWaterMarkAgent.start();
 
         new OutboxPoller(this.db, this.busRelay).start().then();
