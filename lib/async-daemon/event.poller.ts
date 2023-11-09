@@ -34,7 +34,7 @@ export class EventPoller {
         private readonly highWaterMarkAgent: HighWaterMarkAgent,
     ) {}
 
-    async start(projectionType: Type, type: 'document' | 'event') {
+    async start(projectionType: Type, type: 'data' | 'event') {
         const options = getProjectionOptionMetadata(projectionType);
 
         const eventTypes = getProjectionEventTypesMetadata(projectionType);
@@ -51,7 +51,7 @@ export class EventPoller {
 
     async pollEvents(
         projectionType: Type,
-        handlerType: 'document' | 'event',
+        handlerType: 'data' | 'event',
         eventTypes: string[],
         token: InferSelectModel<typeof tokensTable>,
     ) {
@@ -103,7 +103,7 @@ export class EventPoller {
         });
 
         switch (handlerType) {
-            case 'document':
+            case 'data':
                 updatedToken = await documentProjectionHandler.handleEvents(
                     this.db,
                     projection,

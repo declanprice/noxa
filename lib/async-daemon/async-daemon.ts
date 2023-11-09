@@ -67,7 +67,7 @@ export class AsyncDaemon {
                 this.dataStore,
                 this.highWaterMarkAgent,
             )
-                .start(projection, 'document')
+                .start(projection, 'data')
                 .then();
         });
 

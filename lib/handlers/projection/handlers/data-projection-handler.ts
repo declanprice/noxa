@@ -5,7 +5,7 @@ import { ProjectionInvalidIdError } from '../../../async-daemon/errors/projectio
 import { DataStore } from '../../../store';
 import { getProjectionDataMetadata } from '../projection.decorators';
 import { InferSelectModel } from 'drizzle-orm';
-import { eventsTable } from '../../../schema/schema';
+import { eventsTable, SelectEvent } from '../../../schema/schema';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PgTransaction } from 'drizzle-orm/pg-core/session';
 
@@ -18,13 +18,13 @@ export class DataProjectionHandler extends ProjectionHandler {
         db: NodePgDatabase<any> | PgTransaction<any>,
         projection: any,
         projectionType: Type,
-        events: InferSelectModel<typeof eventsTable>[],
+        events: SelectEvent[],
     ) {
         const dataTable = getProjectionDataMetadata(projectionType);
 
-        const ids = this.getTargetIds(projectionType, events);
+        const dataIds = this.getAllDataIds(projectionType, events);
 
-        const data = await this.dataStore.findMany(dataTable, ids);
+        const data = await this.dataStore.findMany(dataTable, dataIds);
 
         this.applyEvents(projection, data, events);
 
@@ -39,11 +39,7 @@ export class DataProjectionHandler extends ProjectionHandler {
         });
     }
 
-    private applyEvents(
-        projection: any,
-        data: any[],
-        events: InferSelectModel<typeof eventsTable>[],
-    ) {
+    private applyEvents(projection: any, data: any[], events: SelectEvent[]) {
         for (const event of events) {
             const targetEventHandler = Reflect.getMetadata(
                 event.type,
@@ -76,9 +72,9 @@ export class DataProjectionHandler extends ProjectionHandler {
         }
     }
 
-    private getTargetIds(
+    private getAllDataIds(
         projectionType: Type,
-        events: InferSelectModel<typeof eventsTable>[],
+        events: SelectEvent[],
     ): string[] {
         const ids: Set<string> = new Set<string>();
 
