@@ -2,7 +2,6 @@ import {
     bigint,
     boolean,
     jsonb,
-    pgEnum,
     pgTable,
     serial,
     timestamp,
@@ -10,22 +9,26 @@ import {
     uuid,
     varchar,
 } from 'drizzle-orm/pg-core';
-import {
-    SagaDefinition,
-    SagaStepDefinition,
-} from '../handlers/saga/handle-saga';
 
-export const streamsTable = pgTable('streams', {
-    id: uuid('id').primaryKey(),
-    type: varchar('type').notNull(),
-    version: bigint('version', { mode: 'number' }).notNull(),
-    snapshot: jsonb('snapshot'),
-    snapshotVersion: bigint('snapshot_version', { mode: 'number' }),
-    timestamp: timestamp('timestamp', { mode: 'string' })
-        .notNull()
-        .defaultNow(),
-    isArchived: boolean('is_archive').notNull().default(false),
-});
+import { SagaDefinition } from '../handlers/saga/handle-saga';
+
+export const streamsTable = pgTable(
+    'streams',
+    {
+        id: uuid('id').primaryKey(),
+        type: varchar('type').notNull(),
+        version: bigint('version', { mode: 'number' }).notNull(),
+        snapshot: jsonb('snapshot'),
+        snapshotVersion: bigint('snapshot_version', { mode: 'number' }),
+        timestamp: timestamp('timestamp', { mode: 'string' })
+            .notNull()
+            .defaultNow(),
+        isArchived: boolean('is_archive').notNull().default(false),
+    },
+    (table) => ({
+        idTypeUnique: unique('id_type_unique').on(table.id, table.type),
+    }),
+);
 
 export const eventsTable = pgTable(
     'events',

@@ -1,14 +1,14 @@
 {
   "name": "@declanprice/noxa",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/lib/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test:spec": "jest --config jest.config.json --runInBand",
     "test:spec:dev": "jest --config jest.config.json --runInBand",
     "test:e2e": "jest --config ./tests/jest-e2e.json --runInBand",
-    "test:e2e:dev": "jest --config ./tests/jest-e2e.json --runInBand --watch"
+    "test:e2e:dev": "jest --config ./tests/jest-e2e.json --runInBand --watch",
   },
   "author": "",
   "license": "ISC",

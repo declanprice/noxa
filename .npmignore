@@ -7,7 +7,7 @@ tslint.json
 tsconfig.json
 dist/src
 .prettierrc
-
+src
 
 # misc
 docker-compose.yml
