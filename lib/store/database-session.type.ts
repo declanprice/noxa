@@ -3,7 +3,7 @@ import { EventStore } from './event';
 import { OutboxStore } from './outbox';
 
 export type DatabaseSession = {
-    data: DataStore;
-    event: EventStore;
-    outbox: OutboxStore;
+    dataStore: DataStore;
+    eventStore: EventStore;
+    outboxStore: OutboxStore;
 };

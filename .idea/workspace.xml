@@ -6,10 +6,33 @@
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.npmignore" beforeDir="false" afterPath="$PROJECT_DIR$/.npmignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/saga/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/handler-explorer.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/errors/invalid-saga-definition.error.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/handle-saga.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga.decorators.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/saga/saga.document.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/schema/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/schema/schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/database-session.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/database-session.type.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/command/handlers/change-customer-name.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/handlers/change-customer-name.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/event/processes/customer.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/event/processes/customer.process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/event/sagas/customer.saga.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schema.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,8 +73,8 @@
     "nodejs_package_manager_path": "npm",
     "prettier.import.notification.dismissed": "true",
     "prettierjs.PrettierConfiguration.Package": "/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "ts.external.directory.path": "/home/declan/.local/share/JetBrains/Toolbox/apps/webstorm/plugins/javascript-impl/jsLanguageServicesImpl/external",
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "ts.external.directory.path": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -232,7 +255,13 @@
       <workItem from="1702042238231" duration="36000" />
       <workItem from="1702042298592" duration="30000" />
       <workItem from="1702042430809" duration="19000" />
-      <workItem from="1702042501239" duration="244000" />
+      <workItem from="1702042501239" duration="274000" />
+      <workItem from="1702052254483" duration="978000" />
+      <workItem from="1702053266537" duration="41000" />
+      <workItem from="1702053314221" duration="92000" />
+      <workItem from="1702053967527" duration="8000" />
+      <workItem from="1702054014760" duration="13000" />
+      <workItem from="1702305131232" duration="15364000" />
     </task>
     <servers />
   </component>

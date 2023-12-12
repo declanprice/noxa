@@ -1,78 +1,85 @@
 import { Type } from '@nestjs/common';
 import { Event } from '../index';
 
+export const PROCESS_METADATA = 'PROCESS_METADATA';
+export const PROCESS_EVENTS_METADATA = 'PROCESS_EVENTS_METADATA';
 export const PROCESS_HANDLER_METADATA = 'PROCESS_HANDLER_METADATA';
 
-export const PROCESS_HANDLER_OPTIONS_METADATA =
-    'PROCESS_HANDLER_OPTIONS_METADATA';
-
-export const PROCESS_FIELDS_METADATA = 'PROCESS_FIELDS_METADATA';
-
-export const PROCESS_EVENT_TYPES_METADATA = 'PROCESS_EVENT_TYPES_METADATA';
-
-export type ProcessOptionsMetadata = {
+export type ProcessMetadata = {
     consumerType: any;
+    defaultAssociationKey: string;
 };
 
-export type ProcessHandlerMetadata<E extends Event> = {
-    propertyKey: string;
-    associationId: (event: E) => string;
+export type ProcessHandlerMetadata = {
+    event: Type<Event>;
+    method: string;
+    associationKey?: string;
     start?: boolean;
 };
 
-export const Process = (options: ProcessOptionsMetadata): ClassDecorator => {
+export const Process = (options: ProcessMetadata): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(
-            PROCESS_HANDLER_OPTIONS_METADATA,
-            options,
-            target,
-        );
-        Reflect.defineMetadata(PROCESS_HANDLER_METADATA, options, target);
+        Reflect.defineMetadata(PROCESS_METADATA, options, target);
     };
 };
 
-export const ProcessEventHandler = <E extends Event>(options: {
-    event: Type<E>;
-    associationId: (event: E) => string;
-    start?: boolean;
-}): MethodDecorator => {
+export const ProcessHandler = (
+    events: Type<Event> | Type<Event>[],
+    options?: {
+        associationKey?: string;
+        start?: boolean;
+    },
+): MethodDecorator => {
+    const { associationKey, start } = options || {};
+
     return (target: object, propertyKey: string | symbol) => {
-        const { event, associationId, start } = options;
+        const defineEventMetadata = (event: Type<Event>) => {
+            const eventType = event.name;
 
-        const eventType = event.name;
+            let eventTypes = Reflect.getMetadata(
+                PROCESS_EVENTS_METADATA,
+                target.constructor,
+            ) as Set<string> | undefined;
 
-        let eventTypes = Reflect.getMetadata(
-            PROCESS_EVENT_TYPES_METADATA,
-            target.constructor,
-        ) as Set<string> | undefined;
+            if (eventTypes) {
+                eventTypes.add(eventType);
+            } else {
+                eventTypes = new Set();
+                eventTypes.add(eventType);
+            }
 
-        if (eventTypes) {
-            eventTypes.add(eventType);
-        } else {
-            eventTypes = new Set();
-            eventTypes.add(eventType);
-        }
+            Reflect.defineMetadata(
+                PROCESS_EVENTS_METADATA,
+                eventTypes,
+                target.constructor,
+            );
 
-        Reflect.defineMetadata(
-            PROCESS_EVENT_TYPES_METADATA,
-            eventTypes,
-            target.constructor,
-        );
+            const handlerMetadata: ProcessHandlerMetadata = {
+                event,
+                method: propertyKey as string,
+                associationKey,
+                start,
+            };
 
-        const handlerMetadata: ProcessHandlerMetadata<E> = {
-            propertyKey: propertyKey as string,
-            associationId,
-            start,
+            Reflect.defineMetadata(
+                eventType,
+                handlerMetadata,
+                target.constructor,
+            );
         };
 
-        Reflect.defineMetadata(eventType, handlerMetadata, target.constructor);
+        if (Array.isArray(events)) {
+            for (const e of events) {
+                defineEventMetadata(e);
+            }
+        } else {
+            defineEventMetadata(events);
+        }
     };
 };
 
-export const getProcessOptionMetadata = (
-    process: Type,
-): ProcessOptionsMetadata => {
-    const options = Reflect.getMetadata(PROCESS_HANDLER_METADATA, process);
+export const getProcessMetadata = (process: any): ProcessMetadata => {
+    const options = Reflect.getMetadata(PROCESS_METADATA, process);
 
     if (!options) {
         throw new Error(`process ${process} has no @Process decorator`);
@@ -81,33 +88,28 @@ export const getProcessOptionMetadata = (
     return options;
 };
 
-export const getProcessEventTypesMetadata = (process: Type): Set<string> => {
-    const eventTypes = Reflect.getMetadata(
-        PROCESS_EVENT_TYPES_METADATA,
-        process,
-    );
+export const getProcessEventsMetadata = (process: any): Set<string> => {
+    const eventTypes = Reflect.getMetadata(PROCESS_EVENTS_METADATA, process);
 
     if (!eventTypes) {
-        throw new Error(
-            `process ${process} has no @ProcessEventHandler decorators`,
-        );
+        throw new Error(`process ${process} has no @ProcessHandler decorators`);
     }
 
     return eventTypes;
 };
 
-export const getProcessEventHandlerMetadata = <E extends Event>(
+export const getProcessHandlerMetadata = (
     process: any,
     eventType: string,
-): ProcessHandlerMetadata<E> => {
+): ProcessHandlerMetadata => {
     const handlerMetadata = Reflect.getMetadata(
         eventType,
         process,
-    ) as ProcessHandlerMetadata<E>;
+    ) as ProcessHandlerMetadata;
 
     if (!handlerMetadata) {
         throw new Error(
-            `process ${process} has no @ProcessEventHandler for event type ${eventType}`,
+            `process ${process} has no @ProcessHandler for event type ${eventType}`,
         );
     }
 

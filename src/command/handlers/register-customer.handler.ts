@@ -17,12 +17,12 @@ export class RegisterCustomerHandler extends HandleCommand {
             command.hobbies,
         );
 
-        await session.event.startStream(
+        await session.eventStore.startStream(
             CustomerStream,
             command.customerId,
             event,
         );
 
-        await session.outbox.publishEvent(event);
+        await session.outboxStore.publishEvent(event);
     }
 }

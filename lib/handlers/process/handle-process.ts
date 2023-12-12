@@ -1,55 +1,81 @@
-import { getProcessEventHandlerMetadata } from './process.decorators';
+import {
+    getProcessHandlerMetadata,
+    getProcessMetadata,
+} from './process.decorators';
 import { BusMessage } from '../../bus';
 import {
     InjectDatabase,
-    DataStore,
+    DatabaseSession,
     EventStore,
     OutboxStore,
-    DatabaseSession,
+    DataStore,
 } from '../../store';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { processesTable } from '../../schema/schema';
+import { ProcessSession } from './process.session';
 import { arrayContains } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
-import { ProcessSession } from './process.session';
+import { Logger } from '@nestjs/common';
 
-export abstract class HandleProcess<Data> {
+export abstract class HandleProcess {
+    private readonly logger = new Logger(HandleProcess.name);
+
+    private readonly metadata = getProcessMetadata(this.constructor);
+
     constructor(@InjectDatabase() private readonly db: NodePgDatabase<any>) {}
 
     async handle(message: BusMessage): Promise<void> {
-        await this.db.transaction(async (tx) => {
-            const handlerMetadata = getProcessEventHandlerMetadata(
-                this.constructor,
-                message.type,
+        this.logger.log(
+            `(${this.constructor.name}) - received message ${JSON.stringify(
+                message,
+                null,
+                2,
+            )}`,
+        );
+
+        const handlerMetadata = getProcessHandlerMetadata(
+            this.constructor,
+            message.type,
+        );
+
+        const associationKey = handlerMetadata.associationKey
+            ? handlerMetadata.associationKey
+            : this.metadata.defaultAssociationKey;
+
+        const associationId = message.data[associationKey];
+
+        if (!associationId) {
+            throw new Error(
+                `associationKey ${associationKey} does not exist within event data ${message.data}`,
             );
+        }
 
-            const associationId = handlerMetadata.associationId(message.data);
-
-            const processSessions: ProcessSession<Data>[] = [];
+        await this.db.transaction(async (tx) => {
+            const processSessions: ProcessSession<any>[] = [];
 
             const databaseSession: DatabaseSession = {
-                data: new DataStore(tx),
-                event: new EventStore(tx),
-                outbox: new OutboxStore(tx),
+                dataStore: new DataStore(tx),
+                eventStore: new EventStore(tx),
+                outboxStore: new OutboxStore(tx),
             };
 
-            const processes = await databaseSession.data
+            const processes = await databaseSession.dataStore
                 .query(processesTable)
                 .where(
                     arrayContains(processesTable.associations, [associationId]),
                 );
 
             if (!processes.length && handlerMetadata.start === true) {
-                const newProcessSession = new ProcessSession<Data>(
+                const newProcessSession = new ProcessSession<any>(
                     {
                         id: randomUUID(),
                         data: {} as any,
-                        associations: [],
                         hasEnded: false,
+                        associations: [],
                     },
-                    databaseSession.data,
-                    databaseSession.event,
-                    databaseSession.outbox,
+                    databaseSession.dataStore,
+                    databaseSession.eventStore,
+                    databaseSession.outboxStore,
                 );
 
                 newProcessSession.associateWith(associationId);
@@ -59,47 +85,42 @@ export abstract class HandleProcess<Data> {
 
             for (const process of processes) {
                 processSessions.push(
-                    new ProcessSession<Data>(
+                    new ProcessSession<any>(
                         process,
-                        databaseSession.data,
-                        databaseSession.event,
-                        databaseSession.outbox,
+                        databaseSession.dataStore,
+                        databaseSession.eventStore,
+                        databaseSession.outboxStore,
                     ),
                 );
             }
 
             for (const processSession of processSessions) {
-                await this.handleProcessMessage(
-                    databaseSession,
-                    processSession,
-                    message,
-                );
+                await this.handleProcessMessage(processSession, message);
             }
         });
     }
 
     private async handleProcessMessage(
-        databaseSession: DatabaseSession,
-        processSession: ProcessSession<Data>,
+        processSession: ProcessSession<any>,
         message: BusMessage,
     ): Promise<void> {
-        const targetEventHandler = getProcessEventHandlerMetadata(
-            this.constructor as any,
+        const targetEventHandler = getProcessHandlerMetadata(
+            this.constructor,
             message.type,
         );
 
-        await (this as any)[targetEventHandler.propertyKey](
+        await (this as any)[targetEventHandler.method](
             message.data,
             processSession,
         );
 
         if (processSession.hasEnded) {
-            await databaseSession.data.delete(
+            await processSession.dataStore.delete(
                 processesTable,
                 processSession.id,
             );
         } else {
-            await databaseSession.data.store(processesTable, {
+            await processSession.dataStore.store(processesTable, {
                 id: processSession.id,
                 type: this.constructor.name,
                 data: processSession.data,

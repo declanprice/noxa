@@ -2,12 +2,12 @@ import { DataStore, EventStore, OutboxStore } from '../../store';
 
 export class ProcessSession<Data> {
     public id: string;
-    public data: Data;
+    public data: Data = {} as Data;
     public hasEnded: boolean = false;
     public associations: string[] = [];
 
     constructor(
-        public readonly process: {
+        process: {
             id: string;
             data: unknown;
             hasEnded: boolean;
@@ -18,7 +18,7 @@ export class ProcessSession<Data> {
         public readonly outboxStore: OutboxStore,
     ) {
         this.id = process.id;
-        this.data = process.data as any;
+        this.data = process.data as Data;
         this.hasEnded = process.hasEnded;
         this.associations = process.associations;
     }
@@ -41,5 +41,11 @@ export class ProcessSession<Data> {
 
     end(): void {
         this.hasEnded = true;
+    }
+
+    update(data: Partial<Data>) {
+        Object.assign(this, {
+            data,
+        });
     }
 }

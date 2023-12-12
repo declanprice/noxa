@@ -10,5 +10,4 @@ export { QueryHandler } from './query/query-handler.decorator';
 
 export * from './event';
 export * from './projection';
-export * from './saga';
 export * from './process';

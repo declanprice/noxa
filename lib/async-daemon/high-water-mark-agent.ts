@@ -27,6 +27,8 @@ export class HighWaterMarkAgent {
 
         this.highWaterMark = trackingToken.lastSequenceId;
 
+        this.logger.log(`HighWaterMark starting at ${this.highWaterMark}`);
+
         await this.poll(trackingToken);
     }
 
@@ -35,10 +37,6 @@ export class HighWaterMarkAgent {
 
         // already update to date, just check again in 1 second.
         if (this.highWaterMark === latestSequenceId) {
-            this.logger.log(
-                `HighWaterMark is up to date with the latest available sequenceId ${latestSequenceId}`,
-            );
-
             return setTimeout(() => {
                 this.poll(trackingToken).then();
             }, this.fastPollDurationInMs);
@@ -88,7 +86,6 @@ export class HighWaterMarkAgent {
 
         trackingToken = await this.updateTrackingToken(gap.sequenceId + 1);
 
-        // re-poll, if tombstone event was successfully inserted then
         // the next poll iteration should find no gaps and update the tracking token.
         return setTimeout(() => {
             this.poll(trackingToken).then();
@@ -143,6 +140,10 @@ export class HighWaterMarkAgent {
     }
 
     async updateTrackingToken(lastSequenceId: number): Promise<SelectToken> {
+        this.logger.log(
+            `HighWaterMark updating tracking token to ${lastSequenceId}`,
+        );
+
         const updatedTokens = await this.db
             .update(tokensTable)
             .set({

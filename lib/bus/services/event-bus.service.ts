@@ -9,18 +9,13 @@ import {
 } from '../../handlers/event/event-handler.decorator';
 import { BusMessage } from '../bus-message.type';
 import {
-    getProcessEventTypesMetadata,
-    getProcessOptionMetadata,
+    getProcessEventsMetadata,
+    getProcessMetadata,
 } from '../../handlers/process/process.decorators';
-import {
-    getSagaEventTypes,
-    getSagaOptionMetadata,
-} from '../../handlers/saga/saga.decorators';
 import {
     getEventGroupEventTypes,
     getEventGroupOptions,
 } from '../../handlers/event/group/event-group.decorator';
-import { HandleSaga } from '../../handlers/saga/handle-saga';
 import {
     DataStore,
     EventStore,
@@ -76,9 +71,9 @@ export class EventBus {
                 async (message) => {
                     await this.db.transaction(async (tx) => {
                         await instance.handle(message, {
-                            data: new DataStore(tx),
-                            event: new EventStore(tx),
-                            outbox: new OutboxStore(tx),
+                            dataStore: new DataStore(tx),
+                            eventStore: new EventStore(tx),
+                            outboxStore: new OutboxStore(tx),
                         });
                     });
                 },
@@ -113,7 +108,7 @@ export class EventBus {
         }
     }
 
-    async registerProcessHandlers(processes: Type<HandleProcess<any>>[] = []) {
+    async registerProcessHandlers(processes: Type<HandleProcess>[] = []) {
         for (const process of processes) {
             const instance = this.moduleRef.get(process, { strict: false });
 
@@ -123,42 +118,13 @@ export class EventBus {
                 );
             }
 
-            const options = getProcessOptionMetadata(process);
-            const eventTypes = getProcessEventTypesMetadata(process);
+            const metadata = getProcessMetadata(process);
+            const eventTypes = getProcessEventsMetadata(process);
             const groupName = process.name;
 
             await this.busRelay.registerEventGroupHandler(
                 groupName,
-                options.consumerType,
-                Array.from(eventTypes),
-                async (message: BusMessage) => {
-                    await instance.handle(message);
-                },
-            );
-        }
-    }
-
-    async registerSagaHandlers(
-        sagaHandlers: Type<HandleSaga>[] = [],
-    ): Promise<void> {
-        console.log(sagaHandlers);
-
-        for (const saga of sagaHandlers) {
-            const instance = this.moduleRef.get(saga, { strict: false });
-
-            if (!instance) {
-                throw new Error(
-                    `module ref could not resolve ${saga.name}, make sure it has been provided`,
-                );
-            }
-
-            const options = getSagaOptionMetadata(saga);
-            const eventTypes = getSagaEventTypes(saga);
-            const groupName = saga.name;
-
-            await this.busRelay.registerEventGroupHandler(
-                groupName,
-                options.consumerType,
+                metadata.consumerType,
                 Array.from(eventTypes),
                 async (message: BusMessage) => {
                     await instance.handle(message);

@@ -10,8 +10,6 @@ import {
     varchar,
 } from 'drizzle-orm/pg-core';
 
-import { SagaDefinition } from '../handlers/saga/handle-saga';
-
 export const streamsTable = pgTable(
     'streams',
     {
@@ -51,10 +49,6 @@ export const eventsTable = pgTable(
     }),
 );
 
-export type SelectEvent = typeof eventsTable.$inferSelect;
-
-export type InsertEvent = typeof eventsTable.$inferInsert;
-
 export const outboxTable = pgTable('outbox', {
     id: uuid('id').primaryKey(),
     toBus: varchar('to_bus').notNull().$type<'command' | 'event'>(),
@@ -77,10 +71,6 @@ export const tokensTable = pgTable('tokens', {
         .defaultNow(),
 });
 
-export type SelectToken = typeof tokensTable.$inferSelect;
-
-export type InsertToken = typeof tokensTable.$inferInsert;
-
 export const processesTable = pgTable('processes', {
     id: uuid('id').primaryKey(),
     type: varchar('type').notNull(),
@@ -90,11 +80,10 @@ export const processesTable = pgTable('processes', {
     timestamp: timestamp('timestamp', { mode: 'string' }).defaultNow(),
 });
 
-export const sagasTable = pgTable('sagas', {
-    id: uuid('id').primaryKey(),
-    type: varchar('type').notNull(),
-    definition: jsonb('definition').$type<SagaDefinition>().notNull(),
-    timestamp: timestamp('timestamp', { mode: 'string' })
-        .notNull()
-        .defaultNow(),
-});
+export type SelectEvent = typeof eventsTable.$inferSelect;
+
+export type InsertEvent = typeof eventsTable.$inferInsert;
+
+export type SelectToken = typeof tokensTable.$inferSelect;
+
+export type InsertToken = typeof tokensTable.$inferInsert;

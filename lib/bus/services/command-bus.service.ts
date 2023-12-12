@@ -92,9 +92,9 @@ export class CommandBus {
 
         return await this.db.transaction(async (tx) => {
             return await handler.handle(data, {
-                data: new DataStore(tx),
-                event: new EventStore(tx),
-                outbox: new OutboxStore(tx),
+                dataStore: new DataStore(tx),
+                eventStore: new EventStore(tx),
+                outboxStore: new OutboxStore(tx),
             });
         });
     }

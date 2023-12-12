@@ -35,8 +35,6 @@ export class AsyncDaemon {
 
         const result = await client.query(`SELECT pg_try_advisory_lock(4545)`);
 
-        console.log(result);
-
         if (
             result.rows.length &&
             result.rows[0].pg_try_advisory_lock === false

@@ -6,7 +6,6 @@ export {
     outboxTable,
     tokensTable,
     processesTable,
-    sagasTable,
 } from '../lib/schema/schema';
 
 export const customersTable = pgTable('customers', {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CommandBus, QueryBus } from '../lib';
 import {
@@ -20,11 +20,11 @@ export class AppController {
         return await this.queryBus.invoke(new GetCustomersQuery());
     }
 
-    @Post('/')
+    @Post('/customers')
     async create() {
         const customerId = randomUUID();
 
-        return await this.commandBus.invoke(
+        await this.commandBus.invoke(
             new RegisterCustomer(
                 customerId,
                 faker.person.firstName(),
@@ -33,15 +33,17 @@ export class AppController {
                 ['snowboarding', 'climbing', 'software development'],
             ),
         );
+
+        return customerId;
     }
 
-    @Post('/name')
-    async updateName() {
+    @Put('/customers/:id/name')
+    async updateName(@Param('id') id: string) {
         return await this.commandBus.invoke(
             new ChangeCustomerName(
-                'b1b5f9e6-fe03-4ad7-9dd8-df622989b28e',
-                'Deshaun',
-                'Been Changed',
+                id,
+                faker.person.firstName(),
+                faker.person.lastName(),
             ),
         );
     }

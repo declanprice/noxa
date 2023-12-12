@@ -9,7 +9,7 @@ import { CommandHandler, DatabaseSession, HandleCommand } from '../../../lib';
 @CommandHandler(ChangeCustomerName)
 export class ChangeCustomerNameHandler extends HandleCommand {
     async handle(command: ChangeCustomerName, session: DatabaseSession) {
-        const customer = await session.event.hydrateStream(
+        const customer = await session.eventStore.hydrateStream(
             CustomerStream,
             command.customerId,
         );
@@ -29,12 +29,12 @@ export class ChangeCustomerNameHandler extends HandleCommand {
             command.lastName,
         );
 
-        await session.event.appendEvent(
+        await session.eventStore.appendEvent(
             CustomerStream,
             command.customerId,
             event,
         );
 
-        await session.outbox.publishEvent(event);
+        await session.outboxStore.publishEvent(event);
     }
 }
