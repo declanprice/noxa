@@ -45,8 +45,8 @@ export abstract class HandleProcess {
         const associationId = message.data[associationKey];
 
         if (!associationId) {
-            throw new Error(
-                `associationKey ${associationKey} does not exist within event data ${message.data}`,
+            return this.logger.log(
+                `(${this.constructor.name}) - associationKey ${associationKey} not found in message data, skipping message.`,
             );
         }
 

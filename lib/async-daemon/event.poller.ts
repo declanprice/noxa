@@ -129,7 +129,7 @@ export class EventPoller {
         this.logger.log(
             `successfully processed batch of ${events.length} in ${Math.abs(
                 (beforeDate - Date.now()) / 1000,
-            )} seconds., checking for more events in 1 second.`,
+            )} seconds, checking for more events in 1 second.`,
         );
 
         return setTimeout(() => {

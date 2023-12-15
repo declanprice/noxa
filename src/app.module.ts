@@ -1,26 +1,16 @@
 import { Module } from '@nestjs/common';
-import { NoxaModule, RabbitmqBus } from '../lib';
-import { AppController } from './app.controller';
-import { RegisterCustomerHandler } from './command/handlers/register-customer.handler';
-import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as schema from './schema';
-import { GetCustomersHandler } from './query/handlers/get-customers.handler';
-import { ChangeCustomerNameHandler } from './command/handlers/change-customer-name.handler';
-import { CustomerProjection } from './query/projections/customer.projection';
-import { CustomerRegisteredHandler } from './event/handlers/customer-registered.handler';
-import { CustomerProcess } from './event/processes/customer.process';
+import { NoxaModule, RabbitmqBus } from '../lib';
+import { CustomersModule } from './customers/customers.module';
+import { ProductCatalogModule } from './product-catalog/product-catalog.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { PaymentsModule } from './payments/payments.module';
+import { OrdersModule } from './orders/orders.module';
+import { ShipmentModule } from './shipping/shipment.module';
 
 @Module({
-    controllers: [AppController],
-    providers: [
-        RegisterCustomerHandler,
-        ChangeCustomerNameHandler,
-        CustomerRegisteredHandler,
-        GetCustomersHandler,
-        CustomerProjection,
-        CustomerProcess,
-    ],
     imports: [
         NoxaModule.forRoot({
             serviceName: 'Restaurant',
@@ -38,6 +28,14 @@ import { CustomerProcess } from './event/processes/customer.process';
                 enabled: true,
             },
         }),
+        CustomersModule,
+        InventoryModule,
+        PaymentsModule,
+        OrdersModule,
+        ShipmentModule,
+        ProductCatalogModule,
     ],
+    controllers: [],
+    providers: [],
 })
-export class ApplicationModule {}
+export class AppModule {}

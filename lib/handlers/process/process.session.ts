@@ -45,7 +45,10 @@ export class ProcessSession<Data> {
 
     update(data: Partial<Data>) {
         Object.assign(this, {
-            data,
+            data: {
+                ...this.data,
+                ...data,
+            },
         });
     }
 }
