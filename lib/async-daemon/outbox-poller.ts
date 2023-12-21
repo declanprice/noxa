@@ -12,7 +12,7 @@ export class OutboxPoller {
 
     logger = new Logger(OutboxPoller.name);
 
-    pollTimeInMs = 100;
+    pollTimeInMs = 500;
 
     async start(): Promise<any> {
         const messages = await this.db

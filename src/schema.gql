@@ -1,0 +1,25 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Inventory {
+  id: String!
+  quantityAvailable: Float!
+}
+
+type Product {
+  id: String!
+  name: String!
+  inventory: Inventory
+}
+
+type Query {
+  product(id: String!): Product!
+  searchProducts(name: String): [Product!]!
+  inventoryById(id: String!): Inventory!
+  inventoryByIds(ids: [String!]!): [Inventory!]!
+}
+
+type Mutation {
+  setInventoryQuantity(id: String!, quantity: Int!): Inventory!
+}

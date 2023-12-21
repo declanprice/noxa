@@ -3,7 +3,6 @@ import {
     integer,
     jsonb,
     pgTable,
-    timestamp,
     uuid,
     varchar,
 } from 'drizzle-orm/pg-core';
@@ -16,15 +15,16 @@ export {
     processesTable,
 } from '../lib/schema/schema';
 
-export const customers = pgTable('customers', {
+export const customersTable = pgTable('customers', {
     id: uuid('id').primaryKey(),
     firstName: varchar('first_name').notNull(),
     lastName: varchar('last_name').notNull(),
     email: varchar('email').notNull(),
 });
 
-export const products = pgTable('products', {
+export const productsTable = pgTable('products', {
     id: uuid('id').primaryKey(),
+    inventoryId: uuid('inventory_id').notNull(),
     name: varchar('name').notNull(),
     description: varchar('description').notNull(),
     category: varchar('category').notNull(),
@@ -33,7 +33,7 @@ export const products = pgTable('products', {
     removed: boolean('removed').notNull().default(false),
 });
 
-export const orders = pgTable('orders', {
+export const ordersTable = pgTable('orders', {
     id: uuid('id').primaryKey(),
     customerId: uuid('customer_id').notNull(),
     paymentId: uuid('payment_id').notNull(),
@@ -41,22 +41,20 @@ export const orders = pgTable('orders', {
     status: varchar('status').notNull(),
 });
 
-export const payments = pgTable('payments', {
+export const paymentsTable = pgTable('payments', {
     id: uuid('id').primaryKey(),
     amount: integer('amount').notNull(),
     orderId: uuid('order_id').notNull(),
     refunded: boolean('refunded').notNull().default(false),
 });
 
-export const inventory = pgTable('inventory', {
+export const inventoryTable = pgTable('inventory', {
     id: uuid('id').primaryKey(),
-    name: varchar('name').notNull(),
     quantityAvailable: integer('quantity_available').notNull(),
 });
 
-export const shipments = pgTable('shipments', {
+export const shipmentsTable = pgTable('shipments', {
     id: uuid('id').primaryKey(),
-    customerId: uuid('customer_id').notNull(),
     orderId: uuid('order_id').notNull(),
     addressLine1: varchar('address_line_1').notNull(),
     addressLine2: varchar('address_line_2').notNull(),
@@ -65,14 +63,14 @@ export const shipments = pgTable('shipments', {
     status: varchar('status').notNull(),
 });
 
-export type Customer = typeof customers.$inferSelect;
+export type Customer = typeof customersTable.$inferSelect;
 
-export type Product = typeof products.$inferSelect;
+export type Product = typeof productsTable.$inferSelect;
 
-export type Order = typeof orders.$inferSelect;
+export type Order = typeof ordersTable.$inferSelect;
 
-export type Payment = typeof payments.$inferSelect;
+export type Payment = typeof paymentsTable.$inferSelect;
 
-export type Inventory = typeof inventory.$inferSelect;
+export type Inventory = typeof inventoryTable.$inferSelect;
 
-export type Shipment = typeof shipments.$inferSelect;
+export type Shipment = typeof shipmentsTable.$inferSelect;

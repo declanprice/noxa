@@ -7,11 +7,13 @@ import { v4 } from 'uuid';
 @CommandHandler(AddProductToCatalog)
 export class AddProductToCatalogHandler extends HandleCommand {
     async handle(command: AddProductToCatalog, session: DatabaseSession) {
+        const productId = v4();
+
         await session.eventStore.startStream(
             ProductStream,
-            command.productId,
+            productId,
             new ProductAddedToCatalog(
-                command.productId,
+                productId,
                 command.inventoryId,
                 command.name,
                 command.description,
@@ -20,5 +22,7 @@ export class AddProductToCatalogHandler extends HandleCommand {
                 command.photoUrl,
             ),
         );
+
+        return productId;
     }
 }

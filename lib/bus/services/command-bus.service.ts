@@ -30,7 +30,7 @@ export class CommandBus {
     ) {}
 
     async invoke(command: Command): Promise<void> {
-        return await this.invokeHandler(command.constructor.name, command);
+        return this.invokeHandler(command.constructor.name, command);
     }
 
     async send(
@@ -39,7 +39,7 @@ export class CommandBus {
     ): Promise<void> {
         const { publishAt } = options || {};
 
-        await this.busRelay.sendCommand({
+        return this.busRelay.sendCommand({
             type: command.constructor.name,
             timestamp: publishAt
                 ? publishAt.toISOString()
@@ -70,7 +70,7 @@ export class CommandBus {
 
         this.handlers.set(command.name, instance);
 
-        await this.busRelay.registerCommandHandler(
+        return this.busRelay.registerCommandHandler(
             handler.name,
             command.name,
             async (message) => {
@@ -90,8 +90,8 @@ export class CommandBus {
             throw new Error(`command handler not found for ${type}`);
         }
 
-        return await this.db.transaction(async (tx) => {
-            return await handler.handle(data, {
+        return this.db.transaction(async (tx) => {
+            return handler.handle(data, {
                 dataStore: new DataStore(tx),
                 eventStore: new EventStore(tx),
                 outboxStore: new OutboxStore(tx),

@@ -9,11 +9,23 @@ import { InventoryModule } from './inventory/inventory.module';
 import { PaymentsModule } from './payments/payments.module';
 import { OrdersModule } from './orders/orders.module';
 import { ShipmentModule } from './shipping/shipment.module';
-
+import { GraphqlModule } from './graphql/graphql.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
     imports: [
+        AuthModule.forRoot({
+            connectionURI: 'http://localhost:3567',
+            appInfo: {
+                appName: 'Shop',
+                apiDomain: 'http://localhost:3000',
+                websiteDomain: 'http://localhost:4200',
+                apiBasePath: '/auth',
+                websiteBasePath: '/auth',
+            },
+        }),
+        GraphqlModule,
         NoxaModule.forRoot({
-            serviceName: 'Restaurant',
+            serviceName: 'Shop',
             database: drizzle(
                 new Pool({
                     connectionString:

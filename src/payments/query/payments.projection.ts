@@ -1,24 +1,21 @@
 import { DataProjection, ProjectionEventHandler } from '../../../lib';
-import { Payment, payments } from '../../schema';
+import { Payment, paymentsTable } from '../../schema';
 import { PaymentCapturedEvent } from '../api/events/payment-captured.event';
 import { PaymentRefundedEvent } from '../api/events/payment-refunded.event';
 
-@DataProjection(payments)
+@DataProjection(paymentsTable)
 export class PaymentsProjection {
-    @ProjectionEventHandler(PaymentCapturedEvent, (e) => e.id)
+    @ProjectionEventHandler(PaymentCapturedEvent, (e) => e.paymentId)
     onRegistered(event: PaymentCapturedEvent): Payment {
         return {
-            id: event.id,
-            dateIssued: event.dateIssued,
+            id: event.paymentId,
             amount: event.amount,
-            customerId: event.customerId,
             orderId: event.orderId,
-            shipmentId: event.shipmentId,
             refunded: false,
         };
     }
 
-    @ProjectionEventHandler(PaymentRefundedEvent, (e) => e.id)
+    @ProjectionEventHandler(PaymentRefundedEvent, (e) => e.paymentId)
     onRefunded(event: PaymentRefundedEvent, existing: Payment): Payment {
         return {
             ...existing,

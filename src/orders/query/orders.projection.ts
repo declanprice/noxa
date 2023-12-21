@@ -1,13 +1,13 @@
 import { DataProjection, ProjectionEventHandler } from '../../../lib';
 
-import { Order, orders } from '../../schema';
+import { Order, ordersTable } from '../../schema';
 import { OrderRequestedEvent } from '../api/events/order-requested.event';
 import { OrderStatus } from '../api/commands/order-status.enum';
 import { OrderPlacedEvent } from '../api/events/order-placed.event';
 import { OrderCanceledEvent } from '../api/events/order-canceled.event';
 import { OrderCompleteEvent } from '../api/events/order-complete.event';
 
-@DataProjection(orders)
+@DataProjection(ordersTable)
 export class OrdersProjection {
     @ProjectionEventHandler(OrderRequestedEvent, (e) => e.orderId)
     onRequested(event: OrderRequestedEvent): Order {

@@ -1,6 +1,5 @@
 export class AddProductToCatalog {
     constructor(
-        readonly productId: string,
         readonly inventoryId: string,
         readonly name: string,
         readonly description: string,

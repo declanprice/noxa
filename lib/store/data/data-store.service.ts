@@ -33,7 +33,7 @@ export class DataStore {
 
     async get<T extends PgTable>(
         table: T,
-        documentId: string,
+        id: string,
         options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
@@ -43,7 +43,7 @@ export class DataStore {
         const results = await db
             .select()
             .from(table)
-            .where(eq((table as any).id, documentId));
+            .where(eq((table as any).id, id));
 
         if (results.length === 0) {
             throw new DataNotFoundError();
@@ -54,7 +54,7 @@ export class DataStore {
 
     async find<T extends PgTable>(
         table: T,
-        documentId: string,
+        id: string,
         options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
@@ -64,7 +64,7 @@ export class DataStore {
         const results = await db
             .select()
             .from(table)
-            .where(eq((table as any).id, documentId));
+            .where(eq((table as any).id, id));
 
         if (results.length === 0) {
             return null;
@@ -75,7 +75,7 @@ export class DataStore {
 
     async findMany<T extends PgTable>(
         table: T,
-        documentIds: string[],
+        ids: string[],
         options: { tx?: PgTransaction<any, any, any> } = {},
     ) {
         const { tx } = options;
@@ -85,7 +85,7 @@ export class DataStore {
         return db
             .select()
             .from(table)
-            .where(inArray((table as any).id, documentIds));
+            .where(inArray((table as any).id, ids));
     }
 
     async store<T extends PgTable>(
@@ -97,7 +97,7 @@ export class DataStore {
 
         let db = tx ?? this.db;
 
-        return db
+        const result = await db
             .insert(table)
             .values(values)
             .onConflictDoUpdate({
@@ -105,13 +105,15 @@ export class DataStore {
                 set: values as any,
             })
             .returning();
+
+        return result[0];
     }
 
     async storeMany<T extends PgTable>(
         table: T,
         values: InferInsertModel<T>[],
         options: { tx?: PgTransaction<any, any, any> } = {},
-    ): Promise<void> {
+    ) {
         const { tx } = options;
 
         let db = tx ?? this.db;
@@ -129,13 +131,14 @@ export class DataStore {
             onConflictSet[key] = sql.raw(`excluded.${column.name}`);
         }
 
-        await db
+        return db
             .insert(table)
             .values(values)
             .onConflictDoUpdate({
                 target: (table as any).id,
                 set: onConflictSet,
-            });
+            })
+            .returning();
     }
 
     async delete(
@@ -147,6 +150,6 @@ export class DataStore {
 
         let db = tx ?? this.db;
 
-        await db.delete(table).where(eq((table as any).id, id));
+        return db.delete(table).where(eq((table as any).id, id));
     }
 }

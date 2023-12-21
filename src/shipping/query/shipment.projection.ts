@@ -1,18 +1,16 @@
 import { DataProjection, ProjectionEventHandler } from '../../../lib';
-import { Shipment, shipments } from '../../schema';
+import { Shipment, shipmentsTable } from '../../schema';
 import { ShipmentDispatchedEvent } from '../api/events/shipment-dispatched.event';
 import { ShippingStatus } from '../api/commands/shipping-status.enum';
 import { ShipmentDeliveredEvent } from '../api/events/shipment-delivered.event';
 
-@DataProjection(shipments)
+@DataProjection(shipmentsTable)
 export class ShipmentProjection {
-    @ProjectionEventHandler(ShipmentDispatchedEvent, (e) => e.id)
+    @ProjectionEventHandler(ShipmentDispatchedEvent, (e) => e.shipmentId)
     onDispatched(event: ShipmentDispatchedEvent): Shipment {
         return {
-            id: event.id,
-            customerId: event.customerId,
+            id: event.shipmentId,
             orderId: event.orderId,
-            dateShipped: event.dateShipped,
             addressLine1: event.addressLine1,
             addressLine2: event.addressLine2,
             postcode: event.postcode,
@@ -21,7 +19,7 @@ export class ShipmentProjection {
         };
     }
 
-    @ProjectionEventHandler(ShipmentDeliveredEvent, (e) => e.id)
+    @ProjectionEventHandler(ShipmentDeliveredEvent, (e) => e.shipmentId)
     onDelivered(event: ShipmentDeliveredEvent, existing: Shipment): Shipment {
         return {
             ...existing,

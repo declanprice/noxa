@@ -5,133 +5,101 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/next.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/postcss.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/public/next.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/public/vercel.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/favicon.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/globals.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/tailwind.config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/api/commands/register-customer.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/api/events/customer-registered.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/api/queries/get-customer-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/command/customer.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/command/register-customer.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/customers.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/customers.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/query/customers.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/customers/query/get-customer-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/commands/add-inventory.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/commands/stock-inventory.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/commands/unstock-inventory.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/commands/validate-inventory.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-added.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-stocked.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-unstocked.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-validated.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-validation-failed.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/api/queries/get-inventory-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/command/add-inventory.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/command/inventory.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/command/stock-inventory.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/command/unstock-inventory.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/command/validate-inventory.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/inventory.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/inventory.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/query/get-inventory-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/inventory/query/inventory.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/cancel-order.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/complete-order.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/order-line-item.type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/order-status.enum.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/place-order.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/commands/request-order.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/events/order-canceled.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/events/order-complete.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/events/order-placed.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/events/order-requested.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/api/queries/get-order-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/cancel-order.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/complete-order.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/order.process.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/order.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/place-order.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/command/request-order.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/orders.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/orders.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/query/get-order-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/orders/query/orders.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/commands/capture-payment.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/commands/create-payment.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/commands/refund-payment.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/events/payment-captured.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/events/payment-created.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/events/payment-refunded.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/api/queries/get-payment-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/command/capture-payment.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/command/create-payment.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/command/payment.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/command/refund-payment.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/payments.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/payments.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/query/get-payment-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/payments/query/payments.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/commands/add-product-to-catalog.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/commands/remove-product-from-catalog.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/commands/validate-products.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/events/product-added-to-catalog.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/events/product-removed-from-catalog.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/events/products-validated.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/events/products-validation-failed.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/queries/get-all-products.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/queries/get-product-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/command/add-product-to-catalog.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/command/product.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/command/remove-product-from-catalog.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/command/validate-products.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/product-catalog.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/product-catalog.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/query/get-all-products.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/query/get-product-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/product-catalog/query/products.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/commands/deliver-shipment.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/commands/dispatch-shipment.command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/commands/shipping-status.enum.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/events/shipment-delivered.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/events/shipment-dispatched.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/api/queries/get-shipment-by-id.query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/command/deliver-shipment.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/command/dispatch-shipment.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/command/shipment.stream.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/query/get-shipment-by-id.handler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/query/shipment.projection.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/shipment.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/shipping/shipment.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.editorconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.vscode/extensions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.vscode/launch.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.vscode/tasks.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/angular.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/app.routes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/assets/.gitkeep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/styles.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/tsconfig.app.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/tsconfig.spec.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth-exception.filter.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth-session.guard.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth-session.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth.middleware.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/auth.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/auth/supertokens.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/dataloader/data-loader.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/graphql.module.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/model/inventory.model.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/model/product.model.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/resolvers/inventory.resolver.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphql/resolvers/product.resolver.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/inventory/api/queries/find-inventory-by-ids.query.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/inventory/query/find-inventory-by-ids.handler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/product-catalog/api/queries/search-products.query.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/product-catalog/query/search-products.handler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/schema.gql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/app/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/app/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/next.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/postcss.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tailwind.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/command-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/data/data-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/data/data-store.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/customer.stream.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/handlers/change-customer-name.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/handlers/register-customer.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/event/handlers/customer-registered.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/event/processes/customer.process.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/customers/query/customers.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/customers/query/customers.projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/customers/query/get-customer-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/customers/query/get-customer-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/commands/add-inventory.command.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/commands/stock-inventory.command.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/commands/unstock-inventory.command.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/events/inventory-added.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/events/inventory-stocked.event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/api/commands/set-inventory-quantity.command.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/events/inventory-unstocked.event.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/events/inventory-validated.event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/api/events/inventory-validation-success.event.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/api/queries/get-inventory-by-id.query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/api/queries/get-inventory-by-id.query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/command/add-inventory.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/command/set-inventory-quantity.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/command/inventory.stream.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/command/stock-inventory.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/command/unstock-inventory.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/command/validate-inventory.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/command/validate-inventory.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/inventory.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/inventory.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/inventory.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/inventory.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/query/get-inventory-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/query/get-inventory-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/query/inventory.projection.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/query/handlers/get-customers.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/query/projections/customer.projection.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/orders/command/order.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/orders/event/order.process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/orders/query/get-order-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/orders/query/get-order-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/orders/query/orders.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/orders/query/orders.projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/payments/query/get-payment-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/payments/query/get-payment-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/payments/query/payments.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/payments/query/payments.projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/api/commands/add-product-to-catalog.command.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/api/commands/add-product-to-catalog.command.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/api/queries/get-all-products.query.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/command/add-product-to-catalog.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/command/add-product-to-catalog.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/product-catalog.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/product-catalog.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/product-catalog.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/product-catalog.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/query/get-all-products.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/query/get-product-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/query/get-product-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/query/products.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/query/products.projection.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shipping/query/get-shipment-by-id.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shipping/query/get-shipment-by-id.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shipping/query/shipment.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/shipping/query/shipment.projection.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +131,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src/orders/command",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src/graphql/resolvers",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -172,25 +140,25 @@
     "nodejs_package_manager_path": "npm",
     "prettier.import.notification.dismissed": "true",
     "prettierjs.PrettierConfiguration.Package": "/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier",
-    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "ts.external.directory.path": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/orders/command" />
-      <recent name="$PROJECT_DIR$/src/inventory/command" />
+      <recent name="$PROJECT_DIR$/src/graphql/resolvers" />
+      <recent name="$PROJECT_DIR$/src/graphql" />
       <recent name="$PROJECT_DIR$/src/product-catalog/command" />
-      <recent name="$PROJECT_DIR$/src/payments/api/events" />
-      <recent name="$PROJECT_DIR$/src/payments/command" />
+      <recent name="$PROJECT_DIR$/app/src/data" />
+      <recent name="$PROJECT_DIR$/app/src/components/admin" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/graphql/model" />
+      <recent name="$PROJECT_DIR$/src/orders/event" />
+      <recent name="$PROJECT_DIR$/src/products" />
       <recent name="$PROJECT_DIR$/src/orders/command" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/lib/store" />
-      <recent name="$PROJECT_DIR$/src/command" />
     </key>
   </component>
   <component name="RunManager" selected="Jest.DocumentQueryBuilder.should build complex sql statement">
@@ -360,7 +328,11 @@
       <workItem from="1702053314221" duration="92000" />
       <workItem from="1702053967527" duration="8000" />
       <workItem from="1702054014760" duration="13000" />
-      <workItem from="1702305131232" duration="40201000" />
+      <workItem from="1702305131232" duration="52945000" />
+      <workItem from="1702901889731" duration="15115000" />
+      <workItem from="1703011077032" duration="18000" />
+      <workItem from="1703081448254" duration="2490000" />
+      <workItem from="1703167430053" duration="25153000" />
     </task>
     <servers />
   </component>
