@@ -3,6 +3,7 @@ import supertokens from 'supertokens-node';
 import Session from 'supertokens-node/recipe/session';
 import EmailPassword from 'supertokens-node/recipe/emailpassword';
 import Dashboard from 'supertokens-node/recipe/dashboard';
+import UserRoles from 'supertokens-node/recipe/userroles';
 import { AuthModuleConfig, ConfigInjectionToken } from './auth.config';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class SupertokensService {
                 EmailPassword.init(),
                 Session.init(),
                 Dashboard.init(),
+                UserRoles.init(),
             ],
         });
     }
