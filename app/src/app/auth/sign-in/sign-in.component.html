@@ -1,1 +1,20 @@
-<p>sign-in works!</p>
+
+<form class='sign-in-form' [formGroup]='signInForm' (ngSubmit)='signIn($event)'>
+  <h2>Sign In</h2>
+
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input matInput formControlName='email'>
+      <mat-error>{{signInForm | formError:'email' }}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput formControlName='password'>
+    <mat-error>{{signInForm | formError:'password' }}</mat-error>
+  </mat-form-field>
+
+  <button mat-raised-button [disabled]='signInForm.invalid'>Sign In</button>
+
+  <a class='sign-in-link' routerLink='/auth/sign-up'>Don't have an account?, Sign Up.</a>
+</form>

@@ -13,11 +13,17 @@ type Product {
   inventory: Inventory
 }
 
+type User {
+  id: String!
+  emails: [String!]!
+}
+
 type Query {
   product(id: String!): Product!
   searchProducts(name: String): [Product!]!
   inventoryById(id: String!): Inventory!
   inventoryByIds(ids: [String!]!): [Inventory!]!
+  user(id: String!): User!
 }
 
 type Mutation {

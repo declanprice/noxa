@@ -8,7 +8,7 @@ import {
 import Session from 'supertokens-web-js/recipe/session';
 import { AuthService } from '@/auth/auth.service';
 
-export const authGuard: CanActivateFn = async (
+export const noAuthGuard: CanActivateFn = async (
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
 ) => {
@@ -16,10 +16,9 @@ export const authGuard: CanActivateFn = async (
     const router = inject(Router);
 
     if (auth.isSignedIn()) {
-        return true;
+        router.navigate(['/catalog']).then();
+        return false;
     }
 
-    router.navigate(['/auth/sign-in']).then();
-
-    return false;
+    return true;
 };

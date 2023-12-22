@@ -1,0 +1,22 @@
+:host {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.sign-in-form {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+}
+
+.sign-in-link {
+  margin-top: 5px;
+  font-size: 12px;
+  display: flex;
+  margin-left: auto;
+}
+

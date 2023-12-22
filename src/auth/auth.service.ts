@@ -7,7 +7,7 @@ import UserRoles from 'supertokens-node/recipe/userroles';
 import { AuthModuleConfig, ConfigInjectionToken } from './auth.config';
 
 @Injectable()
-export class SupertokensService {
+export class AuthService {
     constructor(
         @Inject(ConfigInjectionToken) private config: AuthModuleConfig,
     ) {
@@ -24,5 +24,9 @@ export class SupertokensService {
                 UserRoles.init(),
             ],
         });
+    }
+
+    async getUser(userId: string) {
+        return supertokens.getUser(userId);
     }
 }

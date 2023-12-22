@@ -1,0 +1,25 @@
+<mat-toolbar color='primary'>
+  <button mat-icon-button class="menu-icon" aria-label="toggle menu button with icon" (click)='toggleSideNav()'>
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span>Catalog</span>
+
+  @if (auth.user(); as user) {
+  <div class='user-menu'>
+    <button mat-button [matMenuTriggerFor]="menu">{{user.emails[0]}}</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item>Account</button>
+      <button mat-menu-item (click)="signOut()">Sign Out</button>
+    </mat-menu>
+  </div>
+  }
+
+</mat-toolbar>
+
+<mat-sidenav-container class='side-nav-container'>
+  <mat-sidenav [opened]="isSideNavOpened()" class='side-nav'>Start</mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet/>
+  </mat-sidenav-content>
+</mat-sidenav-container>
