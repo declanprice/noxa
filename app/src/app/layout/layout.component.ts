@@ -4,13 +4,14 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { AuthService } from '@/auth/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-layout',
@@ -22,6 +23,8 @@ import { MatMenuModule } from '@angular/material/menu';
         MatButtonModule,
         MatSidenavModule,
         MatMenuModule,
+        NgIf,
+        RouterLink,
     ],
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss',

@@ -3,23 +3,26 @@
     <mat-icon>menu</mat-icon>
   </button>
 
-  <span>Catalog</span>
+  <span>Shop</span>
 
-  @if (auth.user(); as user) {
-  <div class='user-menu'>
+  <div class='user-menu' *ngIf='auth.user() as user'>
+    <button mat-raised-button color='warn' class='admin-btn' routerLink='/admin'>Admin</button>
+
     <button mat-button [matMenuTriggerFor]="menu">{{user.emails[0]}}</button>
     <mat-menu #menu="matMenu">
-      <button mat-menu-item>Account</button>
+      <button mat-menu-item >Account</button>
       <button mat-menu-item (click)="signOut()">Sign Out</button>
     </mat-menu>
+
   </div>
-  }
 
 </mat-toolbar>
 
 <mat-sidenav-container class='side-nav-container'>
-  <mat-sidenav [opened]="isSideNavOpened()" class='side-nav'>Start</mat-sidenav>
+  <mat-sidenav [opened]="isSideNavOpened()" class='side-nav'>
+    <router-outlet name='nav'/>
+  </mat-sidenav>
   <mat-sidenav-content>
-    <router-outlet/>
+    <router-outlet name='content'/>
   </mat-sidenav-content>
 </mat-sidenav-container>

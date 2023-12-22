@@ -44,6 +44,6 @@ export class SignUpComponent {
             password: this.signUpForm.value.password!,
         });
 
-        await this.router.navigate(['/catalog']);
+        await this.router.navigate(['/shop/catalog']);
     }
 }

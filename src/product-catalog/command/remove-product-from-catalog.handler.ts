@@ -14,7 +14,7 @@ export class RemoveProductFromCatalogHandler extends HandleCommand {
         );
 
         if (product.removed) {
-            throw new BadRequestException('product-catalog is already removed');
+            throw new BadRequestException('product-shop is already removed');
         }
 
         await session.eventStore.appendEvent(

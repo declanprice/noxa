@@ -5,6 +5,7 @@ import {
     signOut,
 } from 'supertokens-web-js/recipe/emailpassword';
 import Session from 'supertokens-web-js/recipe/session';
+import UserRoles, { UserRoleClaim } from 'supertokens-web-js/recipe/userroles';
 import { Apollo } from 'apollo-angular';
 import { GET_USER } from '@/graphql/queries';
 import { firstValueFrom } from 'rxjs';
@@ -50,6 +51,19 @@ export class AuthService {
 
     isSignedIn() {
         return this.user() !== null;
+    }
+
+    async isAdmin() {
+        let validationErrors = await Session.validateClaims({
+            overrideGlobalClaimValidators: (globalValidators) => [
+                ...globalValidators,
+                UserRoleClaim.validators.includes('admin'),
+            ],
+        });
+
+        console.log(validationErrors);
+
+        return validationErrors.length === 0;
     }
 
     async signIn(data: { email: string; password: string }) {

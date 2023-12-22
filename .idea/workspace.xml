@@ -5,38 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/app/auth/auth.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/auth/no-auth.guard.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/graphql/mutations.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/graphql/queries.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.scss" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/pipes/form-error.pipe.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/app/pipes/form-error.pipe.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphql/model/user.model.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphql/resolvers/user.resolver.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/admin-nav/admin-nav.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/admin-nav/admin-nav.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/admin-nav/admin-nav.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/admin.routes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/orders/admin-orders.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/orders/admin-orders.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/orders/admin-orders.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/orders/admin-orders.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/products/admin-products/admin-products.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/products/admin-products/admin-products.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/products/admin-products/admin-products.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/admin/products/admin-products/admin-products.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/auth/admin-auth.guard.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/catalog/catalog.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/catalog/catalog.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/orders/orders/orders.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/orders/orders/orders.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/orders/orders/orders.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/orders/orders/orders.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/shop-nav/shop-nav.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/shop-nav/shop-nav.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/shop-nav/shop-nav.component.spec.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/app/shop/shop-nav/shop-nav.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/app.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/app.component.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/app.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/app.config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/app.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/auth/auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/auth.guard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/auth/no-auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/no-auth.guard.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-in/sign-in.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.scss" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/auth/sign-up/sign-up.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/styles.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/auth/auth.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/auth/auth.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/auth/supertokens.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/graphql.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/graphql.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/schema.gql" beforeDir="false" afterPath="$PROJECT_DIR$/src/schema.gql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/catalog/catalog.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/shop/catalog/catalog.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/catalog/catalog.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/admin/admin-nav/admin-nav.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/catalog/catalog.component.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/shop/catalog/catalog.component.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/catalog/catalog.component.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/catalog/catalog.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/shop/shop.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/layout/layout.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/layout/layout.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/app/layout/layout.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/app/layout/layout.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/product-catalog/command/remove-product-from-catalog.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/product-catalog/command/remove-product-from-catalog.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +74,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/app/src/app/graphql",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/app/src/app/auth",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -84,18 +90,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/src/app/graphql" />
       <recent name="$PROJECT_DIR$/app/src/app/auth" />
+      <recent name="$PROJECT_DIR$/app/src/app/graphql" />
       <recent name="$PROJECT_DIR$/src/graphql/resolvers" />
       <recent name="$PROJECT_DIR$/src/graphql/model" />
       <recent name="$PROJECT_DIR$/src/graphql" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/src/app/auth" />
+      <recent name="$PROJECT_DIR$/app/src/app/shop" />
+      <recent name="$PROJECT_DIR$/app/src/app/admin" />
+      <recent name="$PROJECT_DIR$/app/src/app/shop/catalog" />
       <recent name="$PROJECT_DIR$/app/src/app/layout" />
-      <recent name="$PROJECT_DIR$/app/src/app" />
-      <recent name="$PROJECT_DIR$/app/src/app/pages/auth/sign-up" />
-      <recent name="$PROJECT_DIR$/app/src/app/pages/auth" />
+      <recent name="$PROJECT_DIR$/app/src/app/auth" />
     </key>
   </component>
   <component name="RunManager" selected="Jest.DocumentQueryBuilder.should build complex sql statement">
@@ -270,7 +276,7 @@
       <workItem from="1703011077032" duration="18000" />
       <workItem from="1703081448254" duration="2490000" />
       <workItem from="1703167430053" duration="30462000" />
-      <workItem from="1703242707836" duration="16014000" />
+      <workItem from="1703242707836" duration="18510000" />
     </task>
     <servers />
   </component>
