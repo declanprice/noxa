@@ -58,4 +58,5 @@ model orders {
   id String @id
   customerId String
   items Json
+  status String
 }

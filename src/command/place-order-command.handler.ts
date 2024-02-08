@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import {
     CommandMessage,
     CommandHandler,
@@ -5,10 +6,7 @@ import {
     OutboxStore,
     EventStore,
 } from '../../lib';
-
 import { OrderPlacedEvent, OrderStream } from './order.stream';
-
-import { randomUUID } from 'crypto';
 import { DatabaseClient } from '../../lib/store/database-client.service';
 
 export class CreateOrderCommand {

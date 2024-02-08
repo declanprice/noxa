@@ -5,6 +5,7 @@ import { PlaceOrderCommandHandler } from './command/place-order-command.handler'
 import { OrderProjection } from './projection/order.projection';
 import { GetOrdersQueryHandler } from './query/get-orders-query.handler';
 import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
+import { AcceptOrderCommandHandler } from './command/accept-order-command.handler';
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
     controllers: [AppController],
     providers: [
         PlaceOrderCommandHandler,
+        AcceptOrderCommandHandler,
         OrderProjection,
         GetOrdersQueryHandler,
         OrderPlacedEventHandler,

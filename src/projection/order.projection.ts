@@ -1,7 +1,7 @@
 import { Projection, ProjectionHandler } from '../../lib/handlers/projection';
 import { EventMessage } from '../../lib';
 import { DatabaseClient } from '../../lib/store/database-client.service';
-import { OrderPlacedEvent } from '../command/order.stream';
+import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 
 @Projection({
     fetchEventsSize: 100,
@@ -17,6 +17,19 @@ export class OrderProjection {
                 id: event.data.orderId,
                 items: event.data.items,
                 customerId: event.data.customerId,
+                status: 'placed',
+            },
+        });
+    }
+
+    @ProjectionHandler(OrderAcceptedEvent)
+    async onAccepted(event: EventMessage<OrderAcceptedEvent>) {
+        return this.db.orders.update({
+            where: {
+                id: event.data.orderId,
+            },
+            data: {
+                status: 'accepted',
             },
         });
     }

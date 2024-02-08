@@ -1,7 +1,5 @@
-import { BusMessage } from '../../../bus';
 import { getEventGroupHandler } from './event-group.decorator';
 import { GroupCannotHandleEventTypeError } from '../../../bus/services/errors/group-cannot-handle-event-type.error';
-import { DatabaseClient } from '../../../store/database-client.service';
 import { EventMessage } from '../event.type';
 
 export abstract class HandleEventGroup {

@@ -18,9 +18,6 @@ export const StreamHandler = (type: Type): MethodDecorator => {
     };
 };
 
-export const getStreamHandlerMethod = (
-    target: string,
-    type: string,
-): string => {
-    return Reflect.getMetadata(type, target.constructor);
+export const getStreamHandlerMethod = (target: any, type: string): string => {
+    return Reflect.getMetadata(type, target);
 };

@@ -25,7 +25,7 @@ export class AsyncDaemon {
         this.logger.log('trying to obtain advisory lock.');
 
         const client = new Client({
-            connectionString: 'postgres://postgres:postgres@localhost:5432',
+            connectionString: process.env.DATABASE_URL,
         });
 
         await client.connect();
