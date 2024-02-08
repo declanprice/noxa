@@ -1,7 +1,5 @@
-import { Command } from './command.type';
-
-import { DatabaseSession } from '../../store';
+import { CommandMessage } from './command.type';
 
 export abstract class HandleCommand {
-    abstract handle(command: Command, session: DatabaseSession): Promise<any>;
+    abstract handle(command: CommandMessage<any>): Promise<any>;
 }

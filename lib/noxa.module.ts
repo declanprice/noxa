@@ -9,13 +9,11 @@ import {
     QueryBus,
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
-import { DataStore, EventStore, OutboxStore, DATABASE_TOKEN } from './store';
-import { AsyncDaemon } from './async-daemon/async-daemon';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { HighWaterMarkAgent } from './async-daemon/high-water-mark-agent';
+import { DataStore, EventStore, OutboxStore } from './store';
+// import { AsyncDaemon } from './async-daemon/async-daemon';
+// import { HighWaterMarkAgent } from './async-daemon/high-water-mark-agent';
 
 export type NoxaModuleOptions = {
-    database: NodePgDatabase<any>;
     bus: BusRelay;
 } & Config;
 
@@ -35,9 +33,9 @@ export type NoxaModuleOptions = {
         DataStore,
         EventStore,
         OutboxStore,
-        AsyncDaemon,
+        // AsyncDaemon,
         HandlerExplorer,
-        HighWaterMarkAgent,
+        // HighWaterMarkAgent,
     ],
 })
 export class NoxaModule implements OnApplicationBootstrap {
@@ -46,7 +44,7 @@ export class NoxaModule implements OnApplicationBootstrap {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
-        private readonly asyncDaemon: AsyncDaemon,
+        // private readonly asyncDaemon: AsyncDaemon,
         @InjectBusRelay() private readonly busRelay: BusRelay,
         @InjectConfig() private readonly config: Config,
     ) {}
@@ -54,12 +52,8 @@ export class NoxaModule implements OnApplicationBootstrap {
     public static forRoot(options: NoxaModuleOptions): DynamicModule {
         return {
             module: NoxaModule,
-            exports: [DATABASE_TOKEN],
+            exports: [],
             providers: [
-                {
-                    provide: DATABASE_TOKEN,
-                    useValue: options.database,
-                },
                 {
                     provide: BUS_RELAY_TOKEN,
                     useValue: options.bus,
@@ -69,7 +63,6 @@ export class NoxaModule implements OnApplicationBootstrap {
                     useValue: {
                         serviceName: options.serviceName,
                         asyncDaemon: options.asyncDaemon,
-                        documents: options.documents,
                     } as Config,
                 },
             ],
@@ -84,24 +77,24 @@ export class NoxaModule implements OnApplicationBootstrap {
             dataProjectionHandlers,
             eventProjectionHandlers,
             eventHandlers,
-            eventGroupHandlers,
-            processHandlers,
+            // eventGroupHandlers,
+            // processHandlers,
         } = this.handlerExplorer.explore();
 
         await this.busRelay.init(this.config);
         await this.commandBus.registerCommandHandlers(commandHandlers);
-        await this.queryBus.registerQueryHandlers(queryHandlers);
-        await this.eventBus.registerEventHandlers(eventHandlers);
-        await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
-        await this.eventBus.registerProcessHandlers(processHandlers);
-
-        if (this.config.asyncDaemon.enabled) {
-            this.asyncDaemon
-                .start({
-                    data: dataProjectionHandlers,
-                    event: eventProjectionHandlers,
-                })
-                .then();
-        }
+        // await this.queryBus.registerQueryHandlers(queryHandlers);
+        // await this.eventBus.registerEventHandlers(eventHandlers);
+        // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
+        // await this.eventBus.registerProcessHandlers(processHandlers);
+        //
+        // if (this.config.asyncDaemon.enabled) {
+        //     this.asyncDaemon
+        //         .start({
+        //             data: dataProjectionHandlers,
+        //             event: eventProjectionHandlers,
+        //         })
+        //         .then();
+        // }
     }
 }

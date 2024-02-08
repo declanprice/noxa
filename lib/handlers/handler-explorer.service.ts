@@ -13,19 +13,19 @@ import {
 import { EVENT_HANDLER_METADATA } from './event/event-handler.decorator';
 import { COMMAND_HANDLER_METADATA } from './command/command-handler.decorator';
 import { QUERY_HANDLER_METADATA } from './query/query-handler.decorator';
-import { HandleProcess } from './process';
-import { PROCESS_METADATA } from './process/process.decorators';
-import { HandleEventGroup } from './event';
+// import { HandleProcess } from './process';
+// import { PROCESS_METADATA } from './process/process.decorators';
+// import { HandleEventGroup } from './event';
 import { EVENT_GROUP_HANDLER_METADATA } from './event/group/event-group.decorator';
 
 export type HandlerOptions = {
     commandHandlers: Type<HandleCommand>[];
     queryHandlers: Type<HandleQuery>[];
     eventHandlers: Type<HandleEvent>[];
-    eventGroupHandlers: Type<HandleEventGroup>[];
+    // eventGroupHandlers: Type<HandleEventGroup>[];
     dataProjectionHandlers: Type[];
     eventProjectionHandlers: Type[];
-    processHandlers: Type<HandleProcess>[];
+    // processHandlers: Type<HandleProcess>[];
 };
 
 @Injectable()
@@ -49,11 +49,11 @@ export class HandlerExplorer {
             this.filterProvider(instance, EVENT_HANDLER_METADATA),
         );
 
-        const eventGroupHandlers = this.flatMap<HandleEventGroup>(
-            modules,
-            (instance) =>
-                this.filterProvider(instance, EVENT_GROUP_HANDLER_METADATA),
-        );
+        // const eventGroupHandlers = this.flatMap<HandleEventGroup>(
+        //     modules,
+        //     (instance) =>
+        //         this.filterProvider(instance, EVENT_GROUP_HANDLER_METADATA),
+        // );
 
         const dataProjectionHandlers = this.flatMap<any>(modules, (instance) =>
             this.filterProvider(instance, DATA_PROJECTION_HANDLER),
@@ -63,19 +63,19 @@ export class HandlerExplorer {
             this.filterProvider(instance, EVENT_PROJECTION_HANDLER),
         );
 
-        const processHandlers = this.flatMap<HandleProcess>(
-            modules,
-            (instance) => this.filterProvider(instance, PROCESS_METADATA),
-        );
+        // const processHandlers = this.flatMap<HandleProcess>(
+        //     modules,
+        //     (instance) => this.filterProvider(instance, PROCESS_METADATA),
+        // );
 
         return {
             commandHandlers,
             queryHandlers,
             eventHandlers,
-            eventGroupHandlers,
+            // eventGroupHandlers,
             dataProjectionHandlers,
             eventProjectionHandlers,
-            processHandlers,
+            // processHandlers,
         };
     }
 

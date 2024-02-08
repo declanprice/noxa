@@ -1,6 +1,4 @@
 import { Type } from '@nestjs/common';
-import { Event } from '../index';
-import { PgTable } from 'drizzle-orm/pg-core';
 
 export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
 
@@ -34,11 +32,11 @@ export const EventProjection = (
 };
 
 export const DataProjection = (
-    table: PgTable,
+    tableName: string,
     options?: ProjectionOptionsMetadata,
 ): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(DATA_PROJECTION_HANDLER, table, target);
+        Reflect.defineMetadata(DATA_PROJECTION_HANDLER, tableName, target);
         Reflect.defineMetadata(
             PROJECTION_OPTIONS_METADATA,
             options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
@@ -96,15 +94,15 @@ export const getProjectionOptionMetadata = (
     return options;
 };
 
-export const getProjectionDataMetadata = (projection: Type): PgTable => {
-    const table = Reflect.getMetadata(DATA_PROJECTION_HANDLER, projection);
-
-    if (!table) {
-        throw new Error(`projection ${projection} has no data metadata.`);
-    }
-
-    return table;
-};
+// export const getProjectionDataMetadata = (projection: Type): PgTable => {
+//     const table = Reflect.getMetadata(DATA_PROJECTION_HANDLER, projection);
+//
+//     if (!table) {
+//         throw new Error(`projection ${projection} has no data metadata.`);
+//     }
+//
+//     return table;
+// };
 
 export const getProjectionEventTypesMetadata = (
     projection: Type,

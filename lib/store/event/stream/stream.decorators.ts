@@ -1,6 +1,5 @@
 import { Type } from '@nestjs/common';
 
-import { Event } from '../../../handlers';
 
 export const STREAM_METADATA = 'STREAM_METADATA';
 
@@ -14,9 +13,8 @@ export const Stream = (options?: StreamOptions): ClassDecorator => {
   };
 };
 
-export const StreamEventHandler = (event: Type<Event>): MethodDecorator => {
+export const StreamEventHandler = (type: string): MethodDecorator => {
   return (target: object, propertyKey: string | symbol) => {
-    const eventType = event.name;
-    Reflect.defineMetadata(eventType, propertyKey, target.constructor);
+    Reflect.defineMetadata(type, propertyKey, target.constructor);
   };
 };

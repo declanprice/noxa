@@ -1,11 +1,10 @@
-import { Command } from './command.type';
 
 export const COMMAND_HANDLER_METADATA = 'COMMAND_HANDLER_METADATA';
 
 export const CommandHandler = (
-  command: Command | (new (...args: any[]) => Command),
+  type: string,
 ): ClassDecorator => {
   return (target: object) => {
-    Reflect.defineMetadata(COMMAND_HANDLER_METADATA, command, target);
+    Reflect.defineMetadata(COMMAND_HANDLER_METADATA, type, target);
   };
 };

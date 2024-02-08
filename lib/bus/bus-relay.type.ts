@@ -8,6 +8,7 @@ export type BusRelay = {
   init(config: Config): Promise<void>;
 
   sendCommand(command: BusMessage): Promise<void>;
+
   sendEvent(event: BusMessage): Promise<void>;
 
   registerCommandHandler(

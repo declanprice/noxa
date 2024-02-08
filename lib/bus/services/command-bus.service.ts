@@ -5,13 +5,6 @@ import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import { COMMAND_HANDLER_METADATA } from '../../handlers/command/command-handler.decorator';
 import { BusMessage } from '../bus-message.type';
-import {
-    DataStore,
-    EventStore,
-    InjectDatabase,
-    OutboxStore,
-} from '../../store';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 @Injectable({})
 export class CommandBus {
@@ -25,12 +18,11 @@ export class CommandBus {
         @InjectConfig()
         private readonly config: Config,
         private readonly moduleRef: ModuleRef,
-        @InjectDatabase()
-        private readonly db: NodePgDatabase<any>,
-    ) {}
+    ) {
+    }
 
-    async invoke(command: Command): Promise<void> {
-        return this.invokeHandler(command.constructor.name, command);
+    async invoke(type: string, data: any): Promise<void> {
+        return this.invokeHandler(type, data);
     }
 
     async send(
@@ -55,7 +47,7 @@ export class CommandBus {
     }
 
     private async registerHandler(handler: Type<HandleCommand>) {
-        const command: Type<Command> = Reflect.getMetadata(
+        const type: string = Reflect.getMetadata(
             COMMAND_HANDLER_METADATA,
             handler,
         );
@@ -68,11 +60,11 @@ export class CommandBus {
             );
         }
 
-        this.handlers.set(command.name, instance);
+        this.handlers.set(type, instance);
 
         return this.busRelay.registerCommandHandler(
             handler.name,
-            command.name,
+            type,
             async (message) => {
                 await this.invokeHandler(message.type, message.data, message);
             },
@@ -83,19 +75,13 @@ export class CommandBus {
         type: string,
         data: any,
         originalMessage?: BusMessage,
-    ): Promise<void> {
+    ) {
         const handler = this.handlers.get(type);
 
         if (!handler) {
             throw new Error(`command handler not found for ${type}`);
         }
 
-        return this.db.transaction(async (tx) => {
-            return handler.handle(data, {
-                dataStore: new DataStore(tx),
-                eventStore: new EventStore(tx),
-                outboxStore: new OutboxStore(tx),
-            });
-        });
+        return handler.handle(data);
     }
 }

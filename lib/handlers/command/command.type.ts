@@ -1,1 +1,1 @@
-export type Command = {};
+export type CommandMessage<Data> = {};

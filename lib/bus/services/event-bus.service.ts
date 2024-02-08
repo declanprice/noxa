@@ -16,13 +16,7 @@ import {
     getEventGroupEventTypes,
     getEventGroupOptions,
 } from '../../handlers/event/group/event-group.decorator';
-import {
-    DataStore,
-    EventStore,
-    InjectDatabase,
-    OutboxStore,
-} from '../../store';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+
 
 @Injectable({})
 export class EventBus {
@@ -34,8 +28,6 @@ export class EventBus {
         @InjectConfig()
         private readonly config: Config,
         private readonly moduleRef: ModuleRef,
-        @InjectDatabase()
-        private readonly db: NodePgDatabase<any>,
     ) {}
 
     async send(event: Event, options: { publishAt?: Date }): Promise<void> {
@@ -69,13 +61,7 @@ export class EventBus {
                 options.consumerType,
                 event.name,
                 async (message) => {
-                    await this.db.transaction(async (tx) => {
-                        await instance.handle(message, {
-                            dataStore: new DataStore(tx),
-                            eventStore: new EventStore(tx),
-                            outboxStore: new OutboxStore(tx),
-                        });
-                    });
+                    await instance.handle(message);
                 },
             );
         }

@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model streams {
+  id       String      @id @db.Uuid
+  type     String
+  version  Int         @default(0)
+  snapshot Json?
+  snapshotVersion Int?
+  timestamp DateTime   @default(now())
+  isArhived Boolean    @default(false)
+  events    events[]
+}
+
+model events {
+  id         Int      @id @default(autoincrement())
+  streamId   String   @db.Uuid
+  version    Int         @default(0)
+  data       Json
+  type       String
+  timestamp  DateTime  @default(now())
+  isArhived  Boolean   @default(false)
+  stream     streams   @relation(fields: [streamId], references: [id])
+}
+
+model outbox {
+  id        String  @id @db.Uuid
+  bus       String
+  timestamp DateTime @default(now())
+  type      String
+  data      Json
+  published Boolean  @default(false)
+  publishedTimestamp DateTime?
+}

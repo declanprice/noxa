@@ -1,4 +1,3 @@
-export { HandleEventGroup } from './group/handle-event-group';
 export { EventGroup, EventGroupHandler } from './group/event-group.decorator';
 
 export { EventHandler } from './event-handler.decorator';
