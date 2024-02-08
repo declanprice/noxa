@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
 import { NoxaModule, RabbitmqBus } from '../lib';
+import { AppController } from './app.controller';
+import { PlaceOrderCommandHandler } from './command/place-order-command.handler';
+import { OrderProjection } from './projection/order.projection';
+import { GetOrdersQueryHandler } from './query/get-orders-query.handler';
+import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
 
 @Module({
     imports: [
@@ -13,7 +18,12 @@ import { NoxaModule, RabbitmqBus } from '../lib';
             },
         }),
     ],
-    controllers: [],
-    providers: [],
+    controllers: [AppController],
+    providers: [
+        PlaceOrderCommandHandler,
+        OrderProjection,
+        GetOrdersQueryHandler,
+        OrderPlacedEventHandler,
+    ],
 })
 export class AppModule {}

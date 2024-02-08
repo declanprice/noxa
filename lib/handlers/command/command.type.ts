@@ -1,1 +1,4 @@
-export type CommandMessage<Data> = {};
+export type CommandMessage<Data> = {
+    type: string;
+    data: Data;
+};

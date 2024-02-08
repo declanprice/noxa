@@ -1,1 +1,4 @@
-export type Query = {};
+export type QueryMessage<Data> = {
+    type: string;
+    data: Data;
+};

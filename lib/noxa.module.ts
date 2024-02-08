@@ -9,33 +9,27 @@ import {
     QueryBus,
 } from './bus';
 import { Config, CONFIG_TOKEN, InjectConfig } from './config';
-import { DataStore, EventStore, OutboxStore } from './store';
-// import { AsyncDaemon } from './async-daemon/async-daemon';
-// import { HighWaterMarkAgent } from './async-daemon/high-water-mark-agent';
+import { EventStore, OutboxStore } from './store';
+import { AsyncDaemon } from './async-daemon/async-daemon';
+import { HighWaterMarkAgent } from './async-daemon/high-water-mark-agent';
+import { DatabaseClient } from './store/database-client.service';
 
 export type NoxaModuleOptions = {
     bus: BusRelay;
 } & Config;
 
 @Module({
-    exports: [
-        CommandBus,
-        QueryBus,
-        EventBus,
-        DataStore,
-        EventStore,
-        OutboxStore,
-    ],
+    exports: [CommandBus, QueryBus, EventBus, EventStore, OutboxStore],
     providers: [
         CommandBus,
         QueryBus,
         EventBus,
-        DataStore,
         EventStore,
         OutboxStore,
-        // AsyncDaemon,
+        AsyncDaemon,
         HandlerExplorer,
-        // HighWaterMarkAgent,
+        HighWaterMarkAgent,
+        DatabaseClient,
     ],
 })
 export class NoxaModule implements OnApplicationBootstrap {
@@ -44,7 +38,7 @@ export class NoxaModule implements OnApplicationBootstrap {
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
         private readonly eventBus: EventBus,
-        // private readonly asyncDaemon: AsyncDaemon,
+        private readonly asyncDaemon: AsyncDaemon,
         @InjectBusRelay() private readonly busRelay: BusRelay,
         @InjectConfig() private readonly config: Config,
     ) {}
@@ -52,7 +46,7 @@ export class NoxaModule implements OnApplicationBootstrap {
     public static forRoot(options: NoxaModuleOptions): DynamicModule {
         return {
             module: NoxaModule,
-            exports: [],
+            exports: [DatabaseClient],
             providers: [
                 {
                     provide: BUS_RELAY_TOKEN,
@@ -74,8 +68,7 @@ export class NoxaModule implements OnApplicationBootstrap {
         const {
             commandHandlers,
             queryHandlers,
-            dataProjectionHandlers,
-            eventProjectionHandlers,
+            projectionHandlers,
             eventHandlers,
             // eventGroupHandlers,
             // processHandlers,
@@ -83,18 +76,14 @@ export class NoxaModule implements OnApplicationBootstrap {
 
         await this.busRelay.init(this.config);
         await this.commandBus.registerCommandHandlers(commandHandlers);
-        // await this.queryBus.registerQueryHandlers(queryHandlers);
-        // await this.eventBus.registerEventHandlers(eventHandlers);
+
+        await this.queryBus.registerQueryHandlers(queryHandlers);
+        await this.eventBus.registerEventHandlers(eventHandlers);
         // await this.eventBus.registerEventGroupHandlers(eventGroupHandlers);
         // await this.eventBus.registerProcessHandlers(processHandlers);
-        //
-        // if (this.config.asyncDaemon.enabled) {
-        //     this.asyncDaemon
-        //         .start({
-        //             data: dataProjectionHandlers,
-        //             event: eventProjectionHandlers,
-        //         })
-        //         .then();
-        // }
+
+        if (this.config.asyncDaemon.enabled) {
+            this.asyncDaemon.start(projectionHandlers).then();
+        }
     }
 }

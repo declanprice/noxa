@@ -1,5 +1,5 @@
-import { Event } from './event.type';
+import { EventMessage } from './event.type';
 
 export abstract class HandleEvent {
-    abstract handle(command: Event): Promise<void>;
+    abstract handle(command: EventMessage<any>): Promise<void>;
 }

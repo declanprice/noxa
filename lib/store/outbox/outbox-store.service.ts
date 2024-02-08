@@ -1,41 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { DatabaseService, DatabaseTransactionClient } from '../database.service';
+import {
+    DatabaseClient,
+    DatabaseTransactionClient,
+} from '../database-client.service';
 
 @Injectable()
 export class OutboxStore {
-    constructor(
-        private db: DatabaseService
-    ) {}
+    constructor(private db: DatabaseClient) {}
 
     async message(
         bus: 'command' | 'event',
         type: string,
         data: any,
-        options?: { timestamp?: string; tx?: DatabaseTransactionClient }
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<void> {
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
         await db.outbox.create({
-           data: {
-               id: randomUUID(),
-               bus,
-               timestamp: timestamp
-                   ? new Date(timestamp).toISOString()
-                   : new Date().toISOString(),
-               data,
-               type,
-               published: false
-           }
+            data: {
+                id: randomUUID(),
+                bus,
+                timestamp: timestamp
+                    ? new Date(timestamp).toISOString()
+                    : new Date().toISOString(),
+                data,
+                type,
+                published: false,
+            },
         });
     }
 
     async command(
-        type: string,
-        data: any,
-        options?: { timestamp?: string; tx?: DatabaseTransactionClient }
+        command: any,
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -50,19 +50,18 @@ export class OutboxStore {
                 timestamp: timestamp
                     ? new Date(timestamp).toISOString()
                     : new Date().toISOString(),
-                data,
-                type,
-                published: false
-            }
+                type: command.constructor.name,
+                data: command,
+                published: false,
+            },
         });
 
         return messageId;
     }
 
     async event(
-        type: string,
-        data: any,
-        options?: { timestamp?: string; tx?: DatabaseTransactionClient }
+        event: any,
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -77,10 +76,10 @@ export class OutboxStore {
                 timestamp: timestamp
                     ? new Date(timestamp).toISOString()
                     : new Date().toISOString(),
-                data,
-                type,
-                published: false
-            }
+                type: event.constructor.name,
+                data: event,
+                published: false,
+            },
         });
 
         return messageId;
@@ -88,12 +87,12 @@ export class OutboxStore {
 
     async delete(
         messageId: string,
-        options?: { tx?: DatabaseTransactionClient }
+        options?: { tx?: DatabaseTransactionClient },
     ) {
         const { tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.outbox.delete({where: {id: messageId }})
+        await db.outbox.delete({ where: { id: messageId } });
     }
 }

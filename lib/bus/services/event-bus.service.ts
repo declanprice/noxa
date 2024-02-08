@@ -1,10 +1,10 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { HandleEvent, HandleProcess, HandleEventGroup } from '../../handlers';
+import { EventMessage, HandleEvent, HandleEventGroup } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
-    getEventHandler,
+    getEventHandlerType,
     getEventHandlerOptions,
 } from '../../handlers/event/event-handler.decorator';
 import { BusMessage } from '../bus-message.type';
@@ -13,10 +13,10 @@ import {
     getProcessMetadata,
 } from '../../handlers/process/process.decorators';
 import {
-    getEventGroupEventTypes,
+    getEventGroupTypes,
     getEventGroupOptions,
 } from '../../handlers/event/group/event-group.decorator';
-
+import { HandleProcess } from '../../handlers/process';
 
 @Injectable({})
 export class EventBus {
@@ -30,7 +30,7 @@ export class EventBus {
         private readonly moduleRef: ModuleRef,
     ) {}
 
-    async send(event: Event, options: { publishAt?: Date }): Promise<void> {
+    async send(event: any, options: { publishAt?: Date }): Promise<void> {
         const { publishAt } = options;
 
         await this.busRelay.sendEvent({
@@ -52,16 +52,21 @@ export class EventBus {
                 );
             }
 
-            const event = getEventHandler(handler);
+            const eventType = getEventHandlerType(handler);
             const options = getEventHandlerOptions(handler);
             const groupName = handler.name;
 
             await this.busRelay.registerEventHandler(
                 groupName,
                 options.consumerType,
-                event.name,
+                eventType,
                 async (message) => {
-                    await instance.handle(message);
+                    const eventMessage: EventMessage<any> = {
+                        type: message.type,
+                        data: message.data,
+                    };
+
+                    await instance.handle(eventMessage);
                 },
             );
         }
@@ -80,7 +85,7 @@ export class EventBus {
             }
 
             const options = getEventGroupOptions(handler);
-            const eventTypes = getEventGroupEventTypes(handler);
+            const eventTypes = getEventGroupTypes(handler);
             const groupName = handler.name;
 
             await this.busRelay.registerEventGroupHandler(
@@ -88,7 +93,12 @@ export class EventBus {
                 options.consumerType,
                 Array.from(eventTypes),
                 async (message) => {
-                    await instance.handle(message);
+                    const eventMessage: EventMessage<any> = {
+                        type: message.type,
+                        data: message.data,
+                    };
+
+                    await instance.handle(eventMessage);
                 },
             );
         }

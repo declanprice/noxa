@@ -1,9 +1,9 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Command, HandleCommand } from '../../handlers';
+import { CommandMessage, HandleCommand } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
-import { COMMAND_HANDLER_METADATA } from '../../handlers/command/command-handler.decorator';
+import { getCommandHandlerType } from '../../handlers/command/command-handler.decorator';
 import { BusMessage } from '../bus-message.type';
 
 @Injectable({})
@@ -18,17 +18,13 @@ export class CommandBus {
         @InjectConfig()
         private readonly config: Config,
         private readonly moduleRef: ModuleRef,
-    ) {
+    ) {}
+
+    async invoke(command: any): Promise<void> {
+        return this.invokeHandler(command.constructor.name, command);
     }
 
-    async invoke(type: string, data: any): Promise<void> {
-        return this.invokeHandler(type, data);
-    }
-
-    async send(
-        command: Command,
-        options?: { publishAt?: Date },
-    ): Promise<void> {
+    async send(command: any, options?: { publishAt?: Date }): Promise<void> {
         const { publishAt } = options || {};
 
         return this.busRelay.sendCommand({
@@ -47,10 +43,7 @@ export class CommandBus {
     }
 
     private async registerHandler(handler: Type<HandleCommand>) {
-        const type: string = Reflect.getMetadata(
-            COMMAND_HANDLER_METADATA,
-            handler,
-        );
+        const type = getCommandHandlerType(handler);
 
         const instance = this.moduleRef.get(handler, { strict: false });
 
@@ -82,6 +75,11 @@ export class CommandBus {
             throw new Error(`command handler not found for ${type}`);
         }
 
-        return handler.handle(data);
+        const message: CommandMessage<any> = {
+            type,
+            data,
+        };
+
+        return handler.handle(message);
     }
 }

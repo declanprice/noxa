@@ -6,8 +6,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "start:dev": "nest start --watch",
-    "test:spec": "jest --config jest.config.json --runInBand",
-    "test:spec:dev": "jest --config jest.config.json --runInBand",
+    "test:spec": "jest --config jest.config.json",
+    "test:spec:dev": "jest --config jest.config.json --watch",
     "test:e2e": "jest --config ./tests/jest-e2e.json --runInBand",
     "test:e2e:dev": "jest --config ./tests/jest-e2e.json --runInBand --watch"
   },
@@ -39,6 +39,7 @@
     "dayjs": "^1.11.10",
     "deepmerge": "^4.3.1",
     "nestjs-pino": "^3.5.0",
+    "pg": "^8.11.3",
     "pino-pretty": "^10.2.3",
     "prisma": "^5.9.1",
     "uuid": "^9.0.1"

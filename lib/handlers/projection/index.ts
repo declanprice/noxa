@@ -1,5 +1,2 @@
-export {
-    DataProjection,
-    EventProjection,
-    ProjectionEventHandler,
-} from './projection.decorators';
+export { Projection, ProjectionHandler } from './projection.decorators';
+export { HandleProjection } from './handle-projection';

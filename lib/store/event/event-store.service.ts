@@ -1,20 +1,17 @@
-import { randomUUID } from 'crypto';
 import { Injectable, Type } from '@nestjs/common';
-import { StreamNotFoundError } from './errors/stream-not-found.error';
-import { StreamNoEventsFoundError } from './errors/stream-no-events-found.error';
-import { StreamEventHandlerNotAvailableError } from './errors/stream-event-handler-not-available.error';
-import { DatabaseService, DatabaseTransactionClient } from '../database.service';
+import {
+    DatabaseClient,
+    DatabaseTransactionClient,
+} from '../database-client.service';
 
 @Injectable()
 export class EventStore {
-    constructor(
-        private readonly db: DatabaseService
-    ) {}
+    constructor(private readonly db: DatabaseClient) {}
 
     async startStream(
         steam: Type,
         streamId: string,
-        event: Event,
+        event: any,
         options?: { tx?: DatabaseTransactionClient },
     ) {
         const { tx } = options || {};
@@ -23,25 +20,26 @@ export class EventStore {
 
         const now = new Date().toISOString();
 
-        // await db.insert(streamsTable).values({
-        //     id: streamId,
-        //     type: steam.name,
-        //     version: 0,
-        //     snapshot: null,
-        //     snapshotVersion: null,
-        //     timestamp: now,
-        //     isArchived: false,
-        // });
-        //
-        // await db.insert(eventsTable).values({
-        //     id: randomUUID(),
-        //     streamId,
-        //     version: 0,
-        //     data: event,
-        //     type: event.constructor.name,
-        //     timestamp: now,
-        //     isArchived: false,
-        // });
+        await db.streams.create({
+            data: {
+                id: streamId,
+                type: steam.name,
+                version: 0,
+                snapshot: {},
+                snapshotVersion: null,
+                timestamp: now,
+                isArchived: false,
+                events: {
+                    create: {
+                        version: 0,
+                        type: event.constructor.name,
+                        data: event,
+                        timestamp: now,
+                        isArchived: false,
+                    },
+                },
+            },
+        });
     }
 
     // async hydrateStream<T>(

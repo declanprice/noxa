@@ -1,4 +1,4 @@
-import { DataStore, EventStore, OutboxStore } from '../../store';
+import { EventStore, OutboxStore } from '../../store';
 
 export class ProcessSession<Data> {
     public id: string;
@@ -13,7 +13,6 @@ export class ProcessSession<Data> {
             hasEnded: boolean;
             associations: string[];
         },
-        public readonly dataStore: DataStore,
         public readonly eventStore: EventStore,
         public readonly outboxStore: OutboxStore,
     ) {

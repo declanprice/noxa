@@ -14,27 +14,48 @@ model streams {
   snapshot Json?
   snapshotVersion Int?
   timestamp DateTime   @default(now())
-  isArhived Boolean    @default(false)
+  isArchived Boolean    @default(false)
   events    events[]
 }
 
 model events {
-  id         Int      @id @default(autoincrement())
-  streamId   String   @db.Uuid
-  version    Int         @default(0)
+  id BigInt    @id @default(autoincrement())
+  streamId   String    @db.Uuid
+  version    Int       @default(0)
   data       Json
   type       String
   timestamp  DateTime  @default(now())
-  isArhived  Boolean   @default(false)
+  isArchived Boolean   @default(false)
   stream     streams   @relation(fields: [streamId], references: [id])
 }
 
 model outbox {
-  id        String  @id @db.Uuid
+  id        String   @id @db.Uuid
   bus       String
   timestamp DateTime @default(now())
   type      String
   data      Json
   published Boolean  @default(false)
   publishedTimestamp DateTime?
+}
+
+model tokens {
+  name String           @id
+  lastSequenceId BigInt @default(0)
+  timestamp DateTime    @default(now())
+}
+
+model processes {
+  id String @id @db.Uuid
+  type String
+  data Json
+  associations Json
+  hasEnded Boolean
+  timestamp DateTime
+}
+
+model orders {
+  id String @id
+  customerId String
+  items Json
 }
