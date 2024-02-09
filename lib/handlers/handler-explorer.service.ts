@@ -20,8 +20,8 @@ export type HandlerOptions = {
     queryHandlers: Type<HandleQuery>[];
     eventHandlers: Type<HandleEvent>[];
     eventGroupHandlers: Type[];
-    projectionHandlers: Type<HandleProjection>[];
-    processHandlers: Type<HandleProcess>[];
+    projectionHandlers: Type[];
+    processHandlers: Type[];
 };
 
 @Injectable()
@@ -52,9 +52,8 @@ export class HandlerExplorer {
             this.filterProvider(instance, PROJECTION_HANDLER),
         );
 
-        const processHandlers = this.flatMap<HandleProcess>(
-            modules,
-            (instance) => this.filterProvider(instance, PROCESS_METADATA),
+        const processHandlers = this.flatMap(modules, (instance) =>
+            this.filterProvider(instance, PROCESS_METADATA),
         );
 
         return {

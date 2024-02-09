@@ -1,46 +1,55 @@
 import {
     getProcessHandlerMetadata,
     getProcessMetadata,
+    ProcessMetadata,
 } from './process.decorators';
 import { ProcessSession, ProcessState } from './process.session';
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
     DatabaseClient,
     DatabaseTransactionClient,
 } from '../../store/database-client.service';
 import { EventMessage } from '../event';
 import { randomUUID } from 'crypto';
+import { BusMessage } from '../../bus';
 
-export abstract class HandleProcess {
+export class HandleProcess {
     private readonly logger = new Logger(HandleProcess.name);
 
-    private readonly metadata = getProcessMetadata(this.constructor);
+    constructor(private readonly db: DatabaseClient) {}
 
-    constructor(@Inject(DatabaseClient) private readonly db: DatabaseClient) {}
-
-    async handle(event: EventMessage<any>): Promise<void> {
+    async handle(
+        instance: any,
+        instanceMetadata: ProcessMetadata,
+        message: BusMessage,
+    ): Promise<void> {
         this.logger.log(
-            `(${this.constructor.name}) - received event ${JSON.stringify(
-                event,
+            `(${instance.constructor.name}) - received message ${JSON.stringify(
+                message,
                 null,
                 2,
             )}`,
         );
 
-        const metadata = getProcessHandlerMetadata(
-            this.constructor,
+        const event: EventMessage<any> = {
+            type: message.type,
+            data: message.data,
+        };
+
+        const handlerMetadata = getProcessHandlerMetadata(
+            instance.constructor,
             event.type,
         );
 
-        const associationKey = metadata.associationKey
-            ? metadata.associationKey
-            : this.metadata.defaultAssociationKey;
+        const associationKey = handlerMetadata.associationKey
+            ? handlerMetadata.associationKey
+            : instanceMetadata.defaultAssociationKey;
 
         const associationId = event.data[associationKey];
 
         if (!associationId) {
             return this.logger.log(
-                `(${this.constructor.name}) - associationKey ${associationKey} not found in message data, skipping message.`,
+                `(${instance.constructor.name}) - associationKey ${associationKey} not found in message data, skipping message.`,
             );
         }
 
@@ -55,7 +64,7 @@ export abstract class HandleProcess {
                 },
             });
 
-            if (!processes.length && metadata.start === true) {
+            if (!processes.length && handlerMetadata.start === true) {
                 const state: ProcessState<any> = {
                     id: randomUUID(),
                     data: {} as any,
@@ -81,21 +90,22 @@ export abstract class HandleProcess {
             }
 
             for (const session of sessions) {
-                await this.handleSession(tx, session);
+                await this.handleSession(instance, tx, session);
             }
         });
     }
 
     private async handleSession(
+        instance: any,
         tx: DatabaseTransactionClient,
         session: ProcessSession<any, any>,
     ): Promise<void> {
         const { method } = getProcessHandlerMetadata(
-            this.constructor,
+            instance.constructor,
             session.event.type,
         );
 
-        await (this as any)[method](session);
+        await instance[method](session);
 
         if (session.hasEnded) {
             await tx.processes.delete({
@@ -110,7 +120,7 @@ export abstract class HandleProcess {
                 },
                 create: {
                     id: session.id,
-                    type: this.constructor.name,
+                    type: instance.constructor.name,
                     data: session.data,
                     hasEnded: session.hasEnded,
                     associations: session.associations,

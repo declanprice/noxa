@@ -19,6 +19,7 @@ import {
 } from '../../handlers/event/group/event-group.decorator';
 import { HandleProcess } from '../../handlers/process';
 import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
+import { DatabaseClient } from '../../store/database-client.service';
 
 @Injectable({})
 export class EventBus {
@@ -30,6 +31,7 @@ export class EventBus {
         @InjectConfig()
         private readonly config: Config,
         private readonly moduleRef: ModuleRef,
+        private readonly db: DatabaseClient,
     ) {}
 
     async send(event: any, options: { publishAt?: Date }): Promise<void> {
@@ -116,8 +118,12 @@ export class EventBus {
         }
     }
 
-    async registerProcessHandlers(processes: Type<HandleProcess>[] = []) {
+    async registerProcessHandlers(processes: Type[] = []) {
         for (const process of processes) {
+            const metadata = getProcessMetadata(process);
+            const eventTypes = getProcessEventsMetadata(process);
+            const groupName = process.name;
+
             const instance = this.moduleRef.get(process, { strict: false });
 
             if (!instance) {
@@ -126,21 +132,13 @@ export class EventBus {
                 );
             }
 
-            const metadata = getProcessMetadata(process);
-            const eventTypes = getProcessEventsMetadata(process);
-            const groupName = process.name;
-
             await this.busRelay.registerEventGroupHandler(
                 groupName,
                 metadata.consumerType,
                 Array.from(eventTypes),
                 async (message: BusMessage) => {
-                    const eventMessage: EventMessage<any> = {
-                        type: message.type,
-                        data: message.data,
-                    };
-
-                    await instance.handle(eventMessage);
+                    const handler = new HandleProcess(this.db);
+                    await handler.handle(instance, metadata, message);
                 },
             );
         }

@@ -6,7 +6,6 @@ import {
 import { RabbitmqEventConsumerType } from '../../lib';
 import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 import { ProcessSession } from '../../lib/handlers/process/process.session';
-import { DatabaseClient } from '../../lib/store/database-client.service';
 
 type OrderProcessState = {
     orderId: string;
@@ -18,7 +17,7 @@ type OrderProcessState = {
     consumerType: RabbitmqEventConsumerType.SINGLE_ACTIVE_CONSUMER,
     defaultAssociationKey: 'orderId',
 })
-export class OrderProcess extends HandleProcess {
+export class OrderProcess {
     @ProcessHandler(OrderPlacedEvent, {
         start: true,
     })

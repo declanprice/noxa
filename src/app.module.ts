@@ -7,6 +7,7 @@ import { GetOrdersQueryHandler } from './query/get-orders-query.handler';
 import { AcceptOrderCommandHandler } from './command/accept-order-command.handler';
 import { OrderProcess } from './process/order.process';
 import { OrderEventsHandler } from './event/order-events.handler';
+import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
 
 @Module({
     imports: [
@@ -26,7 +27,7 @@ import { OrderEventsHandler } from './event/order-events.handler';
         AcceptOrderCommandHandler,
         OrderProjection,
         OrderEventsHandler,
-        // OrderPlacedEventHandler,
+        OrderPlacedEventHandler,
         OrderProcess,
         GetOrdersQueryHandler,
     ],
