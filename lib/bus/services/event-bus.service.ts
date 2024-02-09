@@ -1,6 +1,6 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { EventMessage, HandleEvent, HandleEventGroup } from '../../handlers';
+import { EventMessage, HandleEvent } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
@@ -15,8 +15,10 @@ import {
 import {
     getEventGroupTypes,
     getEventGroupOptions,
+    getEventGroupHandler,
 } from '../../handlers/event/group/event-group.decorator';
 import { HandleProcess } from '../../handlers/process';
+import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
 
 @Injectable({})
 export class EventBus {
@@ -72,9 +74,7 @@ export class EventBus {
         }
     }
 
-    async registerEventGroupHandlers(
-        eventGroupHandlers: Type<HandleEventGroup>[] = [],
-    ) {
+    async registerEventGroupHandlers(eventGroupHandlers: Type[] = []) {
         for (const handler of eventGroupHandlers) {
             const instance = this.moduleRef.get(handler, { strict: false });
 
@@ -98,7 +98,19 @@ export class EventBus {
                         data: message.data,
                     };
 
-                    await instance.handle(eventMessage);
+                    const method = getEventGroupHandler(
+                        instance.constructor,
+                        message.type,
+                    );
+
+                    if (!method) {
+                        throw new GroupCannotHandleEventTypeError(
+                            this.constructor.name,
+                            message.type,
+                        );
+                    }
+
+                    await instance[method](eventMessage);
                 },
             );
         }

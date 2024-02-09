@@ -65,14 +65,14 @@ export const getEventGroupTypes = (eventGroup: Type): Set<string> => {
 };
 
 export const getEventGroupHandler = (
-    eventGroup: any,
+    target: any,
     eventType: string,
 ): string => {
-    const metadata = Reflect.getMetadata(eventType, eventGroup) as string;
+    const metadata = Reflect.getMetadata(eventType, target) as string;
 
     if (!metadata) {
         throw new Error(
-            `Event group ${eventGroup} has no @EventGroupHandler for event type ${eventType}`,
+            `Event group ${target} has no @EventGroupHandler for event type ${eventType}`,
         );
     }
 

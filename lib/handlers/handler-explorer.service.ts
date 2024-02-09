@@ -12,7 +12,6 @@ import { COMMAND_HANDLER_TYPE } from './command/command-handler.decorator';
 import { QUERY_HANDLER_TYPE } from './query/query-handler.decorator';
 import { HandleProcess } from './process';
 import { PROCESS_METADATA } from './process/process.decorators';
-import { HandleEventGroup } from './event';
 import { EVENT_GROUP_HANDLER } from './event/group/event-group.decorator';
 import { HandleProjection } from './projection';
 
@@ -20,7 +19,7 @@ export type HandlerOptions = {
     commandHandlers: Type<HandleCommand>[];
     queryHandlers: Type<HandleQuery>[];
     eventHandlers: Type<HandleEvent>[];
-    eventGroupHandlers: Type<HandleEventGroup>[];
+    eventGroupHandlers: Type[];
     projectionHandlers: Type<HandleProjection>[];
     processHandlers: Type<HandleProcess>[];
 };
@@ -45,9 +44,8 @@ export class HandlerExplorer {
             this.filterProvider(instance, EVENT_HANDLER_TYPE),
         );
 
-        const eventGroupHandlers = this.flatMap<HandleEventGroup>(
-            modules,
-            (instance) => this.filterProvider(instance, EVENT_GROUP_HANDLER),
+        const eventGroupHandlers = this.flatMap(modules, (instance) =>
+            this.filterProvider(instance, EVENT_GROUP_HANDLER),
         );
 
         const projectionHandlers = this.flatMap<any>(modules, (instance) =>
