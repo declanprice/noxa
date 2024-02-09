@@ -1,6 +1,5 @@
 import {
     getProcessHandlerMetadata,
-    getProcessMetadata,
     ProcessMetadata,
 } from './process.decorators';
 import { ProcessSession, ProcessState } from './process.session';
@@ -36,13 +35,13 @@ export class HandleProcess {
             data: message.data,
         };
 
-        const handlerMetadata = getProcessHandlerMetadata(
+        const metadata = getProcessHandlerMetadata(
             instance.constructor,
             event.type,
         );
 
-        const associationKey = handlerMetadata.associationKey
-            ? handlerMetadata.associationKey
+        const associationKey = metadata.associationKey
+            ? metadata.associationKey
             : instanceMetadata.defaultAssociationKey;
 
         const associationId = event.data[associationKey];
@@ -64,7 +63,7 @@ export class HandleProcess {
                 },
             });
 
-            if (!processes.length && handlerMetadata.start === true) {
+            if (!processes.length && metadata.start === true) {
                 const state: ProcessState<any> = {
                     id: randomUUID(),
                     data: {} as any,
@@ -90,21 +89,22 @@ export class HandleProcess {
             }
 
             for (const session of sessions) {
-                await this.handleSession(instance, tx, session);
+                await this.handleSession(
+                    instance,
+                    metadata.method,
+                    tx,
+                    session,
+                );
             }
         });
     }
 
     private async handleSession(
         instance: any,
+        method: string,
         tx: DatabaseTransactionClient,
         session: ProcessSession<any, any>,
     ): Promise<void> {
-        const { method } = getProcessHandlerMetadata(
-            instance.constructor,
-            session.event.type,
-        );
-
         await instance[method](session);
 
         if (session.hasEnded) {
