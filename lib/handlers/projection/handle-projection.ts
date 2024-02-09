@@ -5,49 +5,54 @@ import {
     DatabaseTransactionClient,
 } from '../../store/database-client.service';
 import { getProjectionHandlerMethod } from './projection.decorators';
-import { EventMessage } from '../event';
+import { ProjectionSession } from './projection-session.type';
 
 export class HandleProjection {
     async handleEvents(
-        db: DatabaseClient | DatabaseTransactionClient,
+        db: DatabaseClient,
         projectionInstance: any,
         projectionType: string,
         events: events[],
     ) {
-        for (const event of events) {
-            const method = getProjectionHandlerMethod(
-                projectionInstance.constructor,
-                event.type,
-            );
-
-            if (!method) {
-                throw new ProjectionUnsupportedEventError(
-                    projectionType,
+        return db.$transaction(async (tx) => {
+            for (const event of events) {
+                const method = getProjectionHandlerMethod(
+                    projectionInstance.constructor,
                     event.type,
                 );
+
+                if (!method) {
+                    throw new ProjectionUnsupportedEventError(
+                        projectionType,
+                        event.type,
+                    );
+                }
+
+                const session: ProjectionSession<any> = {
+                    tx,
+                    event: {
+                        type: event.type,
+                        data: event.data,
+                    },
+                };
+
+                await projectionInstance[method](session);
             }
 
-            const eventMessage: EventMessage<any> = {
-                type: event.type,
-                data: event.data,
-            };
-
-            await projectionInstance[method](eventMessage);
-        }
-
-        return await this.updateTokenPosition(
-            db,
-            projectionType,
-            events[events.length - 1].id,
-        );
+            return await this.updateTokenPosition(
+                tx,
+                projectionType,
+                events[events.length - 1].id,
+            );
+        });
     }
 
     async updateTokenPosition(
-        db: DatabaseClient | DatabaseTransactionClient,
+        tx: DatabaseTransactionClient,
         projectionType: string,
         lastSequenceId: bigint,
     ) {
-        return db.tokens.update({
+        return tx.tokens.update({
             where: {
                 name: projectionType,
             },

@@ -37,5 +37,9 @@ export class PlaceOrderCommandHandler implements HandleCommand {
             await this.events.startStream(OrderStream, orderId, event, { tx });
             await this.outbox.event(event, { tx });
         });
+
+        return {
+            orderId,
+        };
     }
 }

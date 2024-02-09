@@ -5,17 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/command/accept-order-command.handler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/handlers/projection/projection-session.type.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/event/order-events.handler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/process/order.process.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bus/services/event-bus.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/event/group/event-group.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/group/event-group.decorator.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/event/group/handle-event-group.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event/event-store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/event-store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event/stream/stream.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/event/stream/stream.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/handle-process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/process/process.session.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/noxa.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/noxa.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/database-client.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/store/database-client.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/command/order.stream.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/order.stream.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/command/accept-order-command.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/accept-order-command.handler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/command/place-order-command.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/command/place-order-command.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/event/order-placed-event.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/event/order-placed-event.handler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/projection/order.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/projection/order.projection.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -264,7 +271,8 @@
       <workItem from="1707338887723" duration="1784000" />
       <workItem from="1707343062683" duration="7261000" />
       <workItem from="1707410745776" duration="106000" />
-      <workItem from="1707410857520" duration="566000" />
+      <workItem from="1707410857520" duration="656000" />
+      <workItem from="1707471353970" duration="5950000" />
     </task>
     <servers />
   </component>

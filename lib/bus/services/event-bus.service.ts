@@ -123,7 +123,12 @@ export class EventBus {
                 metadata.consumerType,
                 Array.from(eventTypes),
                 async (message: BusMessage) => {
-                    await instance.handle(message);
+                    const eventMessage: EventMessage<any> = {
+                        type: message.type,
+                        data: message.data,
+                    };
+
+                    await instance.handle(eventMessage);
                 },
             );
         }

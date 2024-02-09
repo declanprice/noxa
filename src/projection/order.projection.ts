@@ -1,18 +1,17 @@
 import { Projection, ProjectionHandler } from '../../lib/handlers/projection';
-import { EventMessage } from '../../lib';
-import { DatabaseClient } from '../../lib/store/database-client.service';
 import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
+import { ProjectionSession } from '../../lib/handlers/projection/projection-session.type';
 
 @Projection({
     fetchEventsSize: 100,
     batchEventsSize: 100,
 })
 export class OrderProjection {
-    constructor(private readonly db: DatabaseClient) {}
-
     @ProjectionHandler(OrderPlacedEvent)
-    async onCreated(event: EventMessage<OrderPlacedEvent>) {
-        return this.db.orders.create({
+    async onCreated(session: ProjectionSession<OrderPlacedEvent>) {
+        const { event, tx } = session;
+
+        return tx.orders.create({
             data: {
                 id: event.data.orderId,
                 items: event.data.items,
@@ -23,8 +22,10 @@ export class OrderProjection {
     }
 
     @ProjectionHandler(OrderAcceptedEvent)
-    async onAccepted(event: EventMessage<OrderAcceptedEvent>) {
-        return this.db.orders.update({
+    async onAccepted(session: ProjectionSession<OrderAcceptedEvent>) {
+        const { event, tx } = session;
+
+        return tx.orders.update({
             where: {
                 id: event.data.orderId,
             },

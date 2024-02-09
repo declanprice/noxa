@@ -6,7 +6,6 @@ import { OutboxPoller } from './outbox-poller';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
 import { BusRelay, InjectBusRelay } from '../bus';
 import { DatabaseClient } from '../store/database-client.service';
-import { HandleProjection } from '../handlers/projection/handle-projection';
 
 @Injectable()
 export class AsyncDaemon {
@@ -19,18 +18,20 @@ export class AsyncDaemon {
 
     logger = new Logger(AsyncDaemon.name);
 
+    client = new Client({
+        connectionString: process.env.DATABASE_URL,
+    });
+
     async start(projections: Type[]) {
-        // needs singular client to keep the connection open
+        // async-daemon needs its own isolated client without connection pooling so that the connection remains open
 
         this.logger.log('trying to obtain advisory lock.');
 
-        const client = new Client({
-            connectionString: process.env.DATABASE_URL,
-        });
+        await this.client.connect();
 
-        await client.connect();
-
-        const result = await client.query(`SELECT pg_try_advisory_lock(4545)`);
+        const result = await this.client.query(
+            `SELECT pg_try_advisory_lock(4545)`,
+        );
 
         if (
             result.rows.length &&

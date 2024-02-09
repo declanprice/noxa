@@ -16,7 +16,7 @@ export const EventGroup = (options?: EventGroupOptions): ClassDecorator => {
     };
 };
 
-export const EventGroupHandler = (type: string): MethodDecorator => {
+export const EventGroupHandler = (type: Type): MethodDecorator => {
     return (target: object, propertyKey: string | symbol) => {
         let eventTypes = Reflect.getMetadata(
             EVENT_GROUP_TYPES,
@@ -24,10 +24,10 @@ export const EventGroupHandler = (type: string): MethodDecorator => {
         ) as Set<string> | undefined;
 
         if (eventTypes) {
-            eventTypes.add(type);
+            eventTypes.add(type.name);
         } else {
             eventTypes = new Set();
-            eventTypes.add(type);
+            eventTypes.add(type.name);
         }
 
         Reflect.defineMetadata(
@@ -36,7 +36,7 @@ export const EventGroupHandler = (type: string): MethodDecorator => {
             target.constructor,
         );
 
-        Reflect.defineMetadata(type, propertyKey, target.constructor);
+        Reflect.defineMetadata(type.name, propertyKey, target.constructor);
     };
 };
 
@@ -68,16 +68,13 @@ export const getEventGroupHandler = (
     eventGroup: any,
     eventType: string,
 ): string => {
-    const handlerMetadata = Reflect.getMetadata(
-        eventType,
-        eventGroup,
-    ) as string;
+    const metadata = Reflect.getMetadata(eventType, eventGroup) as string;
 
-    if (!handlerMetadata) {
+    if (!metadata) {
         throw new Error(
             `Event group ${eventGroup} has no @EventGroupHandler for event type ${eventType}`,
         );
     }
 
-    return handlerMetadata;
+    return metadata;
 };

@@ -11,7 +11,7 @@ export type ProcessMetadata = {
 };
 
 export type ProcessHandlerMetadata = {
-    event: Type<EventMessage<any>>;
+    event: Type;
     method: string;
     associationKey?: string;
     start?: boolean;
@@ -24,7 +24,7 @@ export const Process = (options: ProcessMetadata): ClassDecorator => {
 };
 
 export const ProcessHandler = (
-    events: Type<EventMessage<any>> | Type<EventMessage<any>>[],
+    events: Type | Type[],
     options?: {
         associationKey?: string;
         start?: boolean;
@@ -33,7 +33,7 @@ export const ProcessHandler = (
     const { associationKey, start } = options || {};
 
     return (target: object, propertyKey: string | symbol) => {
-        const defineEventMetadata = (event: Type<EventMessage<any>>) => {
+        const defineEventMetadata = (event: Type) => {
             const eventType = event.name;
 
             let eventTypes = Reflect.getMetadata(

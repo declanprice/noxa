@@ -4,8 +4,8 @@ import { AppController } from './app.controller';
 import { PlaceOrderCommandHandler } from './command/place-order-command.handler';
 import { OrderProjection } from './projection/order.projection';
 import { GetOrdersQueryHandler } from './query/get-orders-query.handler';
-import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
 import { AcceptOrderCommandHandler } from './command/accept-order-command.handler';
+import { OrderProcess } from './process/order.process';
 
 @Module({
     imports: [
@@ -24,8 +24,10 @@ import { AcceptOrderCommandHandler } from './command/accept-order-command.handle
         PlaceOrderCommandHandler,
         AcceptOrderCommandHandler,
         OrderProjection,
+        // OrderEventsHandler,
+        // OrderPlacedEventHandler,
+        OrderProcess,
         GetOrdersQueryHandler,
-        OrderPlacedEventHandler,
     ],
 })
 export class AppModule {}

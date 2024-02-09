@@ -1,6 +1,7 @@
 import { getEventGroupHandler } from './event-group.decorator';
 import { GroupCannotHandleEventTypeError } from '../../../bus/services/errors/group-cannot-handle-event-type.error';
 import { EventMessage } from '../event.type';
+import { BusMessage } from '../../../bus';
 
 export abstract class HandleEventGroup {
     async handle(message: EventMessage<any>): Promise<void> {
@@ -13,11 +14,6 @@ export abstract class HandleEventGroup {
             );
         }
 
-        const eventMessage: EventMessage<any> = {
-            type: message.type,
-            data: message.data,
-        };
-
-        await (this as any)[handler](eventMessage);
+        await (this as any)[handler](message);
     }
 }
