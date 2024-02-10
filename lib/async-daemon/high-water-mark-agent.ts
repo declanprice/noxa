@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { DatabaseClient } from '../store/database-client.service';
 import { tokens } from '@prisma/client';
+import { v4 } from 'uuid';
+
 const HIGH_WATER_MARK_NAME = 'HighWaterMark';
 
 @Injectable()
@@ -14,7 +16,7 @@ export class HighWaterMarkAgent {
 
     private slowPollDurationInMs: number = 1000;
 
-    private fastPollDurationInMs: number = 500;
+    private fastPollDurationInMs: number = 250;
 
     private staleDurationInSeconds: number = 3;
 
@@ -23,7 +25,7 @@ export class HighWaterMarkAgent {
 
         this.highWaterMark = trackingToken.lastSequenceId;
 
-        this.logger.log(`HighWaterMark starting at ${this.highWaterMark}`);
+        this.logger.log(`starting at ${this.highWaterMark}`);
 
         await this.poll(trackingToken);
     }
@@ -47,7 +49,7 @@ export class HighWaterMarkAgent {
             this.highWaterMark = trackingToken.lastSequenceId;
 
             this.logger.log(
-                `no gaps detected, updating the HighWaterMark to the latest available sequenceId ${latestSequenceId}`,
+                `updating tracking token to ${trackingToken.lastSequenceId}`,
             );
 
             return setTimeout(() => {
@@ -56,12 +58,13 @@ export class HighWaterMarkAgent {
         }
 
         // new gap, re-poll in 1 seconds to check if the gap still exists.
+
         if (
-            dayjs(gap.timestamp).diff(new Date(), 'seconds') >=
+            dayjs(new Date()).diff(gap.timestamp, 'seconds') <=
             this.staleDurationInSeconds
         ) {
             this.logger.log(
-                `new gap detected, checking again in ${
+                `gap detected, checking again in ${
                     this.slowPollDurationInMs / 1000
                 } seconds.`,
             );
@@ -71,29 +74,26 @@ export class HighWaterMarkAgent {
             }, this.slowPollDurationInMs);
         }
 
-        // stale gap found, it has existed longer than the configured stale duration (default : 3 seconds), assume event has been rejected.
-        this.logger.log(
-            `stale gap detected between ${gap.lastSequenceId} and ${
-                gap.lastSequenceId + BigInt(2)
-            }, updating tracking token latestSequenceId to ${
-                gap.lastSequenceId + BigInt(1)
-            }`,
-        );
+        const gapId = gap.id + BigInt(1);
 
-        trackingToken = await this.updateTrackingToken(
-            gap.lastSequenceId + BigInt(1),
-        );
+        this.logger.log(`inserting tombstone event at ${Number(gapId)}`);
 
-        // the next poll iteration should find no gaps and update the tracking token.
+        await this.insertTombstoneEvent(gapId);
+
+        trackingToken = await this.updateTrackingToken(gapId);
+
         return setTimeout(() => {
             this.poll(trackingToken).then();
-        }, this.slowPollDurationInMs);
+        }, 0);
     }
 
-    async checkForGap(fromSequenceId: bigint): Promise<tokens | null> {
-        const result: tokens[] = await this.db.$queryRawUnsafe(`select id from (
+    async checkForGap(
+        fromSequenceId: bigint,
+    ): Promise<{ id: bigint; timestamp: string } | null> {
+        const result: any[] = await this.db.$queryRawUnsafe(`select * from (
            select
                id,
+               timestamp,
                lead(id)
                over (order by id) as no
                from events where id >= ${Number(fromSequenceId)}
@@ -130,10 +130,6 @@ export class HighWaterMarkAgent {
     }
 
     async updateTrackingToken(lastSequenceId: bigint): Promise<tokens> {
-        this.logger.log(
-            `HighWaterMark updating tracking token to ${lastSequenceId}`,
-        );
-
         return this.db.tokens.update({
             where: {
                 name: HIGH_WATER_MARK_NAME,
@@ -157,5 +153,32 @@ export class HighWaterMarkAgent {
         }
 
         return BigInt(-1);
+    }
+
+    async insertTombstoneEvent(gapId: bigint): Promise<void> {
+        const streamId = v4();
+
+        const now = new Date().toISOString();
+
+        await this.db.streams.create({
+            data: {
+                id: streamId,
+                isArchived: false,
+                type: 'TombstoneStream',
+                version: 0,
+                snapshot: {},
+                snapshotVersion: 0,
+                timestamp: now,
+                events: {
+                    create: {
+                        id: gapId,
+                        isArchived: false,
+                        timestamp: now,
+                        type: 'TombstoneEvent',
+                        data: {},
+                    },
+                },
+            },
+        });
     }
 }

@@ -7,60 +7,59 @@ import {
 import { getProjectionHandlerMethod } from './projection.decorators';
 import { ProjectionSession } from './projection-session.type';
 
-export class HandleProjection {
-    async handleEvents(
-        db: DatabaseClient,
-        projectionInstance: any,
-        projectionType: string,
-        events: events[],
-    ) {
-        return db.$transaction(async (tx) => {
-            for (const event of events) {
-                const method = getProjectionHandlerMethod(
-                    projectionInstance.constructor,
+export const handleProjection = async (
+    db: DatabaseClient,
+    projection: any,
+    events: events[],
+) => {
+    return db.$transaction(async (tx) => {
+        for (const event of events) {
+            const method = getProjectionHandlerMethod(
+                projection.constructor,
+                event.type,
+            );
+
+            if (!method) {
+                throw new ProjectionUnsupportedEventError(
+                    projection.constructor,
                     event.type,
                 );
-
-                if (!method) {
-                    throw new ProjectionUnsupportedEventError(
-                        projectionType,
-                        event.type,
-                    );
-                }
-
-                const session: ProjectionSession<any> = {
-                    tx,
-                    event: {
-                        type: event.type,
-                        data: event.data,
-                    },
-                };
-
-                await projectionInstance[method](session);
             }
 
-            return await this.updateTokenPosition(
+            const session: ProjectionSession<any> = {
                 tx,
-                projectionType,
-                events[events.length - 1].id,
-            );
-        });
-    }
+                event: {
+                    type: event.type,
+                    data: event.data,
+                },
+            };
 
-    async updateTokenPosition(
-        tx: DatabaseTransactionClient,
-        projectionType: string,
-        lastSequenceId: bigint,
-    ) {
-        return tx.tokens.update({
-            where: {
-                name: projectionType,
-            },
-            data: {
-                name: projectionType,
-                lastSequenceId,
-                timestamp: new Date().toISOString(),
-            },
-        });
-    }
-}
+            await projection[method](session);
+        }
+
+        return await updateTokenPosition(
+            tx,
+            projection,
+            events[events.length - 1].id,
+        );
+    });
+};
+
+const updateTokenPosition = async (
+    tx: DatabaseTransactionClient,
+    projection: any,
+    lastSequenceId: bigint,
+) => {
+    const name = projection.constructor.name;
+
+    return tx.tokens.update({
+        where: {
+            name,
+        },
+        data: {
+            name,
+            lastSequenceId,
+            timestamp: new Date().toISOString(),
+        },
+    });
+};

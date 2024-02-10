@@ -54,7 +54,7 @@ export class AsyncDaemon {
     async startPollers(projections: Type[]) {
         await this.highWaterMarkAgent.start();
 
-        new OutboxPoller(this.db, this.busRelay).start().then();
+        // new OutboxPoller(this.db, this.busRelay).start().then();
 
         projections.forEach((projection) => {
             new EventPoller(this.db, this.moduleRef, this.highWaterMarkAgent)

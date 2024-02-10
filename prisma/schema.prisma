@@ -4,22 +4,22 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url = "postgres://postgres:postgres@localhost:5432/postgres"
 }
 
 model streams {
-  id       String      @id @db.Uuid
-  type     String
-  version  Int         @default(0)
-  snapshot Json?
+  id         String      @id @db.Uuid
+  type       String
+  version    Int         @default(0)
+  snapshot   Json?
   snapshotVersion Int?
-  timestamp DateTime   @default(now())
-  isArchived Boolean    @default(false)
-  events    events[]
+  timestamp  DateTime    @default(now())
+  isArchived Boolean     @default(false)
+  events     events[]
 }
 
 model events {
-  id BigInt    @id @default(autoincrement())
+  id BigInt            @id @default(autoincrement())
   streamId   String    @db.Uuid
   version    Int       @default(0)
   data       Json
@@ -27,6 +27,8 @@ model events {
   timestamp  DateTime  @default(now())
   isArchived Boolean   @default(false)
   stream     streams   @relation(fields: [streamId], references: [id])
+
+  @@unique([streamId, version])
 }
 
 model outbox {
@@ -52,6 +54,8 @@ model processes {
   associations Json
   hasEnded Boolean
   timestamp DateTime
+
+  @@index([associations])
 }
 
 model orders {

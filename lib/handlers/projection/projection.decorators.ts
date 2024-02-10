@@ -5,8 +5,7 @@ export const PROJECTION_HANDLER_TYPES = 'PROJECTION_HANDLER_TYPES';
 export const PROJECTION_HANDLER_OPTIONS = 'PROJECTION_HANDLER_OPTIONS';
 
 export type ProjectionOptions = {
-    fetchEventsSize?: number;
-    batchEventsSize?: number;
+    batchSize?: number;
 };
 
 export const Projection = (options?: ProjectionOptions): ClassDecorator => {

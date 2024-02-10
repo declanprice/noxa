@@ -4,10 +4,11 @@ import { ModuleRef } from '@nestjs/core';
 import {
     getProjectionHandlerTypes,
     getProjectionOption,
+    ProjectionOptions,
 } from '../handlers/projection/projection.decorators';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
 import { DatabaseClient } from '../store/database-client.service';
-import { HandleProjection } from '../handlers/projection/handle-projection';
+import { handleProjection } from '../handlers/projection/handle-projection';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
@@ -21,17 +22,27 @@ export class EventPoller {
     ) {}
 
     async start(projectionType: Type) {
-        const options = getProjectionOption(projectionType);
+        const projection = this.moduleRef.get(projectionType, {
+            strict: false,
+        });
+
+        const projectionOptions = getProjectionOption(projectionType);
 
         const eventTypes = getProjectionHandlerTypes(projectionType);
 
         const token = await this.getProjectionToken(projectionType.name);
 
-        this.pollEvents(projectionType, Array.from(eventTypes), token).then();
+        this.pollEvents(
+            projection,
+            projectionOptions,
+            Array.from(eventTypes),
+            token,
+        ).then();
     }
 
     async pollEvents(
-        projectionType: Type,
+        projection: Type,
+        projectionOptions: ProjectionOptions,
         eventTypes: string[],
         token: tokens,
     ) {
@@ -50,12 +61,17 @@ export class EventPoller {
             orderBy: {
                 id: Prisma.SortOrder.asc,
             },
-            take: 25000,
+            take: projectionOptions.batchSize,
         });
 
         if (events.length === 0) {
             return setTimeout(() => {
-                this.pollEvents(projectionType, eventTypes, token).then();
+                this.pollEvents(
+                    projection,
+                    projectionOptions,
+                    eventTypes,
+                    token,
+                ).then();
             }, this.pollTimeInMs);
         }
 
@@ -63,30 +79,28 @@ export class EventPoller {
             `${events.length} events available, processing batch now.`,
         );
 
-        const handleProjection = new HandleProjection();
-
-        const projection = this.moduleRef.get(projectionType, {
-            strict: false,
-        });
-
         const beforeDate = Date.now();
 
-        const updatedToken = await handleProjection.handleEvents(
+        const updatedToken = await handleProjection(
             this.db,
             projection,
-            projectionType.name,
             events,
         );
 
         this.logger.log(
             `successfully processed batch of ${events.length} in ${Math.abs(
                 (beforeDate - Date.now()) / 1000,
-            )} seconds, checking for more events in 1 second.`,
+            )} seconds, checking for more now.`,
         );
 
         return setTimeout(() => {
-            this.pollEvents(projectionType, eventTypes, updatedToken).then();
-        }, this.pollTimeInMs);
+            this.pollEvents(
+                projection,
+                projectionOptions,
+                eventTypes,
+                updatedToken,
+            ).then();
+        }, 0);
     }
 
     async getProjectionToken(name: string): Promise<tokens> {

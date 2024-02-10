@@ -10,10 +10,8 @@ import { PROJECTION_HANDLER } from './projection/projection.decorators';
 import { EVENT_HANDLER_TYPE } from './event/event-handler.decorator';
 import { COMMAND_HANDLER_TYPE } from './command/command-handler.decorator';
 import { QUERY_HANDLER_TYPE } from './query/query-handler.decorator';
-import { HandleProcess } from './process';
 import { PROCESS_METADATA } from './process/process.decorators';
 import { EVENT_GROUP_HANDLER } from './event/group/event-group.decorator';
-import { HandleProjection } from './projection';
 
 export type HandlerOptions = {
     commandHandlers: Type<HandleCommand>[];

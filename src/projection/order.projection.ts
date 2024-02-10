@@ -3,8 +3,7 @@ import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 import { ProjectionSession } from '../../lib/handlers/projection/projection-session.type';
 
 @Projection({
-    fetchEventsSize: 100,
-    batchEventsSize: 100,
+    batchSize: 100,
 })
 export class OrderProjection {
     @ProjectionHandler(OrderPlacedEvent)
