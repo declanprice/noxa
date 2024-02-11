@@ -41,6 +41,7 @@
     "nestjs-pino": "^3.5.0",
     "pg": "^8.11.3",
     "pino-pretty": "^10.2.3",
+    "prettier": "^3.2.5",
     "prisma": "^5.9.1",
     "uuid": "^9.0.1"
   }

@@ -1,5 +1,5 @@
 import { Logger, Type } from '@nestjs/common';
-import { Prisma, tokens } from '@prisma/client';
+import { events, Prisma, tokens } from '@prisma/client';
 import { ModuleRef } from '@nestjs/core';
 import {
     getProjectionHandlerTypes,
@@ -18,7 +18,6 @@ export class EventPoller {
     constructor(
         private readonly db: DatabaseClient,
         private readonly moduleRef: ModuleRef,
-        private readonly highWaterMarkAgent: HighWaterMarkAgent,
     ) {}
 
     async start(projectionType: Type) {
@@ -30,13 +29,13 @@ export class EventPoller {
 
         const eventTypes = getProjectionHandlerTypes(projectionType);
 
-        const token = await this.getProjectionToken(projectionType.name);
+        const trackingToken = await this.getTrackingToken(projectionType.name);
 
         this.pollEvents(
             projection,
             projectionOptions,
             Array.from(eventTypes),
-            token,
+            trackingToken,
         ).then();
     }
 
@@ -44,33 +43,21 @@ export class EventPoller {
         projection: Type,
         projectionOptions: ProjectionOptions,
         eventTypes: string[],
-        token: tokens,
+        trackingToken: tokens,
     ) {
-        const events = await this.db.events.findMany({
-            where: {
-                type: {
-                    in: eventTypes,
-                },
-                id: {
-                    gt: Number(token.lastSequenceId).valueOf(),
-                    lte: Number(
-                        this.highWaterMarkAgent.highWaterMark,
-                    ).valueOf(),
-                },
-            },
-            orderBy: {
-                id: Prisma.SortOrder.asc,
-            },
-            take: projectionOptions.batchSize,
-        });
+        const events = await this.getEvents(trackingToken);
 
         if (events.length === 0) {
+            this.logger.log(
+                `no new events available, checking again in ${this.pollTimeInMs / 1000} seconds.`,
+            );
+
             return setTimeout(() => {
                 this.pollEvents(
                     projection,
                     projectionOptions,
                     eventTypes,
-                    token,
+                    trackingToken,
                 ).then();
             }, this.pollTimeInMs);
         }
@@ -81,7 +68,7 @@ export class EventPoller {
 
         const beforeDate = Date.now();
 
-        const updatedToken = await handleProjection(
+        const updatedTrackingToken = await handleProjection(
             this.db,
             projection,
             events,
@@ -98,12 +85,22 @@ export class EventPoller {
                 projection,
                 projectionOptions,
                 eventTypes,
-                updatedToken,
+                updatedTrackingToken,
             ).then();
         }, 0);
     }
 
-    async getProjectionToken(name: string): Promise<tokens> {
+    async getEvents(trackingToken: tokens): Promise<events[]> {
+        return this.db.$queryRawUnsafe(`select *
+            from events e
+            where (e."transactionId"::xid8, e.id) > ('${trackingToken.lastTransactionId}'::xid8, ${trackingToken.lastEventId})
+            and e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
+            order by e.id asc
+            limit 1000
+        `);
+    }
+
+    async getTrackingToken(name: string): Promise<tokens> {
         const token = await this.db.tokens.findUnique({
             where: {
                 name,
@@ -117,7 +114,8 @@ export class EventPoller {
         return this.db.tokens.create({
             data: {
                 name,
-                lastSequenceId: -1,
+                lastEventId: 0,
+                lastTransactionId: '0',
                 timestamp: new Date().toISOString(),
             },
         });

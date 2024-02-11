@@ -41,6 +41,7 @@ export const handleProjection = async (
             tx,
             projection,
             events[events.length - 1].id,
+            events[events.length - 1].transactionId,
         );
     });
 };
@@ -48,7 +49,8 @@ export const handleProjection = async (
 const updateTokenPosition = async (
     tx: DatabaseTransactionClient,
     projection: any,
-    lastSequenceId: bigint,
+    lastEventId: bigint,
+    lastTransactionId: string,
 ) => {
     const name = projection.constructor.name;
 
@@ -58,7 +60,8 @@ const updateTokenPosition = async (
         },
         data: {
             name,
-            lastSequenceId,
+            lastEventId,
+            lastTransactionId,
             timestamp: new Date().toISOString(),
         },
     });

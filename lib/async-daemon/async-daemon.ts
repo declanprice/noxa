@@ -19,7 +19,8 @@ export class AsyncDaemon {
     logger = new Logger(AsyncDaemon.name);
 
     client = new Client({
-        connectionString: process.env.DATABASE_URL,
+        connectionString:
+            'postgres://postgres:postgres@localhost:5432/postgres',
     });
 
     async start(projections: Type[]) {
@@ -52,14 +53,12 @@ export class AsyncDaemon {
     }
 
     async startPollers(projections: Type[]) {
-        await this.highWaterMarkAgent.start();
+        // await this.highWaterMarkAgent.start();
 
         // new OutboxPoller(this.db, this.busRelay).start().then();
 
         projections.forEach((projection) => {
-            new EventPoller(this.db, this.moduleRef, this.highWaterMarkAgent)
-                .start(projection)
-                .then();
+            new EventPoller(this.db, this.moduleRef).start(projection).then();
         });
     }
 }

@@ -25,7 +25,7 @@ import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
     providers: [
         PlaceOrderCommandHandler,
         AcceptOrderCommandHandler,
-        // OrderProjection,
+        OrderProjection,
         // OrderEventsHandler,
         // OrderPlacedEventHandler,
         OrderProcess,

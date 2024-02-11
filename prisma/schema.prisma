@@ -19,9 +19,10 @@ model streams {
 }
 
 model events {
-  id BigInt            @id @default(autoincrement())
-  streamId   String    @db.Uuid
-  version    Int       @default(0)
+  id BigInt               @id @default(autoincrement())
+  streamId      String    @db.Uuid
+  transactionId String    @default(dbgenerated("pg_current_xact_id()"))
+  version    Int          @default(0)
   data       Json
   type       String
   timestamp  DateTime  @default(now())
@@ -29,6 +30,8 @@ model events {
   stream     streams   @relation(fields: [streamId], references: [id])
 
   @@unique([streamId, version])
+
+  @@index([id, transactionId])
 }
 
 model outbox {
@@ -43,7 +46,8 @@ model outbox {
 
 model tokens {
   name String           @id
-  lastSequenceId BigInt @default(0)
+  lastEventId       BigInt  @default(0)
+  lastTransactionId String  @default("0")
   timestamp DateTime    @default(now())
 }
 
