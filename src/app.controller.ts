@@ -39,7 +39,7 @@ export class AppController {
 
     @Post('/create-events')
     async createEvents() {
-        for (let i = 0; i < 5000; i++) {
+        for (let i = 0; i < 1000; i++) {
             try {
                 await this.db.$transaction(async (tx) => {
                     const streamId = v4();

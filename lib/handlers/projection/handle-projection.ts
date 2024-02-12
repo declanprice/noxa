@@ -1,4 +1,4 @@
-import { events } from '@prisma/client';
+import { events, tokens } from '@prisma/client';
 import { ProjectionUnsupportedEventError } from '../../async-daemon/errors/projection-unsupported-event.error';
 import {
     DatabaseClient,
@@ -10,10 +10,15 @@ import { ProjectionSession } from './projection-session.type';
 export const handleProjection = async (
     db: DatabaseClient,
     projection: any,
+    trackingToken: tokens,
     events: events[],
 ) => {
     return db.$transaction(async (tx) => {
         for (const event of events) {
+            if (trackingToken.lastEventId > event.id) {
+                continue;
+            }
+
             const method = getProjectionHandlerMethod(
                 projection.constructor,
                 event.type,

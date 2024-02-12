@@ -71,6 +71,7 @@ export class EventPoller {
         const updatedTrackingToken = await handleProjection(
             this.db,
             projection,
+            trackingToken,
             events,
         );
 
@@ -87,17 +88,31 @@ export class EventPoller {
                 eventTypes,
                 updatedTrackingToken,
             ).then();
-        }, 0);
+        }, 100);
     }
 
     async getEvents(trackingToken: tokens): Promise<events[]> {
-        return this.db.$queryRawUnsafe(`select *
-            from events e
-            where (e."transactionId"::xid8, e.id) > ('${trackingToken.lastTransactionId}'::xid8, ${trackingToken.lastEventId})
-            and e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
-            order by e.id asc
-            limit 1000
+        return this.db.$queryRawUnsafe(`
+            SELECT * FROM events e WHERE
+            (
+              (e."transactionId"::xid8 = '${trackingToken.lastTransactionId}'::xid8 AND e.id > ${trackingToken.lastEventId})
+              OR
+              (e."transactionId"::xid8 > '${trackingToken.lastTransactionId}'::xid8)
+            )
+            AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
+            ORDER BY
+                e."transactionId",
+                e.id
+            LIMIT 100;
         `);
+
+        // return this.db.$queryRawUnsafe(`select *
+        //     from events e
+        //     where (e."transactionId"::xid8, e.id) > ('${trackingToken.lastTransactionId}'::xid8, ${trackingToken.lastEventId})
+        //     and e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
+        //     order by e."transactionId", e.id asc
+        //     limit 1000
+        // `);
     }
 
     async getTrackingToken(name: string): Promise<tokens> {
