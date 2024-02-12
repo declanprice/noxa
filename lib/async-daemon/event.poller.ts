@@ -6,13 +6,12 @@ import {
     getProjectionOption,
     ProjectionOptions,
 } from '../handlers/projection/projection.decorators';
-import { HighWaterMarkAgent } from './high-water-mark-agent';
 import { DatabaseClient } from '../store/database-client.service';
 import { handleProjection } from '../handlers/projection/handle-projection';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
-
+    counter = 0;
     pollTimeInMs = 500;
 
     constructor(
@@ -45,7 +44,10 @@ export class EventPoller {
         eventTypes: string[],
         trackingToken: tokens,
     ) {
-        const events = await this.getEvents(trackingToken);
+        this.counter++;
+        console.log(`POLLING - ${this.counter}`);
+
+        const events = await this.getEvents(eventTypes, trackingToken);
 
         if (events.length === 0) {
             this.logger.log(
@@ -91,20 +93,34 @@ export class EventPoller {
         }, 100);
     }
 
-    async getEvents(trackingToken: tokens): Promise<events[]> {
-        return this.db.$queryRawUnsafe(`
+    async getEvents(
+        eventTypes: string[],
+        trackingToken: tokens,
+    ): Promise<events[]> {
+        return this.db.$queryRaw(Prisma.sql`
             SELECT * FROM events e WHERE
-            (
-              (e."transactionId"::xid8 = '${trackingToken.lastTransactionId}'::xid8 AND e.id > ${trackingToken.lastEventId})
-              OR
-              (e."transactionId"::xid8 > '${trackingToken.lastTransactionId}'::xid8)
-            )
+            e.id > ${trackingToken.lastEventId}
             AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
+            AND e.type in (${Prisma.join(eventTypes)})
             ORDER BY
-                e."transactionId",
                 e.id
             LIMIT 100;
         `);
+
+        // return this.db.$queryRaw(Prisma.sql`
+        //     SELECT * FROM events e WHERE
+        //     (
+        //       (e."transactionId"::xid8 = ${trackingToken.lastTransactionId}::xid8 AND e.id > ${trackingToken.lastEventId})
+        //       OR
+        //       (e."transactionId"::xid8 > ${trackingToken.lastTransactionId}::xid8)
+        //     )
+        //     AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
+        //     AND e.type in (${Prisma.join(eventTypes)})
+        //     ORDER BY
+        //         e."transactionId",
+        //         e.id
+        //     LIMIT 100;
+        // `);
 
         // return this.db.$queryRawUnsafe(`select *
         //     from events e

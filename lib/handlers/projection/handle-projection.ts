@@ -15,8 +15,8 @@ export const handleProjection = async (
 ) => {
     return db.$transaction(async (tx) => {
         for (const event of events) {
-            if (trackingToken.lastEventId > event.id) {
-                continue;
+            if (trackingToken.lastEventId >= event.id) {
+                throw new Error('out of order events');
             }
 
             const method = getProjectionHandlerMethod(
