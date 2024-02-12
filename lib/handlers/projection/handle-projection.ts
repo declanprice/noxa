@@ -13,42 +13,41 @@ export const handleProjection = async (
     trackingToken: tokens,
     events: events[],
 ) => {
-    return db.$transaction(async (tx) => {
-        for (const event of events) {
-            if (trackingToken.lastEventId >= event.id) {
-                throw new Error('out of order events');
-            }
-
-            const method = getProjectionHandlerMethod(
-                projection.constructor,
-                event.type,
-            );
-
-            if (!method) {
-                throw new ProjectionUnsupportedEventError(
+    return db.$transaction(
+        async (tx) => {
+            for (const event of events) {
+                const method = getProjectionHandlerMethod(
                     projection.constructor,
                     event.type,
                 );
+
+                if (!method) {
+                    throw new ProjectionUnsupportedEventError(
+                        projection.constructor,
+                        event.type,
+                    );
+                }
+
+                const session: ProjectionSession<any> = {
+                    tx,
+                    event: {
+                        type: event.type,
+                        data: event.data,
+                    },
+                };
+
+                await projection[method](session);
             }
 
-            const session: ProjectionSession<any> = {
+            return await updateTokenPosition(
                 tx,
-                event: {
-                    type: event.type,
-                    data: event.data,
-                },
-            };
-
-            await projection[method](session);
-        }
-
-        return await updateTokenPosition(
-            tx,
-            projection,
-            events[events.length - 1].id,
-            events[events.length - 1].transactionId,
-        );
-    });
+                projection,
+                events[events.length - 1].id,
+                events[events.length - 1].transactionId,
+            );
+        },
+        { timeout: 25000 },
+    );
 };
 
 const updateTokenPosition = async (

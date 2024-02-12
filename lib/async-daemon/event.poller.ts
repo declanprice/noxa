@@ -70,7 +70,7 @@ export class EventPoller {
 
         const beforeDate = Date.now();
 
-        const updatedTrackingToken = await handleProjection(
+        let updatedTrackingToken = await handleProjection(
             this.db,
             projection,
             trackingToken,
@@ -99,36 +99,18 @@ export class EventPoller {
     ): Promise<events[]> {
         return this.db.$queryRaw(Prisma.sql`
             SELECT * FROM events e WHERE
-            e.id > ${trackingToken.lastEventId}
+            (
+              (e."transactionId"::xid8 = ${trackingToken.lastTransactionId}::xid8 AND e.id > ${trackingToken.lastEventId})
+              OR
+              (e."transactionId"::xid8 > ${trackingToken.lastTransactionId}::xid8)
+            )
             AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
             AND e.type in (${Prisma.join(eventTypes)})
             ORDER BY
-                e.id
+                e."transactionId" asc,
+                e.id asc
             LIMIT 100;
         `);
-
-        // return this.db.$queryRaw(Prisma.sql`
-        //     SELECT * FROM events e WHERE
-        //     (
-        //       (e."transactionId"::xid8 = ${trackingToken.lastTransactionId}::xid8 AND e.id > ${trackingToken.lastEventId})
-        //       OR
-        //       (e."transactionId"::xid8 > ${trackingToken.lastTransactionId}::xid8)
-        //     )
-        //     AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
-        //     AND e.type in (${Prisma.join(eventTypes)})
-        //     ORDER BY
-        //         e."transactionId",
-        //         e.id
-        //     LIMIT 100;
-        // `);
-
-        // return this.db.$queryRawUnsafe(`select *
-        //     from events e
-        //     where (e."transactionId"::xid8, e.id) > ('${trackingToken.lastTransactionId}'::xid8, ${trackingToken.lastEventId})
-        //     and e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
-        //     order by e."transactionId", e.id asc
-        //     limit 1000
-        // `);
     }
 
     async getTrackingToken(name: string): Promise<tokens> {
