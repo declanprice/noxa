@@ -1,12 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { BusRelay } from '../bus';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { outboxTable } from '../schema/schema';
-import { and, asc, eq, inArray, lte, sql } from 'drizzle-orm';
+import { DatabaseClient } from '../store/database-client.service';
+import { Prisma } from '@prisma/client';
 
 export class OutboxPoller {
     constructor(
-        private readonly db: NodePgDatabase<any>,
+        private readonly db: DatabaseClient,
         private busRelay: BusRelay,
     ) {}
 
@@ -15,55 +14,60 @@ export class OutboxPoller {
     pollTimeInMs = 500;
 
     async start(): Promise<any> {
-        const messages = await this.db
-            .select()
-            .from(outboxTable)
-            .where(
-                and(
-                    eq(outboxTable.published, false),
-                    lte(outboxTable.timestamp, sql`now()`),
-                ),
-            )
-            .orderBy(asc(outboxTable.timestamp));
+        const messages = await this.db.outbox.findMany({
+            where: {
+                published: false,
+                timestamp: {
+                    lte: new Date().toISOString(),
+                },
+            },
+            orderBy: {
+                timestamp: Prisma.SortOrder.asc,
+            },
+        });
 
         if (messages.length === 0) {
+            this.logger.log(
+                `no outbox messages found, checking for more in ${
+                    this.pollTimeInMs / 1000
+                } seconds.`,
+            );
+
             return setTimeout(() => {
                 this.start().then();
             }, this.pollTimeInMs);
         }
 
-        let messageIds: string[] = [];
-
         for (const message of messages) {
-            if (message.toBus === 'command') {
+            if (message.bus === 'command') {
                 await this.busRelay.sendCommand({
                     type: message.type,
-                    timestamp: message.timestamp,
+                    timestamp: message.timestamp.toISOString(),
                     data: message.data,
                 });
             }
 
-            if (message.toBus === 'event') {
+            if (message.bus === 'event') {
                 await this.busRelay.sendEvent({
                     type: message.type,
-                    timestamp: message.timestamp,
+                    timestamp: message.timestamp.toISOString(),
                     data: message.data,
                 });
             }
 
-            messageIds.push(message.id);
+            await this.db.outbox.update({
+                where: {
+                    id: message.id,
+                },
+                data: {
+                    published: true,
+                    publishedTimestamp: new Date().toISOString(),
+                },
+            });
         }
 
-        await this.db
-            .update(outboxTable)
-            .set({
-                published: true,
-                publishedTimestamp: sql`now()`,
-            })
-            .where(inArray(outboxTable.id, messageIds));
-
         this.logger.log(
-            `successfully published ${messages.length} messages, checking for more in 1 second.`,
+            `successfully published ${messages.length} outbox messages, checking for more now.`,
         );
 
         return setTimeout(() => {

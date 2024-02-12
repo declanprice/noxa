@@ -1,8 +1,7 @@
-import { Inject, Type } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 export type Config = {
   serviceName: string;
-  documents?: Type[];
   asyncDaemon: {
     enabled: boolean;
   };

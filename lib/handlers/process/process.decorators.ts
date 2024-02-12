@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { Event } from '../index';
+import { EventMessage } from '../index';
 
 export const PROCESS_METADATA = 'PROCESS_METADATA';
 export const PROCESS_EVENTS_METADATA = 'PROCESS_EVENTS_METADATA';
@@ -11,7 +11,7 @@ export type ProcessMetadata = {
 };
 
 export type ProcessHandlerMetadata = {
-    event: Type<Event>;
+    event: Type;
     method: string;
     associationKey?: string;
     start?: boolean;
@@ -24,7 +24,7 @@ export const Process = (options: ProcessMetadata): ClassDecorator => {
 };
 
 export const ProcessHandler = (
-    events: Type<Event> | Type<Event>[],
+    events: Type | Type[],
     options?: {
         associationKey?: string;
         start?: boolean;
@@ -33,7 +33,7 @@ export const ProcessHandler = (
     const { associationKey, start } = options || {};
 
     return (target: object, propertyKey: string | symbol) => {
-        const defineEventMetadata = (event: Type<Event>) => {
+        const defineEventMetadata = (event: Type) => {
             const eventType = event.name;
 
             let eventTypes = Reflect.getMetadata(

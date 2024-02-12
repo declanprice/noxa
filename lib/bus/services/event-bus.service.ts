@@ -1,10 +1,10 @@
 import { ModuleRef } from '@nestjs/core';
 import { Injectable, Logger, Type } from '@nestjs/common';
-import { HandleEvent, HandleProcess, HandleEventGroup } from '../../handlers';
+import { EventMessage, HandleEvent } from '../../handlers';
 import { BusRelay, InjectBusRelay } from '../bus-relay.type';
 import { Config, InjectConfig } from '../../config';
 import {
-    getEventHandler,
+    getEventHandlerType,
     getEventHandlerOptions,
 } from '../../handlers/event/event-handler.decorator';
 import { BusMessage } from '../bus-message.type';
@@ -13,16 +13,13 @@ import {
     getProcessMetadata,
 } from '../../handlers/process/process.decorators';
 import {
-    getEventGroupEventTypes,
+    getEventGroupTypes,
     getEventGroupOptions,
+    getEventGroupHandler,
 } from '../../handlers/event/group/event-group.decorator';
-import {
-    DataStore,
-    EventStore,
-    InjectDatabase,
-    OutboxStore,
-} from '../../store';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { HandleProcess } from '../../handlers/process';
+import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
+import { DatabaseClient } from '../../store/database-client.service';
 
 @Injectable({})
 export class EventBus {
@@ -34,11 +31,10 @@ export class EventBus {
         @InjectConfig()
         private readonly config: Config,
         private readonly moduleRef: ModuleRef,
-        @InjectDatabase()
-        private readonly db: NodePgDatabase<any>,
+        private readonly db: DatabaseClient,
     ) {}
 
-    async send(event: Event, options: { publishAt?: Date }): Promise<void> {
+    async send(event: any, options: { publishAt?: Date }): Promise<void> {
         const { publishAt } = options;
 
         await this.busRelay.sendEvent({
@@ -60,30 +56,27 @@ export class EventBus {
                 );
             }
 
-            const event = getEventHandler(handler);
+            const eventType = getEventHandlerType(handler);
             const options = getEventHandlerOptions(handler);
             const groupName = handler.name;
 
             await this.busRelay.registerEventHandler(
                 groupName,
                 options.consumerType,
-                event.name,
+                eventType,
                 async (message) => {
-                    await this.db.transaction(async (tx) => {
-                        await instance.handle(message, {
-                            dataStore: new DataStore(tx),
-                            eventStore: new EventStore(tx),
-                            outboxStore: new OutboxStore(tx),
-                        });
-                    });
+                    const eventMessage: EventMessage<any> = {
+                        type: message.type,
+                        data: message.data,
+                    };
+
+                    await instance.handle(eventMessage);
                 },
             );
         }
     }
 
-    async registerEventGroupHandlers(
-        eventGroupHandlers: Type<HandleEventGroup>[] = [],
-    ) {
+    async registerEventGroupHandlers(eventGroupHandlers: Type[] = []) {
         for (const handler of eventGroupHandlers) {
             const instance = this.moduleRef.get(handler, { strict: false });
 
@@ -94,7 +87,7 @@ export class EventBus {
             }
 
             const options = getEventGroupOptions(handler);
-            const eventTypes = getEventGroupEventTypes(handler);
+            const eventTypes = getEventGroupTypes(handler);
             const groupName = handler.name;
 
             await this.busRelay.registerEventGroupHandler(
@@ -102,14 +95,35 @@ export class EventBus {
                 options.consumerType,
                 Array.from(eventTypes),
                 async (message) => {
-                    await instance.handle(message);
+                    const eventMessage: EventMessage<any> = {
+                        type: message.type,
+                        data: message.data,
+                    };
+
+                    const method = getEventGroupHandler(
+                        instance.constructor,
+                        message.type,
+                    );
+
+                    if (!method) {
+                        throw new GroupCannotHandleEventTypeError(
+                            this.constructor.name,
+                            message.type,
+                        );
+                    }
+
+                    await instance[method](eventMessage);
                 },
             );
         }
     }
 
-    async registerProcessHandlers(processes: Type<HandleProcess>[] = []) {
+    async registerProcessHandlers(processes: Type[] = []) {
         for (const process of processes) {
+            const metadata = getProcessMetadata(process);
+            const eventTypes = getProcessEventsMetadata(process);
+            const groupName = process.name;
+
             const instance = this.moduleRef.get(process, { strict: false });
 
             if (!instance) {
@@ -118,16 +132,13 @@ export class EventBus {
                 );
             }
 
-            const metadata = getProcessMetadata(process);
-            const eventTypes = getProcessEventsMetadata(process);
-            const groupName = process.name;
-
             await this.busRelay.registerEventGroupHandler(
                 groupName,
                 metadata.consumerType,
                 Array.from(eventTypes),
                 async (message: BusMessage) => {
-                    await instance.handle(message);
+                    const handler = new HandleProcess(this.db);
+                    await handler.handle(instance, metadata, message);
                 },
             );
         }

@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { sql } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
-import { eventsTable, SelectToken, tokensTable } from '../schema/schema';
-import { InjectDatabase } from '../store';
 import * as dayjs from 'dayjs';
+import { DatabaseClient } from '../store/database-client.service';
+import { tokens } from '@prisma/client';
+import { v4 } from 'uuid';
 
 const HIGH_WATER_MARK_NAME = 'HighWaterMark';
 
@@ -12,13 +10,13 @@ const HIGH_WATER_MARK_NAME = 'HighWaterMark';
 export class HighWaterMarkAgent {
     logger = new Logger(HighWaterMarkAgent.name);
 
-    constructor(@InjectDatabase() private readonly db: NodePgDatabase<any>) {}
+    constructor(private readonly db: DatabaseClient) {}
 
-    public highWaterMark: number = 1;
+    public highWaterMark: bigint = BigInt(1);
 
     private slowPollDurationInMs: number = 1000;
 
-    private fastPollDurationInMs: number = 500;
+    private fastPollDurationInMs: number = 250;
 
     private staleDurationInSeconds: number = 3;
 
@@ -27,12 +25,12 @@ export class HighWaterMarkAgent {
 
         this.highWaterMark = trackingToken.lastSequenceId;
 
-        this.logger.log(`HighWaterMark starting at ${this.highWaterMark}`);
+        this.logger.log(`starting at ${this.highWaterMark}`);
 
         await this.poll(trackingToken);
     }
 
-    async poll(trackingToken: SelectToken) {
+    async poll(trackingToken: tokens) {
         const latestSequenceId = await this.getLatestSequenceId();
 
         // already update to date, just check again in 1 second.
@@ -51,7 +49,7 @@ export class HighWaterMarkAgent {
             this.highWaterMark = trackingToken.lastSequenceId;
 
             this.logger.log(
-                `no gaps detected, updating the HighWaterMark to the latest available sequenceId ${latestSequenceId}`,
+                `updating tracking token to ${trackingToken.lastSequenceId}`,
             );
 
             return setTimeout(() => {
@@ -60,12 +58,13 @@ export class HighWaterMarkAgent {
         }
 
         // new gap, re-poll in 1 seconds to check if the gap still exists.
+
         if (
-            dayjs(gap.timestamp).diff(new Date(), 'seconds') >=
+            dayjs(new Date()).diff(gap.timestamp, 'seconds') <=
             this.staleDurationInSeconds
         ) {
             this.logger.log(
-                `new gap detected, checking again in ${
+                `gap detected, checking again in ${
                     this.slowPollDurationInMs / 1000
                 } seconds.`,
             );
@@ -75,96 +74,111 @@ export class HighWaterMarkAgent {
             }, this.slowPollDurationInMs);
         }
 
-        // stale gap found, it has existed longer than the configured stale duration (default : 3 seconds), assume event has been rejected.
-        this.logger.log(
-            `stale gap detected between ${gap.sequenceId} and ${
-                gap.sequenceId + 2
-            }, updating tracking token latestSequenceId to ${
-                gap.sequenceId + 1
-            }`,
-        );
+        const gapId = gap.id + BigInt(1);
 
-        trackingToken = await this.updateTrackingToken(gap.sequenceId + 1);
+        this.logger.log(`inserting tombstone event at ${Number(gapId)}`);
 
-        // the next poll iteration should find no gaps and update the tracking token.
+        await this.insertTombstoneEvent(gapId);
+
+        trackingToken = await this.updateTrackingToken(gapId);
+
         return setTimeout(() => {
             this.poll(trackingToken).then();
-        }, this.slowPollDurationInMs);
+        }, 0);
     }
 
     async checkForGap(
-        fromSequenceId: number,
-    ): Promise<{ sequenceId: number; timestamp: string } | null> {
-        const result = await this.db.execute(sql`select sequence_id from (
+        fromSequenceId: bigint,
+    ): Promise<{ id: bigint; timestamp: string } | null> {
+        const result: any[] = await this.db.$queryRawUnsafe(`select * from (
            select
-               sequence_id,
-               lead(sequence_id)
-               over (order by sequence_id) as no
-               from events where sequence_id >= ${fromSequenceId}
+               id,
+               timestamp,
+               lead(id)
+               over (order by id) as no
+               from events where id >= ${Number(fromSequenceId)}
           ) ct
             where no is not null
-            and no - sequence_id > 1
+            and no - id > 1
             limit 1;`);
 
-        if (result.rowCount > 0) {
-            return {
-                sequenceId: result.rows[0]['sequence_id'] as number,
-                timestamp: result.rows[0]['timestamp'] as string,
-            };
+        if (result?.length > 0) {
+            return result[0];
         }
 
         return null;
     }
 
-    async getTrackingToken(): Promise<SelectToken> {
-        const tokens = await this.db
-            .select()
-            .from(tokensTable)
-            .where(eq(tokensTable.name, HIGH_WATER_MARK_NAME))
-            .limit(1);
+    async getTrackingToken(): Promise<tokens> {
+        const token = await this.db.tokens.findUnique({
+            where: {
+                name: HIGH_WATER_MARK_NAME,
+            },
+        });
 
-        if (tokens.length) {
-            return tokens[0];
+        if (token) {
+            return token;
         }
 
-        const newTokens = await this.db
-            .insert(tokensTable)
-            .values({
+        return this.db.tokens.create({
+            data: {
                 name: HIGH_WATER_MARK_NAME,
                 lastSequenceId: await this.getLatestSequenceId(),
                 timestamp: new Date().toISOString(),
-            })
-            .returning();
-
-        return newTokens[0];
+            },
+        });
     }
 
-    async updateTrackingToken(lastSequenceId: number): Promise<SelectToken> {
-        this.logger.log(
-            `HighWaterMark updating tracking token to ${lastSequenceId}`,
-        );
-
-        const updatedTokens = await this.db
-            .update(tokensTable)
-            .set({
+    async updateTrackingToken(lastSequenceId: bigint): Promise<tokens> {
+        return this.db.tokens.update({
+            where: {
+                name: HIGH_WATER_MARK_NAME,
+            },
+            data: {
                 lastSequenceId,
                 timestamp: new Date().toISOString(),
-            })
-            .where(eq(tokensTable.name, HIGH_WATER_MARK_NAME))
-            .returning();
-
-        return updatedTokens[0];
+            },
+        });
     }
 
-    async getLatestSequenceId(): Promise<number> {
-        const result = await this.db
-            .select({ max: sql`max(sequence_id)` })
-            .from(eventsTable);
+    async getLatestSequenceId(): Promise<bigint> {
+        const result = await this.db.events.aggregate({
+            _max: {
+                id: true,
+            },
+        });
 
-        if (result[0].max !== null) {
-            return result[0].max as number;
+        if (result._max.id !== null) {
+            return BigInt(result._max.id);
         }
 
-        return -1;
+        return BigInt(-1);
+    }
+
+    async insertTombstoneEvent(gapId: bigint): Promise<void> {
+        const streamId = v4();
+
+        const now = new Date().toISOString();
+
+        await this.db.streams.create({
+            data: {
+                id: streamId,
+                isArchived: false,
+                type: 'TombstoneStream',
+                version: 0,
+                snapshot: {},
+                snapshotVersion: 0,
+                timestamp: now,
+                events: {
+                    create: {
+                        id: gapId,
+                        isArchived: false,
+                        timestamp: now,
+                        type: 'TombstoneEvent',
+                        data: {},
+                    },
+                },
+            },
+        });
     }
 }

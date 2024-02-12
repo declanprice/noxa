@@ -1,45 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Command, Event } from '../../handlers';
-import { InjectDatabase } from '../database.token';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PgTransaction } from 'drizzle-orm/pg-core/session';
-import { outboxTable } from '../../schema/schema';
-import { eq } from 'drizzle-orm';
+import {
+    DatabaseClient,
+    DatabaseTransactionClient,
+} from '../database-client.service';
 
 @Injectable()
 export class OutboxStore {
-    constructor(
-        @InjectDatabase()
-        private readonly db: NodePgDatabase<any>,
-    ) {}
+    constructor(private db: DatabaseClient) {}
 
-    async publishMessage(
+    async message(
         bus: 'command' | 'event',
         type: string,
         data: any,
-        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<void> {
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.insert(outboxTable).values({
-            id: randomUUID(),
-            toBus: bus,
-            timestamp: timestamp
-                ? new Date(timestamp).toISOString()
-                : new Date().toISOString(),
-            data,
-            type,
-            published: false,
-            publishedTimestamp: null,
+        await db.outbox.create({
+            data: {
+                id: randomUUID(),
+                bus,
+                timestamp: timestamp
+                    ? new Date(timestamp).toISOString()
+                    : new Date().toISOString(),
+                data,
+                type,
+                published: false,
+            },
         });
     }
 
-    async publishCommand(
-        command: Command,
-        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
+    async command(
+        command: any,
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -47,24 +43,25 @@ export class OutboxStore {
 
         const db = tx ?? this.db;
 
-        await db.insert(outboxTable).values({
-            id: randomUUID(),
-            toBus: 'command',
-            timestamp: timestamp
-                ? new Date(timestamp).toISOString()
-                : new Date().toISOString(),
-            data: command,
-            type: command.constructor.name,
-            published: false,
-            publishedTimestamp: null,
+        await db.outbox.create({
+            data: {
+                id: randomUUID(),
+                bus: 'command',
+                timestamp: timestamp
+                    ? new Date(timestamp).toISOString()
+                    : new Date().toISOString(),
+                type: command.constructor.name,
+                data: command,
+                published: false,
+            },
         });
 
         return messageId;
     }
 
-    async publishEvent(
-        event: Event,
-        options?: { timestamp?: string; tx?: PgTransaction<any, any, any> },
+    async event(
+        event: any,
+        options?: { timestamp?: string; tx?: DatabaseTransactionClient },
     ): Promise<string> {
         const messageId = randomUUID();
 
@@ -72,29 +69,30 @@ export class OutboxStore {
 
         const db = tx ?? this.db;
 
-        await db.insert(outboxTable).values({
-            id: randomUUID(),
-            toBus: 'event',
-            timestamp: timestamp
-                ? new Date(timestamp).toISOString()
-                : new Date().toISOString(),
-            data: event,
-            type: event.constructor.name,
-            published: false,
-            publishedTimestamp: null,
+        await db.outbox.create({
+            data: {
+                id: randomUUID(),
+                bus: 'event',
+                timestamp: timestamp
+                    ? new Date(timestamp).toISOString()
+                    : new Date().toISOString(),
+                type: event.constructor.name,
+                data: event,
+                published: false,
+            },
         });
 
         return messageId;
     }
 
-    async unpublish(
+    async delete(
         messageId: string,
-        options?: { tx?: PgTransaction<any, any, any> },
+        options?: { tx?: DatabaseTransactionClient },
     ) {
         const { tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.delete(outboxTable).where(eq(outboxTable.id, messageId));
+        await db.outbox.delete({ where: { id: messageId } });
     }
 }

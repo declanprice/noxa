@@ -1,26 +1,14 @@
 import { Logger, Type } from '@nestjs/common';
+import { Prisma, tokens } from '@prisma/client';
 import { ModuleRef } from '@nestjs/core';
 import {
-    getProjectionEventTypesMetadata,
-    getProjectionOptionMetadata,
+    getProjectionHandlerTypes,
+    getProjectionOption,
+    ProjectionOptions,
 } from '../handlers/projection/projection.decorators';
-import { DataProjectionHandler } from '../handlers/projection/handlers/data-projection-handler';
-import { EventProjectionHandler } from '../handlers/projection/handlers/event-projection-handler';
-import { DataStore } from '../store';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import {
-    and,
-    asc,
-    between,
-    eq,
-    gt,
-    inArray,
-    InferSelectModel,
-    lt,
-    lte,
-} from 'drizzle-orm';
-import { eventsTable, tokensTable } from '../schema/schema';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
+import { DatabaseClient } from '../store/database-client.service';
+import { handleProjection } from '../handlers/projection/handle-projection';
 
 export class EventPoller {
     logger = new Logger(EventPoller.name);
@@ -28,56 +16,59 @@ export class EventPoller {
     pollTimeInMs = 500;
 
     constructor(
-        private readonly db: NodePgDatabase<any>,
+        private readonly db: DatabaseClient,
         private readonly moduleRef: ModuleRef,
-        private readonly dataStore: DataStore,
         private readonly highWaterMarkAgent: HighWaterMarkAgent,
     ) {}
 
-    async start(projectionType: Type, type: 'data' | 'event') {
-        const options = getProjectionOptionMetadata(projectionType);
+    async start(projectionType: Type) {
+        const projection = this.moduleRef.get(projectionType, {
+            strict: false,
+        });
 
-        const eventTypes = getProjectionEventTypesMetadata(projectionType);
+        const projectionOptions = getProjectionOption(projectionType);
+
+        const eventTypes = getProjectionHandlerTypes(projectionType);
 
         const token = await this.getProjectionToken(projectionType.name);
 
         this.pollEvents(
-            projectionType,
-            type,
+            projection,
+            projectionOptions,
             Array.from(eventTypes),
             token,
         ).then();
     }
 
     async pollEvents(
-        projectionType: Type,
-        handlerType: 'data' | 'event',
+        projection: Type,
+        projectionOptions: ProjectionOptions,
         eventTypes: string[],
-        token: InferSelectModel<typeof tokensTable>,
+        token: tokens,
     ) {
-        const events = await this.db
-            .select()
-            .from(eventsTable)
-            .where(
-                and(
-                    inArray(eventsTable.type, eventTypes),
-                    and(
-                        gt(eventsTable.sequenceId, token.lastSequenceId),
-                        lte(
-                            eventsTable.sequenceId,
-                            this.highWaterMarkAgent.highWaterMark,
-                        ),
-                    ),
-                ),
-            )
-            .orderBy(asc(eventsTable.sequenceId))
-            .limit(25000);
+        const events = await this.db.events.findMany({
+            where: {
+                type: {
+                    in: eventTypes,
+                },
+                id: {
+                    gt: Number(token.lastSequenceId).valueOf(),
+                    lte: Number(
+                        this.highWaterMarkAgent.highWaterMark,
+                    ).valueOf(),
+                },
+            },
+            orderBy: {
+                id: Prisma.SortOrder.asc,
+            },
+            take: projectionOptions.batchSize,
+        });
 
         if (events.length === 0) {
             return setTimeout(() => {
                 this.pollEvents(
-                    projectionType,
-                    handlerType,
+                    projection,
+                    projectionOptions,
                     eventTypes,
                     token,
                 ).then();
@@ -88,81 +79,47 @@ export class EventPoller {
             `${events.length} events available, processing batch now.`,
         );
 
-        let updatedToken: InferSelectModel<typeof tokensTable>;
-
         const beforeDate = Date.now();
 
-        const documentProjectionHandler = new DataProjectionHandler(
-            this.dataStore,
+        const updatedToken = await handleProjection(
+            this.db,
+            projection,
+            events,
         );
-
-        const eventProjectionHandler = new EventProjectionHandler();
-
-        const projection = this.moduleRef.get(projectionType, {
-            strict: false,
-        });
-
-        switch (handlerType) {
-            case 'data':
-                updatedToken = await documentProjectionHandler.handleEvents(
-                    this.db,
-                    projection,
-                    projectionType,
-                    events,
-                );
-                break;
-            case 'event':
-                updatedToken = await eventProjectionHandler.handleEvents(
-                    this.db,
-                    projection,
-                    projectionType,
-                    events,
-                );
-                break;
-            default:
-                this.logger.log(
-                    'Projection type must be either [Document] or [Generic]',
-                );
-                break;
-        }
 
         this.logger.log(
             `successfully processed batch of ${events.length} in ${Math.abs(
                 (beforeDate - Date.now()) / 1000,
-            )} seconds, checking for more events in 1 second.`,
+            )} seconds, checking for more now.`,
         );
 
         return setTimeout(() => {
             this.pollEvents(
-                projectionType,
-                handlerType,
+                projection,
+                projectionOptions,
                 eventTypes,
                 updatedToken,
             ).then();
-        }, this.pollTimeInMs);
+        }, 0);
     }
 
-    async getProjectionToken(
-        name: string,
-    ): Promise<InferSelectModel<typeof tokensTable>> {
-        const tokens = await this.db
-            .select()
-            .from(tokensTable)
-            .where(eq(tokensTable.name, name));
+    async getProjectionToken(name: string): Promise<tokens> {
+        const token = await this.db.tokens.findUnique({
+            where: {
+                name,
+            },
+        });
 
-        if (tokens.length) {
-            return tokens[0];
+        if (token) {
+            return token;
         }
 
-        const newTokens = await this.db
-            .insert(tokensTable)
-            .values({
+        return this.db.tokens.create({
+            data: {
                 name,
                 lastSequenceId: -1,
                 timestamp: new Date().toISOString(),
-            })
-            .returning();
-
-        return newTokens[0];
+            },
+        });
     }
 }

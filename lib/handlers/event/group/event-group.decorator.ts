@@ -1,86 +1,80 @@
 import { Type } from '@nestjs/common';
 
-import { Event } from '../event.type';
+import { EventMessage } from '../event.type';
 
-export const EVENT_GROUP_HANDLER_METADATA = 'EVENT_GROUP_HANDLER_METADATA';
+export const EVENT_GROUP_HANDLER = 'EVENT_GROUP_HANDLER';
 
-export const EVENT_GROUP_EVENT_TYPES_METADATA =
-  'EVENT_GROUP_EVENT_TYPES_METADATA';
+export const EVENT_GROUP_TYPES = 'EVENT_GROUP_TYPES';
 
 export type EventGroupOptions = {
-  consumerType?: any;
+    consumerType?: any;
 };
 
 export const EventGroup = (options?: EventGroupOptions): ClassDecorator => {
-  return (target: object) => {
-    Reflect.defineMetadata(EVENT_GROUP_HANDLER_METADATA, options, target);
-  };
+    return (target: object) => {
+        Reflect.defineMetadata(EVENT_GROUP_HANDLER, options, target);
+    };
 };
 
-export const EventGroupHandler = <E extends Event>(
-  event: Type<E>,
-): MethodDecorator => {
-  return (target: object, propertyKey: string | symbol) => {
-    const eventType = event.name;
+export const EventGroupHandler = (type: Type): MethodDecorator => {
+    return (target: object, propertyKey: string | symbol) => {
+        let eventTypes = Reflect.getMetadata(
+            EVENT_GROUP_TYPES,
+            target.constructor,
+        ) as Set<string> | undefined;
 
-    let eventTypes = Reflect.getMetadata(
-      EVENT_GROUP_EVENT_TYPES_METADATA,
-      target.constructor,
-    ) as Set<string> | undefined;
+        if (eventTypes) {
+            eventTypes.add(type.name);
+        } else {
+            eventTypes = new Set();
+            eventTypes.add(type.name);
+        }
 
-    if (eventTypes) {
-      eventTypes.add(eventType);
-    } else {
-      eventTypes = new Set();
-      eventTypes.add(eventType);
-    }
+        Reflect.defineMetadata(
+            EVENT_GROUP_TYPES,
+            eventTypes,
+            target.constructor,
+        );
 
-    Reflect.defineMetadata(
-      EVENT_GROUP_EVENT_TYPES_METADATA,
-      eventTypes,
-      target.constructor,
-    );
-
-    Reflect.defineMetadata(eventType, propertyKey, target.constructor);
-  };
+        Reflect.defineMetadata(type.name, propertyKey, target.constructor);
+    };
 };
 
 export const getEventGroupOptions = (eventGroup: Type) => {
-  const options = Reflect.getMetadata(EVENT_GROUP_HANDLER_METADATA, eventGroup);
+    const options = Reflect.getMetadata(EVENT_GROUP_HANDLER, eventGroup);
 
-  if (!options) {
-    throw new Error(`Event group ${eventGroup} has no @EventGroup decorator`);
-  }
+    if (!options) {
+        throw new Error(
+            `Event group ${eventGroup} has no @EventGroup decorator`,
+        );
+    }
 
-  return options;
+    return options;
 };
 
-export const getEventGroupEventTypes = (eventGroup: Type): Set<string> => {
-  const eventTypes = Reflect.getMetadata(
-    EVENT_GROUP_EVENT_TYPES_METADATA,
-    eventGroup,
-  );
+export const getEventGroupTypes = (eventGroup: Type): Set<string> => {
+    const eventTypes = Reflect.getMetadata(EVENT_GROUP_TYPES, eventGroup);
 
-  if (!eventTypes) {
-    throw new Error(
-      `Event group ${eventGroup} has no @EventGroupHandler decorators`,
-    );
-  }
+    if (!eventTypes) {
+        throw new Error(
+            `Event group ${eventGroup} has no @EventGroupHandler decorators`,
+        );
+    }
 
-  return eventTypes;
+    return eventTypes;
 };
 
-export const getEventGroupHandler = <E extends Event>(
-  eventGroup: any,
-  eventType: string,
+export const getEventGroupHandler = (
+    target: any,
+    eventType: string,
 ): string => {
-  const handlerMetadata = Reflect.getMetadata(eventType, eventGroup) as string;
+    const metadata = Reflect.getMetadata(eventType, target) as string;
 
-  if (!handlerMetadata) {
-    throw new Error(
-      `Event group ${eventGroup} has no @EventGroupHandler for event type ${eventType}`,
-    );
-  }
+    if (!metadata) {
+        throw new Error(
+            `Event group ${target} has no @EventGroupHandler for event type ${eventType}`,
+        );
+    }
 
-  return handlerMetadata;
+    return metadata;
 };

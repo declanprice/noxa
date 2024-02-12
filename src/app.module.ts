@@ -1,38 +1,18 @@
 import { Module } from '@nestjs/common';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from './schema';
 import { NoxaModule, RabbitmqBus } from '../lib';
-import { CustomersModule } from './customers/customers.module';
-import { ProductCatalogModule } from './product-catalog/product-catalog.module';
-import { InventoryModule } from './inventory/inventory.module';
-import { PaymentsModule } from './payments/payments.module';
-import { OrdersModule } from './orders/orders.module';
-import { ShipmentModule } from './shipping/shipment.module';
-import { GraphqlModule } from './graphql/graphql.module';
-import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
+import { PlaceOrderCommandHandler } from './command/place-order-command.handler';
+import { OrderProjection } from './projection/order.projection';
+import { GetOrdersQueryHandler } from './query/get-orders-query.handler';
+import { AcceptOrderCommandHandler } from './command/accept-order-command.handler';
+import { OrderProcess } from './process/order.process';
+import { OrderEventsHandler } from './event/order-events.handler';
+import { OrderPlacedEventHandler } from './event/order-placed-event.handler';
+
 @Module({
     imports: [
-        AuthModule.forRoot({
-            connectionURI: 'http://localhost:3567',
-            appInfo: {
-                appName: 'Shop',
-                apiDomain: 'http://localhost:3000',
-                websiteDomain: 'http://localhost:4200',
-                apiBasePath: '/auth',
-                websiteBasePath: '/auth',
-            },
-        }),
-        GraphqlModule,
         NoxaModule.forRoot({
             serviceName: 'Shop',
-            database: drizzle(
-                new Pool({
-                    connectionString:
-                        'postgres://postgres:postgres@localhost:5432',
-                }),
-                { schema },
-            ),
             bus: new RabbitmqBus({
                 connectionUrl: 'amqp://localhost:5672',
             }),
@@ -40,14 +20,16 @@ import { AuthModule } from './auth/auth.module';
                 enabled: true,
             },
         }),
-        CustomersModule,
-        InventoryModule,
-        PaymentsModule,
-        OrdersModule,
-        ShipmentModule,
-        ProductCatalogModule,
     ],
-    controllers: [],
-    providers: [],
+    controllers: [AppController],
+    providers: [
+        PlaceOrderCommandHandler,
+        AcceptOrderCommandHandler,
+        // OrderProjection,
+        // OrderEventsHandler,
+        // OrderPlacedEventHandler,
+        OrderProcess,
+        GetOrdersQueryHandler,
+    ],
 })
 export class AppModule {}

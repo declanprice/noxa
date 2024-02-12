@@ -1,6 +1,5 @@
-import { Event } from './event.type';
-import { DatabaseSession } from '../../store';
+import { EventMessage } from './event.type';
 
 export abstract class HandleEvent {
-    abstract handle(command: Event, session: DatabaseSession): Promise<void>;
+    abstract handle(command: EventMessage<any>): Promise<void>;
 }

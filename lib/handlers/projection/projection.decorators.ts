@@ -1,93 +1,57 @@
 import { Type } from '@nestjs/common';
-import { Event } from '../index';
-import { PgTable } from 'drizzle-orm/pg-core';
 
-export const EVENT_PROJECTION_HANDLER = 'EVENT_PROJECTION_HANDLER';
+export const PROJECTION_HANDLER = 'PROJECTION_HANDLER';
+export const PROJECTION_HANDLER_TYPES = 'PROJECTION_HANDLER_TYPES';
+export const PROJECTION_HANDLER_OPTIONS = 'PROJECTION_HANDLER_OPTIONS';
 
-export const DATA_PROJECTION_HANDLER = 'DATA_PROJECTION_HANDLER';
-
-export const PROJECTION_OPTIONS_METADATA = 'PROJECTION_OPTIONS_METADATA';
-
-export const PROJECTION_EVENT_TYPES = 'PROJECTION_EVENT_TYPES';
-
-export type ProjectionOptionsMetadata = {
-    fetchEventsSize?: number;
-    batchEventsSize?: number;
+export type ProjectionOptions = {
+    batchSize?: number;
 };
 
-export type ProjectionHandlerMetadata<E extends Event> = {
-    propertyKey: string;
-    id: (event: E) => string;
-};
-
-export const EventProjection = (
-    options?: ProjectionOptionsMetadata,
-): ClassDecorator => {
+export const Projection = (options?: ProjectionOptions): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(EVENT_PROJECTION_HANDLER, options, target);
+        Reflect.defineMetadata(PROJECTION_HANDLER, options, target);
         Reflect.defineMetadata(
-            PROJECTION_OPTIONS_METADATA,
+            PROJECTION_HANDLER_OPTIONS,
             options || { batchEventsSize: 100, fetchEventsSize: 1000 },
             target,
         );
     };
 };
 
-export const DataProjection = (
-    table: PgTable,
-    options?: ProjectionOptionsMetadata,
-): ClassDecorator => {
-    return (target: object) => {
-        Reflect.defineMetadata(DATA_PROJECTION_HANDLER, table, target);
-        Reflect.defineMetadata(
-            PROJECTION_OPTIONS_METADATA,
-            options || { batchEventsSize: 2500, fetchEventsSize: 2500 },
-            target,
-        );
-    };
-};
-
-export const ProjectionEventHandler = <E extends Event>(
-    event: Type<E>,
-    id: (e: E) => string,
-): MethodDecorator => {
+export const ProjectionHandler = (type: Type): MethodDecorator => {
     return (target: object, propertyKey: string | symbol) => {
-        const eventType = event.name;
-
         let eventTypes = Reflect.getMetadata(
-            PROJECTION_EVENT_TYPES,
+            PROJECTION_HANDLER_TYPES,
             target.constructor,
         ) as Set<string> | undefined;
 
         if (eventTypes) {
-            eventTypes.add(eventType);
+            eventTypes.add(type.name);
         } else {
             eventTypes = new Set();
-            eventTypes.add(eventType);
+            eventTypes.add(type.name);
         }
 
         Reflect.defineMetadata(
-            PROJECTION_EVENT_TYPES,
+            PROJECTION_HANDLER_TYPES,
             eventTypes,
             target.constructor,
         );
 
-        const handlerMetadata: ProjectionHandlerMetadata<E> = {
-            propertyKey: propertyKey as string,
-            id,
-        };
-
-        Reflect.defineMetadata(eventType, handlerMetadata, target.constructor);
+        Reflect.defineMetadata(
+            type.name,
+            propertyKey as string,
+            target.constructor,
+        );
     };
 };
 
-export const getProjectionOptionMetadata = (
-    projection: Type,
-): ProjectionOptionsMetadata => {
+export const getProjectionOption = (projection: Type): ProjectionOptions => {
     const options = Reflect.getMetadata(
-        PROJECTION_OPTIONS_METADATA,
+        PROJECTION_HANDLER_OPTIONS,
         projection,
-    ) as ProjectionOptionsMetadata;
+    ) as ProjectionOptions;
 
     if (!options) {
         throw new Error(`projection ${projection} has no option metadata.`);
@@ -96,20 +60,11 @@ export const getProjectionOptionMetadata = (
     return options;
 };
 
-export const getProjectionDataMetadata = (projection: Type): PgTable => {
-    const table = Reflect.getMetadata(DATA_PROJECTION_HANDLER, projection);
-
-    if (!table) {
-        throw new Error(`projection ${projection} has no data metadata.`);
-    }
-
-    return table;
-};
-
-export const getProjectionEventTypesMetadata = (
-    projection: Type,
-): Set<string> => {
-    const eventTypes = Reflect.getMetadata(PROJECTION_EVENT_TYPES, projection);
+export const getProjectionHandlerTypes = (projection: Type): Set<string> => {
+    const eventTypes = Reflect.getMetadata(
+        PROJECTION_HANDLER_TYPES,
+        projection,
+    );
 
     if (!eventTypes) {
         throw new Error(`projection ${projection} has no event type metadata.`);
@@ -118,20 +73,9 @@ export const getProjectionEventTypesMetadata = (
     return eventTypes;
 };
 
-export const getProjectionEventHandlerMetadata = <E extends Event>(
-    projection: Type,
+export const getProjectionHandlerMethod = (
+    target: any,
     eventType: string,
-): ProjectionHandlerMetadata<E> => {
-    const handlerMetadata = Reflect.getMetadata(
-        eventType,
-        projection,
-    ) as ProjectionHandlerMetadata<E>;
-
-    if (!handlerMetadata) {
-        throw new Error(
-            `projection ${projection} has no handler metadata for event type ${eventType}`,
-        );
-    }
-
-    return handlerMetadata;
+): string => {
+    return Reflect.getMetadata(eventType, target);
 };

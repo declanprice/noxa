@@ -1,7 +1,7 @@
 export { EventStore } from './event-store.service';
 
 export {
-  Stream,
-  StreamEventHandler,
-  STREAM_METADATA,
+    Stream,
+    StreamHandler,
+    STREAM_METADATA,
 } from './stream/stream.decorators';

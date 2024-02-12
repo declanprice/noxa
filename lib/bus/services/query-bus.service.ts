@@ -1,7 +1,7 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { HandleQuery, Query } from '../../handlers';
-import { QUERY_HANDLER_METADATA } from '../../handlers/query/query-handler.decorator';
+import { HandleQuery, QueryMessage } from '../../handlers';
+import { getQueryHandlerType } from '../../handlers/query/query-handler.decorator';
 
 @Injectable({})
 export class QueryBus {
@@ -11,16 +11,22 @@ export class QueryBus {
 
     constructor(private readonly moduleRef: ModuleRef) {}
 
-    invoke(query: Query) {
-        const queryName = this.getQueryName(query);
+    invoke(query: any) {
+        const type = query.constructor.name;
+        const data = query;
 
-        const handler = this.handlers.get(queryName);
+        const handler = this.handlers.get(type);
 
         if (!handler) {
-            throw new Error(`query handler not found for ${queryName}`);
+            throw new Error(`@QueryHandler not found for ${type}`);
         }
 
-        return handler.handle(query);
+        const queryMessage: QueryMessage<any> = {
+            type,
+            data,
+        };
+
+        return handler.handle(queryMessage);
     }
 
     async registerQueryHandlers(handlers: Type<HandleQuery>[] = []) {
@@ -30,10 +36,7 @@ export class QueryBus {
     }
 
     private async registerHandler(handler: Type<HandleQuery>) {
-        const query: Type<Query> = Reflect.getMetadata(
-            QUERY_HANDLER_METADATA,
-            handler,
-        );
+        const type = getQueryHandlerType(handler);
 
         const instance = this.moduleRef.get(handler, { strict: false });
 
@@ -43,12 +46,6 @@ export class QueryBus {
             );
         }
 
-        this.handlers.set(query.name, instance);
-    }
-
-    private getQueryName(query: Query): string {
-        const { constructor } = Object.getPrototypeOf(query);
-
-        return constructor.name as string;
+        this.handlers.set(type, instance);
     }
 }

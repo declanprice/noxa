@@ -1,45 +1,40 @@
-import { Event } from './event.type';
 import { HandleEvent } from './handle-event';
 import { Type } from '@nestjs/common';
 
-export const EVENT_HANDLER_METADATA = 'EVENT_HANDLER_METADATA';
+export const EVENT_HANDLER_TYPE = 'EVENT_HANDLER_METADATA';
 
-export const EVENT_HANDLER_OPTIONS_METADATA = 'EVENT_HANDLER_OPTIONS_METADATA';
+export const EVENT_HANDLER_OPTIONS = 'EVENT_HANDLER_OPTIONS_METADATA';
 
 export type EventHandlerOptions = {
     consumerType?: any;
 };
 
 export const EventHandler = (
-    event: Type<Event>,
-    options?: EventHandlerOptions,
+    event: Type,
+    options: EventHandlerOptions = {},
 ): ClassDecorator => {
     return (target: object) => {
-        Reflect.defineMetadata(EVENT_HANDLER_OPTIONS_METADATA, options, target);
-        Reflect.defineMetadata(EVENT_HANDLER_METADATA, event, target);
+        Reflect.defineMetadata(EVENT_HANDLER_OPTIONS, options, target);
+        Reflect.defineMetadata(EVENT_HANDLER_TYPE, event.name, target);
     };
 };
 
-export const getEventHandler = (handler: Type<HandleEvent>) => {
-    const event = Reflect.getMetadata(
-        EVENT_HANDLER_METADATA,
-        handler,
-    ) as Type<Event>;
+export const getEventHandlerType = (handler: Type<HandleEvent>): string => {
+    const eventType = Reflect.getMetadata(EVENT_HANDLER_TYPE, handler);
 
-    if (!event) {
+    if (!eventType) {
         throw new Error(
             `Event handler ${handler.name} has no @EventHandler decorator`,
         );
     }
 
-    return event;
+    return eventType;
 };
 
-export const getEventHandlerOptions = (handler: Type<HandleEvent>) => {
-    const options = Reflect.getMetadata(
-        EVENT_HANDLER_OPTIONS_METADATA,
-        handler,
-    );
+export const getEventHandlerOptions = (
+    handler: Type<HandleEvent>,
+): EventHandlerOptions => {
+    const options = Reflect.getMetadata(EVENT_HANDLER_OPTIONS, handler);
 
     if (!options) {
         throw new Error(
