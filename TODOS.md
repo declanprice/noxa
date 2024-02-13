@@ -1,3 +1,4 @@
+- smart polling system with postgres notify/listen.
 - finalize component api implementation across the board.
 - optimistic concurrency across the board.
 - ensure production ready async daemon.

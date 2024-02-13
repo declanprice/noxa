@@ -14,7 +14,7 @@ export class HighWaterMarkAgent {
 
     public highWaterMark: bigint = BigInt(1);
 
-    private slowPollDurationInMs: number = 1000;
+    private slowPollDurationInMs: number = 500;
 
     private fastPollDurationInMs: number = 250;
 
@@ -23,7 +23,7 @@ export class HighWaterMarkAgent {
     async start(): Promise<void> {
         const trackingToken = await this.getTrackingToken();
 
-        this.highWaterMark = trackingToken.lastSequenceId;
+        this.highWaterMark = trackingToken.lastEventId;
 
         this.logger.log(`starting at ${this.highWaterMark}`);
 
@@ -31,25 +31,25 @@ export class HighWaterMarkAgent {
     }
 
     async poll(trackingToken: tokens) {
-        const latestSequenceId = await this.getLatestSequenceId();
+        const latestSequenceId = await this.getLatestEventId();
 
-        // already update to date, just check again in 1 second.
+        // already update to date, just check again.
         if (this.highWaterMark === latestSequenceId) {
             return setTimeout(() => {
                 this.poll(trackingToken).then();
-            }, this.fastPollDurationInMs);
+            }, this.slowPollDurationInMs);
         }
 
-        const gap = await this.checkForGap(trackingToken.lastSequenceId);
+        const gap = await this.checkForGap(trackingToken.lastEventId);
 
         // no gap, simply update the tracking token and re-poll to check for changes.
         if (gap === null) {
             trackingToken = await this.updateTrackingToken(latestSequenceId);
 
-            this.highWaterMark = trackingToken.lastSequenceId;
+            this.highWaterMark = trackingToken.lastEventId;
 
             this.logger.log(
-                `updating tracking token to ${trackingToken.lastSequenceId}`,
+                `updating tracking token to ${trackingToken.lastEventId}`,
             );
 
             return setTimeout(() => {
@@ -84,7 +84,7 @@ export class HighWaterMarkAgent {
 
         return setTimeout(() => {
             this.poll(trackingToken).then();
-        }, 0);
+        }, this.slowPollDurationInMs);
     }
 
     async checkForGap(
@@ -123,25 +123,27 @@ export class HighWaterMarkAgent {
         return this.db.tokens.create({
             data: {
                 name: HIGH_WATER_MARK_NAME,
-                lastSequenceId: await this.getLatestSequenceId(),
+                lastTransactionId: '',
+                lastEventId: await this.getLatestEventId(),
                 timestamp: new Date().toISOString(),
             },
         });
     }
 
-    async updateTrackingToken(lastSequenceId: bigint): Promise<tokens> {
+    async updateTrackingToken(lastEventId: bigint): Promise<tokens> {
         return this.db.tokens.update({
             where: {
                 name: HIGH_WATER_MARK_NAME,
             },
             data: {
-                lastSequenceId,
+                lastTransactionId: '',
+                lastEventId,
                 timestamp: new Date().toISOString(),
             },
         });
     }
 
-    async getLatestSequenceId(): Promise<bigint> {
+    async getLatestEventId(): Promise<bigint> {
         const result = await this.db.events.aggregate({
             _max: {
                 id: true,
