@@ -12,7 +12,7 @@ import { EventMessage } from '../event';
 import { randomUUID } from 'crypto';
 import { BusMessage } from '../../bus';
 
-const handleProcess = (
+export const handleProcess = async (
     db: DatabaseClient,
     instance: any,
     instanceMetadata: ProcessMetadata,
@@ -45,12 +45,12 @@ const handleProcess = (
     const associationId = event.data[associationKey];
 
     if (!associationId) {
-        return this.logger.log(
+        return logger.log(
             `(${instance.constructor.name}) - associationKey ${associationKey} not found in message data, skipping message.`,
         );
     }
 
-    await this.db.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
         const sessions: ProcessSession<any, any>[] = [];
 
         const processes = await tx.processes.findMany({

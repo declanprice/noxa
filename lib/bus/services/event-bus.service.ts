@@ -17,9 +17,9 @@ import {
     getEventGroupOptions,
     getEventGroupHandler,
 } from '../../handlers/event/group/event-group.decorator';
-import { HandleProcess } from '../../handlers/process';
 import { GroupCannotHandleEventTypeError } from './errors/group-cannot-handle-event-type.error';
 import { DatabaseClient } from '../../store/database-client.service';
+import { handleProcess } from '../../handlers/process';
 
 @Injectable({})
 export class EventBus {
