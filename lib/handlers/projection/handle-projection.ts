@@ -1,4 +1,4 @@
-import { events } from '@prisma/client';
+import { events, tokens } from '@prisma/client';
 import { ProjectionUnsupportedEventError } from './errors/projection-unsupported-event.error';
 import {
     DatabaseClient,

@@ -1,8 +1,4 @@
-import {
-    HandleProcess,
-    Process,
-    ProcessHandler,
-} from '../../lib/handlers/process';
+import { Process, ProcessHandler } from '../../lib/handlers/process';
 import { RabbitmqEventConsumerType } from '../../lib';
 import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 import { ProcessSession } from '../../lib/handlers/process/process.session';

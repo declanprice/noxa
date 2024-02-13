@@ -2,7 +2,6 @@ import { Type } from '@nestjs/common';
 
 export const PROJECTION_HANDLER = 'PROJECTION_HANDLER';
 export const PROJECTION_HANDLER_TYPES = 'PROJECTION_HANDLER_TYPES';
-export const PROJECTION_HANDLER_OPTIONS = 'PROJECTION_HANDLER_OPTIONS';
 
 export type ProjectionOptions = {
     batchSize?: number;
@@ -11,11 +10,6 @@ export type ProjectionOptions = {
 export const Projection = (options?: ProjectionOptions): ClassDecorator => {
     return (target: object) => {
         Reflect.defineMetadata(PROJECTION_HANDLER, options, target);
-        Reflect.defineMetadata(
-            PROJECTION_HANDLER_OPTIONS,
-            options || { batchEventsSize: 100, fetchEventsSize: 1000 },
-            target,
-        );
     };
 };
 
@@ -47,11 +41,8 @@ export const ProjectionHandler = (type: Type): MethodDecorator => {
     };
 };
 
-export const getProjectionOption = (projection: Type): ProjectionOptions => {
-    const options = Reflect.getMetadata(
-        PROJECTION_HANDLER_OPTIONS,
-        projection,
-    ) as ProjectionOptions;
+export const getProjectionOptions = (projection: Type): ProjectionOptions => {
+    const options = Reflect.getMetadata(PROJECTION_HANDLER, projection);
 
     if (!options) {
         throw new Error(`projection ${projection} has no option metadata.`);

@@ -5,16 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/bus/sqs/sns-sqs-bus-consumer-type.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/bus/sqs/sns-sqs-bus.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/errors/projection-unsupported-event.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/errors/projection-unsupported-event.error.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection-session.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection-session.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/event/stream/stream-row.type.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/store/outbox/outbox-message/stored-outbox-message.type.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/process/order.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/process/order.process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/projection/order.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/projection/order.projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/query/get-orders-query.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/query/get-orders-query.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,8 +56,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "transactional-polling",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/lib/async-daemon",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/src/projection",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -61,7 +65,7 @@
     "nodejs.jest.jest_package": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/jest",
     "nodejs_package_manager_path": "npm",
     "prettier.import.notification.dismissed": "true",
-    "prettierjs.PrettierConfiguration.Package": "/home/declan/.nvm/versions/node/v20.6.1/lib/node_modules/prettier",
+    "prettierjs.PrettierConfiguration.Package": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/prettier",
     "settings.editor.selected.configurable": "settings.javascript.prettier",
     "ts.external.directory.path": "/home/declan/Desktop/github/@declanprice/noxa/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
@@ -69,11 +73,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/projection" />
+      <recent name="$PROJECT_DIR$/lib/handlers/projection" />
       <recent name="$PROJECT_DIR$/lib/async-daemon" />
       <recent name="$PROJECT_DIR$/tests/e2e" />
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/app/src/app/auth" />
-      <recent name="$PROJECT_DIR$/app/src/app/graphql" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/handlers/projection" />

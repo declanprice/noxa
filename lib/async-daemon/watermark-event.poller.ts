@@ -1,14 +1,15 @@
 import { Logger, Type } from '@nestjs/common';
 import { events, Prisma, tokens } from '@prisma/client';
 import { ModuleRef } from '@nestjs/core';
-import {
-    getProjectionHandlerTypes,
-    getProjectionOption,
-    ProjectionOptions,
-} from '../handlers/projection/projection.decorators';
+
 import { DatabaseClient } from '../store/database-client.service';
 import { handleProjection } from '../handlers/projection/handle-projection';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
+import {
+    getProjectionHandlerTypes,
+    getProjectionOptions,
+    ProjectionOptions,
+} from '../handlers/projection/projection.decorators';
 
 export class WatermarkEventPoller {
     logger: Logger;
@@ -21,23 +22,21 @@ export class WatermarkEventPoller {
         private readonly db: DatabaseClient,
         private readonly moduleRef: ModuleRef,
         private readonly waterMarkAgent: HighWaterMarkAgent,
-        private readonly projectionType: Type,
+        private readonly projection: Type,
     ) {
-        this.logger = new Logger(projectionType.name);
+        this.logger = new Logger(projection.name);
     }
 
     async start() {
-        const projection = this.moduleRef.get(this.projectionType, {
+        const projection = this.moduleRef.get(this.projection, {
             strict: false,
         });
 
-        const projectionOptions = getProjectionOption(this.projectionType);
+        const projectionOptions = getProjectionOptions(this.projection);
 
-        const eventTypes = getProjectionHandlerTypes(this.projectionType);
+        const eventTypes = getProjectionHandlerTypes(this.projection);
 
-        const trackingToken = await this.getTrackingToken(
-            this.projectionType.name,
-        );
+        const trackingToken = await this.getTrackingToken(this.projection.name);
 
         this.pollEvents(
             projection,
@@ -55,8 +54,8 @@ export class WatermarkEventPoller {
     ) {
         const events = await this.getEvents(
             projectionOptions?.batchSize || 100,
-            eventTypes,
             this.waterMarkAgent.highWaterMark,
+            eventTypes,
             trackingToken,
         );
 
@@ -105,8 +104,8 @@ export class WatermarkEventPoller {
 
     async getEvents(
         batchSize: number,
-        eventTypes: string[],
         watermark: bigint,
+        eventTypes: string[],
         trackingToken: tokens,
     ): Promise<events[]> {
         return this.db.events.findMany({

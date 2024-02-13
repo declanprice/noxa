@@ -3,7 +3,7 @@ import { events, Prisma, tokens } from '@prisma/client';
 import { ModuleRef } from '@nestjs/core';
 import {
     getProjectionHandlerTypes,
-    getProjectionOption,
+    getProjectionOptions,
     ProjectionOptions,
 } from '../handlers/projection/projection.decorators';
 import { DatabaseClient } from '../store/database-client.service';
@@ -29,7 +29,7 @@ export class TransactionalEventPoller {
             strict: false,
         });
 
-        const projectionOptions = getProjectionOption(this.projectionType);
+        const projectionOptions = getProjectionOptions(this.projectionType);
 
         const eventTypes = getProjectionHandlerTypes(this.projectionType);
 

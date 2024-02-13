@@ -1,13 +1,16 @@
 import { Projection, ProjectionHandler } from '../../lib/handlers/projection';
 import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 import { ProjectionSession } from '../../lib/handlers/projection/projection-session.type';
+import { DatabaseClient } from '../../lib/store/database-client.service';
 
 @Projection({
-    batchSize: 100,
+    batchSize: 2500,
 })
 export class OrderProjection {
+    constructor(private readonly db: DatabaseClient) {}
+
     @ProjectionHandler(OrderPlacedEvent)
-    async onCreated(session: ProjectionSession<OrderPlacedEvent>) {
+    onCreated(session: ProjectionSession<OrderPlacedEvent>) {
         const { event, tx } = session;
 
         return tx.orders.create({
@@ -21,7 +24,7 @@ export class OrderProjection {
     }
 
     @ProjectionHandler(OrderAcceptedEvent)
-    async onAccepted(session: ProjectionSession<OrderAcceptedEvent>) {
+    onAccepted(session: ProjectionSession<OrderAcceptedEvent>) {
         const { event, tx } = session;
 
         return tx.orders.update({
