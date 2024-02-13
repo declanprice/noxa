@@ -1,11 +1,12 @@
 import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Client } from 'pg';
-import { EventPoller } from './event.poller';
+import { TransactionalEventPoller } from './transactional-event.poller';
 import { OutboxPoller } from './outbox-poller';
 import { HighWaterMarkAgent } from './high-water-mark-agent';
 import { BusRelay, InjectBusRelay } from '../bus';
 import { DatabaseClient } from '../store/database-client.service';
+import { WatermarkEventPoller } from './watermark-event.poller';
 
 @Injectable()
 export class AsyncDaemon {
@@ -13,7 +14,7 @@ export class AsyncDaemon {
         private readonly db: DatabaseClient,
         @InjectBusRelay() private readonly busRelay: BusRelay,
         private readonly moduleRef: ModuleRef,
-        private readonly highWaterMarkAgent: HighWaterMarkAgent,
+        private readonly waterMarkAgent: HighWaterMarkAgent,
     ) {}
 
     logger = new Logger(AsyncDaemon.name);
@@ -53,12 +54,22 @@ export class AsyncDaemon {
     }
 
     async startPollers(projections: Type[]) {
-        // await this.highWaterMarkAgent.start();
+        await this.waterMarkAgent.start();
 
-        // new OutboxPoller(this.db, this.busRelay).start().then();
+        new OutboxPoller(this.db, this.busRelay).start().then();
 
         projections.forEach((projection) => {
-            new EventPoller(this.db, this.moduleRef).start(projection).then();
+            new WatermarkEventPoller(
+                this.db,
+                this.moduleRef,
+                this.waterMarkAgent,
+                projection,
+            )
+                .start()
+                .then();
+            // new TransactionalEventPoller(this.db, this.moduleRef, projection)
+            //     .start()
+            //     .then();
         });
     }
 }

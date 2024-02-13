@@ -8,27 +8,36 @@ import {
 } from '../handlers/projection/projection.decorators';
 import { DatabaseClient } from '../store/database-client.service';
 import { handleProjection } from '../handlers/projection/handle-projection';
+import { HighWaterMarkAgent } from './high-water-mark-agent';
 
-export class EventPoller {
-    logger = new Logger(EventPoller.name);
-    counter = 0;
-    pollTimeInMs = 500;
+export class WatermarkEventPoller {
+    logger: Logger;
+
+    slowPollTimeInMs = 500;
+
+    fastPollTimeInMs = 250;
 
     constructor(
         private readonly db: DatabaseClient,
         private readonly moduleRef: ModuleRef,
-    ) {}
+        private readonly waterMarkAgent: HighWaterMarkAgent,
+        private readonly projectionType: Type,
+    ) {
+        this.logger = new Logger(projectionType.name);
+    }
 
-    async start(projectionType: Type) {
-        const projection = this.moduleRef.get(projectionType, {
+    async start() {
+        const projection = this.moduleRef.get(this.projectionType, {
             strict: false,
         });
 
-        const projectionOptions = getProjectionOption(projectionType);
+        const projectionOptions = getProjectionOption(this.projectionType);
 
-        const eventTypes = getProjectionHandlerTypes(projectionType);
+        const eventTypes = getProjectionHandlerTypes(this.projectionType);
 
-        const trackingToken = await this.getTrackingToken(projectionType.name);
+        const trackingToken = await this.getTrackingToken(
+            this.projectionType.name,
+        );
 
         this.pollEvents(
             projection,
@@ -44,14 +53,16 @@ export class EventPoller {
         eventTypes: string[],
         trackingToken: tokens,
     ) {
-        this.counter++;
-        console.log(`POLLING - ${this.counter}`);
-
-        const events = await this.getEvents(eventTypes, trackingToken);
+        const events = await this.getEvents(
+            projectionOptions?.batchSize || 100,
+            eventTypes,
+            this.waterMarkAgent.highWaterMark,
+            trackingToken,
+        );
 
         if (events.length === 0) {
             this.logger.log(
-                `no new events available, checking again in ${this.pollTimeInMs / 1000} seconds.`,
+                `no new events available, checking again in ${this.slowPollTimeInMs / 1000} seconds.`,
             );
 
             return setTimeout(() => {
@@ -61,7 +72,7 @@ export class EventPoller {
                     eventTypes,
                     trackingToken,
                 ).then();
-            }, this.pollTimeInMs);
+            }, this.slowPollTimeInMs);
         }
 
         this.logger.log(
@@ -73,7 +84,6 @@ export class EventPoller {
         let updatedTrackingToken = await handleProjection(
             this.db,
             projection,
-            trackingToken,
             events,
         );
 
@@ -90,27 +100,30 @@ export class EventPoller {
                 eventTypes,
                 updatedTrackingToken,
             ).then();
-        }, 100);
+        }, this.fastPollTimeInMs);
     }
 
     async getEvents(
+        batchSize: number,
         eventTypes: string[],
+        watermark: bigint,
         trackingToken: tokens,
     ): Promise<events[]> {
-        return this.db.$queryRaw(Prisma.sql`
-            SELECT * FROM events e WHERE
-            (
-              (e."transactionId"::xid8 = ${trackingToken.lastTransactionId}::xid8 AND e.id > ${trackingToken.lastEventId})
-              OR
-              (e."transactionId"::xid8 > ${trackingToken.lastTransactionId}::xid8)
-            )
-            AND e."transactionId"::xid8 < pg_snapshot_xmin(pg_current_snapshot())
-            AND e.type in (${Prisma.join(eventTypes)})
-            ORDER BY
-                e."transactionId" asc,
-                e.id asc
-            LIMIT 100;
-        `);
+        return this.db.events.findMany({
+            where: {
+                id: {
+                    gt: trackingToken.lastEventId,
+                    lte: watermark,
+                },
+                type: {
+                    in: eventTypes,
+                },
+            },
+            orderBy: {
+                id: Prisma.SortOrder.asc,
+            },
+            take: batchSize,
+        });
     }
 
     async getTrackingToken(name: string): Promise<tokens> {

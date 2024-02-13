@@ -11,7 +11,9 @@ export class OutboxPoller {
 
     logger = new Logger(OutboxPoller.name);
 
-    pollTimeInMs = 500;
+    slowPollTimeInMs = 500;
+
+    fastPollTimeInMs = 250;
 
     async start(): Promise<any> {
         const messages = await this.db.outbox.findMany({
@@ -29,13 +31,13 @@ export class OutboxPoller {
         if (messages.length === 0) {
             this.logger.log(
                 `no outbox messages found, checking for more in ${
-                    this.pollTimeInMs / 1000
+                    this.slowPollTimeInMs / 1000
                 } seconds.`,
             );
 
             return setTimeout(() => {
                 this.start().then();
-            }, this.pollTimeInMs);
+            }, this.slowPollTimeInMs);
         }
 
         for (const message of messages) {
@@ -72,6 +74,6 @@ export class OutboxPoller {
 
         return setTimeout(() => {
             this.start().then();
-        }, 0);
+        }, this.fastPollTimeInMs);
     }
 }

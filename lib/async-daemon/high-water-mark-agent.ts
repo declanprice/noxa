@@ -14,7 +14,7 @@ export class HighWaterMarkAgent {
 
     public highWaterMark: bigint = BigInt(1);
 
-    private slowPollDurationInMs: number = 1000;
+    private slowPollDurationInMs: number = 500;
 
     private fastPollDurationInMs: number = 250;
 
@@ -33,11 +33,11 @@ export class HighWaterMarkAgent {
     async poll(trackingToken: tokens) {
         const latestSequenceId = await this.getLatestEventId();
 
-        // already update to date, just check again in 1 second.
+        // already update to date, just check again.
         if (this.highWaterMark === latestSequenceId) {
             return setTimeout(() => {
                 this.poll(trackingToken).then();
-            }, this.fastPollDurationInMs);
+            }, this.slowPollDurationInMs);
         }
 
         const gap = await this.checkForGap(trackingToken.lastEventId);
@@ -84,7 +84,7 @@ export class HighWaterMarkAgent {
 
         return setTimeout(() => {
             this.poll(trackingToken).then();
-        }, 0);
+        }, this.slowPollDurationInMs);
     }
 
     async checkForGap(

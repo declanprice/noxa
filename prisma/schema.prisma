@@ -31,7 +31,7 @@ model events {
 
   @@unique([streamId, version])
 
-  @@index([id, transactionId])
+  @@index([type, id, transactionId])
 }
 
 model outbox {

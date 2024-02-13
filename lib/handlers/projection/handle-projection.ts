@@ -1,5 +1,5 @@
-import { events, tokens } from '@prisma/client';
-import { ProjectionUnsupportedEventError } from '../../async-daemon/errors/projection-unsupported-event.error';
+import { events } from '@prisma/client';
+import { ProjectionUnsupportedEventError } from './errors/projection-unsupported-event.error';
 import {
     DatabaseClient,
     DatabaseTransactionClient,
@@ -10,7 +10,6 @@ import { ProjectionSession } from './projection-session.type';
 export const handleProjection = async (
     db: DatabaseClient,
     projection: any,
-    trackingToken: tokens,
     events: events[],
 ) => {
     return db.$transaction(

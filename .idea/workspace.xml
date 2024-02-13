@@ -5,10 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/async-daemon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/errors/projection-unsupported-event.error.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/errors/projection-unsupported-event.error.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/high-water-mark-agent.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/outbox-poller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +53,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "transactional-polling",
-    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/tests/e2e",
+    "last_opened_file_path": "/home/declan/Desktop/github/@declanprice/noxa/lib/async-daemon",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -63,11 +69,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/async-daemon" />
       <recent name="$PROJECT_DIR$/tests/e2e" />
       <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/app/src/app/auth" />
       <recent name="$PROJECT_DIR$/app/src/app/graphql" />
-      <recent name="$PROJECT_DIR$/src/graphql/resolvers" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/handlers/projection" />

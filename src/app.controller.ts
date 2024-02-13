@@ -39,7 +39,7 @@ export class AppController {
 
     @Post('/create-events')
     async createEvents() {
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 2500; i++) {
             try {
                 await this.db.$transaction(async (tx) => {
                     const streamId = v4();
@@ -68,6 +68,28 @@ export class AppController {
                 console.log(error);
             }
         }
+    }
+
+    @Post('/create-events2')
+    async createEvents2() {
+        await this.db.$transaction(async (tx) => {
+            const streamId = v4();
+
+            await this.eventStore.startStream(
+                OrderStream,
+                streamId,
+                new OrderPlacedEvent(streamId, [], '1'),
+                {
+                    tx,
+                },
+            );
+
+            await new Promise((res: any) => {
+                setTimeout(() => {
+                    res();
+                }, 2500);
+            });
+        });
     }
 
     @Post('/cleardb')
