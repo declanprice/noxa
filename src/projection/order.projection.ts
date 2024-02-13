@@ -1,14 +1,11 @@
 import { Projection, ProjectionHandler } from '../../lib/handlers/projection';
 import { OrderAcceptedEvent, OrderPlacedEvent } from '../command/order.stream';
 import { ProjectionSession } from '../../lib/handlers/projection/projection-session.type';
-import { DatabaseClient } from '../../lib/store/database-client.service';
 
 @Projection({
-    batchSize: 2500,
+    batchSize: 250,
 })
 export class OrderProjection {
-    constructor(private readonly db: DatabaseClient) {}
-
     @ProjectionHandler(OrderPlacedEvent)
     onCreated(session: ProjectionSession<OrderPlacedEvent>) {
         const { event, tx } = session;

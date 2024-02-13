@@ -5,20 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84f23550-4dda-4705-8858-77d3df23ecbc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/bus/sqs/sns-sqs-bus-consumer-type.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/bus/sqs/sns-sqs-bus.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODOS.md" beforeDir="false" afterPath="$PROJECT_DIR$/TODOS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/transactional-event.poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/async-daemon/watermark-event.poller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/handle-projection.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection-session.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection-session.type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/handlers/projection/projection.decorators.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/event/stream/stream-row.type.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/store/outbox/outbox-message/stored-outbox-message.type.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/process/order.process.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/process/order.process.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/projection/order.projection.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/projection/order.projection.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/query/get-orders-query.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/query/get-orders-query.handler.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

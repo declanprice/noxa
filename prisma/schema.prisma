@@ -68,3 +68,17 @@ model orders {
   items Json
   status String
 }
+
+model orders2 {
+  id String @id
+  customerId String
+  items Json
+  status String
+}
+
+model orders3 {
+  id String @id
+  customerId String
+  items Json
+  status String
+}
