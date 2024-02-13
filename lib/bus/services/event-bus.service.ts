@@ -137,8 +137,7 @@ export class EventBus {
                 metadata.consumerType,
                 Array.from(eventTypes),
                 async (message: BusMessage) => {
-                    const handler = new HandleProcess(this.db);
-                    await handler.handle(instance, metadata, message);
+                    await handleProcess(this.db, instance, metadata, message);
                 },
             );
         }
