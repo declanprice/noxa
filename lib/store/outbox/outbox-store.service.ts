@@ -14,12 +14,12 @@ export class OutboxStore {
         type: string,
         data: any,
         options?: { timestamp?: string; tx?: DatabaseTransactionClient },
-    ): Promise<void> {
+    ) {
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.outbox.create({
+        return db.outbox.create({
             data: {
                 id: randomUUID(),
                 bus,
@@ -36,16 +36,16 @@ export class OutboxStore {
     async command(
         command: any,
         options?: { timestamp?: string; tx?: DatabaseTransactionClient },
-    ): Promise<string> {
+    ) {
         const messageId = randomUUID();
 
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.outbox.create({
+        return db.outbox.create({
             data: {
-                id: randomUUID(),
+                id: messageId,
                 bus: 'command',
                 timestamp: timestamp
                     ? new Date(timestamp).toISOString()
@@ -55,23 +55,21 @@ export class OutboxStore {
                 published: false,
             },
         });
-
-        return messageId;
     }
 
     async event(
         event: any,
         options?: { timestamp?: string; tx?: DatabaseTransactionClient },
-    ): Promise<string> {
+    ) {
         const messageId = randomUUID();
 
         const { timestamp, tx } = options || {};
 
         const db = tx ?? this.db;
 
-        await db.outbox.create({
+        return db.outbox.create({
             data: {
-                id: randomUUID(),
+                id: messageId,
                 bus: 'event',
                 timestamp: timestamp
                     ? new Date(timestamp).toISOString()
@@ -81,8 +79,6 @@ export class OutboxStore {
                 published: false,
             },
         });
-
-        return messageId;
     }
 
     async delete(
@@ -93,6 +89,6 @@ export class OutboxStore {
 
         const db = tx ?? this.db;
 
-        await db.outbox.delete({ where: { id: messageId } });
+        return db.outbox.delete({ where: { id: messageId } });
     }
 }

@@ -25,7 +25,7 @@ export class EventStore {
 
         const now = new Date().toISOString();
 
-        await db.streams.create({
+        return db.streams.create({
             data: {
                 id: streamId,
                 type: steam.name,
@@ -106,7 +106,7 @@ export class EventStore {
         streamId: string,
         event: any,
         options?: { tx?: DatabaseTransactionClient },
-    ): Promise<void> {
+    ) {
         const { tx } = options || {};
 
         const db = tx ?? this.db;
@@ -126,7 +126,7 @@ export class EventStore {
 
         const newVersion = Number(streamRow.version) + 1;
 
-        await db.streams.update({
+        return db.streams.update({
             where: {
                 id: streamId,
             },
