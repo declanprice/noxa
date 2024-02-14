@@ -9,5 +9,5 @@ export { HandleQuery } from './query/handle-query';
 export { QueryHandler } from './query/query-handler.decorator';
 
 export * from './event';
-// export * from './projection';
-// export * from './process';
+export * from './projection';
+export * from './process';

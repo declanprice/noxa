@@ -1,7 +1,7 @@
 {
   "name": "@declanprice/noxa",
-  "version": "0.0.3",
-  "description": "",
+  "version": "0.0.4",
+  "description": "nestjs toolkit for building event driven, event sourced (optional), cqrs services.",
   "main": "dist/lib/index.js",
   "scripts": {
     "build": "rm -rf dist && tsc",
