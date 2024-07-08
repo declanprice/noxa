@@ -1,3 +1,1 @@
-Noxa is a work in progress and is mostly untested.
-
-Documentation coming soon.
+Noxa is an untested concept and should not be used in production.
